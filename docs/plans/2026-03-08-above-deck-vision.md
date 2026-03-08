@@ -374,21 +374,59 @@ These sailors:
 - Check-in schedule — set regular check-in times, alert if missed
 - Passage plan filed with shore contact — auto-shared with emergency info
 
-### Feature Group 9: Advanced Features (Future)
+### Feature Group 9: Admin & Operations
 
-**9.1 Community Content**
+> *The tools you need to run the platform, moderate content, manage users, and understand usage.*
+
+**9.1 Admin Dashboard**
+- User management: view, search, suspend, delete accounts
+- Role management: assign moderators, community contributors, beta testers
+- User activity overview and flagged accounts
+- System health: API usage, database size, active connections
+
+**9.2 Content Moderation**
+- Review queue for community-submitted POIs, reviews, photos, research posts
+- Flagged content from user reports
+- Moderation actions: approve, reject, edit, hide, warn user
+- Auto-moderation rules (spam detection, profanity filter)
+- Moderation log for accountability
+
+**9.3 CMS (Content Management)**
+- Create and edit blog posts, knowledge base articles, changelog entries
+- MDX editor with preview (or integration with external MDX authoring)
+- Draft/publish/schedule workflow
+- Media library for images and video embeds
+- Template management for boat models and equipment specs (add/edit/review community submissions)
+
+**9.4 Analytics**
+- Usage tracking: active users, sessions, feature adoption, retention
+- Content analytics: most-read articles, popular research threads, POI views
+- Tool analytics: calculator usage, routes planned, passages tracked
+- Community health: new signups, forum activity, contributions, churn
+- Privacy-respecting: no third-party trackers, self-hosted analytics (Plausible or Umami)
+- Dashboard with key metrics and trends
+
+**9.5 Newsletter Management**
+- Subscriber management and list health
+- Compose and schedule weekly digest
+- Open/click tracking (privacy-respecting)
+- Automated content curation from recent posts/activity
+
+### Feature Group 10: Advanced Features (Future)
+
+**10.1 Community Content**
 - Community-shared voyages and itineraries (Komoot Collections)
 - "Where sailors actually go" heatmap from logged tracks
 - Passage difficulty rating system
 - Passage composition breakdown (open water / coastal / channel / harbour approach)
 
-**9.2 Advanced Planning**
+**10.2 Advanced Planning**
 - Weather routing with boat polars (isochrone method)
 - Passage notes (auto-generated waypoint guidance)
 - Provisioning planner
 - Watch schedule generator
 
-**9.3 Hazard Data**
+**10.3 Hazard Data**
 - Orca interaction zones (Iberian Peninsula)
 - Shark incident heat maps
 - Piracy advisory zones
@@ -396,7 +434,7 @@ These sailors:
 - Shipping lanes / Traffic Separation Schemes
 - Depth warnings based on vessel draft
 
-**9.4 SignalK Integration**
+**10.4 SignalK Integration**
 - Live boat instrument data (instruments, tank levels, engine hours)
 - Auto-update engine hours in equipment registry
 - Feed real data into resource tracking underway
@@ -457,6 +495,8 @@ These sailors:
 - **0.3** Supabase setup: project, database, Google Auth
 - **0.4** CI/CD: GitHub Actions → Netlify deploy
 - **0.5** Design system: colour palette, typography, component tokens in Mantine theme
+- **0.6** Analytics setup: self-hosted privacy-respecting analytics (Plausible or Umami)
+- **0.7** Admin foundation: protected admin routes, role-based access
 
 ### Phase 1: Content Platform & Community
 > *Launch the site. Start building audience and community before any app features exist. This IS the first product.*
@@ -471,6 +511,9 @@ These sailors:
 - **1.8** Knowledge base: curated how-to guides (MDX), searchable, categorized
 - **1.9** Research board: community-driven investigations, card-based with status (draft/in-progress/complete), voting, filtering
 - **1.10** Video tutorial framework: embedded YouTube in knowledge base articles
+- **1.11** CMS: admin interface for creating/editing blog posts, knowledge base articles, changelog entries
+- **1.12** Newsletter management: subscriber signup, compose/schedule weekly digest
+- **1.13** Content moderation: review queue for community forum posts and research submissions
 
 ### Phase 2: Standalone Tools
 > *Ship useful tools that work without the full platform. SEO acquisition + early user value.*
@@ -545,7 +588,18 @@ These sailors:
 - **8.6** AIS overlay with profile linking
 - **8.7** Crewing (crew-wanted/available matching)
 
-### Phase 9: Live Passage Experience
+### Phase 9: Admin & Moderation Expansion
+> *Scale the operational tools as community grows.*
+
+- **9.1** User management dashboard (search, view, suspend, delete)
+- **9.2** Role management (moderators, community contributors, beta testers)
+- **9.3** POI moderation queue (review community-submitted locations, photos, reviews)
+- **9.4** Equipment template moderation (review community-submitted boat models and specs)
+- **9.5** Auto-moderation rules (spam, profanity, flagging)
+- **9.6** Moderation log and audit trail
+- **9.7** Analytics dashboard: usage metrics, content performance, community health
+
+### Phase 10: Live Passage Experience
 > *From planning tool to underway companion.*
 
 - **9.1** GPS tracking and position logging
@@ -558,61 +612,65 @@ These sailors:
 - **9.8** Live resource tracking (fuel, water, battery remaining)
 - **9.9** Safety features (MOB button, emergency alerts, check-in schedule)
 
-### Phase 10: AI Agent
+### Phase 11: AI Agent
 > *The intelligent assistant.*
 
-- **10.1** Claude API integration
-- **10.2** Boat/crew/preference context passing
-- **10.3** Natural language passage planning
-- **10.4** Weather-aware suggestions
-- **10.5** POI recommendations
-- **10.6** Conversational route modification
+- **11.1** Claude API integration
+- **11.2** Boat/crew/preference context passing
+- **11.3** Natural language passage planning
+- **11.4** Weather-aware suggestions
+- **11.5** POI recommendations
+- **11.6** Conversational route modification
 
-### Phase 11: Advanced Features
+### Phase 12: Advanced Features
 > *Polish and extend.*
 
-- **11.1** Community-shared voyages
-- **11.2** Heatmap of sailing tracks
-- **11.3** Hazard data overlays
-- **11.4** Weather routing with polars
-- **11.5** SignalK integration
-- **11.6** Passage difficulty ratings
-- **11.7** In-app contextual help system
-- **11.8** Live weather recalculation underway
+- **12.1** Community-shared voyages
+- **12.2** Heatmap of sailing tracks
+- **12.3** Hazard data overlays
+- **12.4** Weather routing with polars
+- **12.5** SignalK integration
+- **12.6** Passage difficulty ratings
+- **12.7** In-app contextual help system
+- **12.8** Live weather recalculation underway
 
 ---
 
 ## Phase Dependencies
 
 ```
-Phase 0 (Foundation)
+Phase 0 (Foundation — includes analytics + admin foundation)
   │
-  ├── Phase 1 (Content Platform) ──── first thing to ship, builds audience
+  ├── Phase 1 (Content Platform + CMS + Newsletter) ──── first to ship
   │     └── grows continuously alongside all other phases
   │
   ├── Phase 2 (Standalone Tools) ──── no dependencies on navigation
   │
   ├── Phase 7 (Profiles) ──────────── needs auth from Phase 0
   │
-  └── Phase 3 (Navigation)
-        ├── Phase 4 (Weather & Tides)
-        │     └── Phase 6 (Resources) ← also needs Phase 2 (equipment)
-        ├── Phase 5 (POIs)
-        │     └── also needs Phase 7 (Profiles) for community contributions
-        ├── Phase 8 (Social) ← needs Phase 7 (Profiles)
-        └── Phase 9 (Live Passage) ← needs Phase 3 (navigation) + Phase 8 (social/groups)
-              └── Phase 10 (AI Agent) ← benefits from all prior phases
+  ├── Phase 3 (Navigation)
+  │     ├── Phase 4 (Weather & Tides)
+  │     │     └── Phase 6 (Resources) ← also needs Phase 2 (equipment)
+  │     ├── Phase 5 (POIs)
+  │     │     └── also needs Phase 7 (Profiles) for community contributions
+  │     ├── Phase 8 (Social) ← needs Phase 7 (Profiles)
+  │     └── Phase 10 (Live Passage) ← needs Phase 3 + Phase 8
+  │           └── Phase 11 (AI Agent) ← benefits from all prior phases
+  │
+  └── Phase 9 (Admin Expansion) ← grows as community grows, after Phase 7 + Phase 8
 
-Phase 11 (Advanced) ← builds on everything
+Phase 12 (Advanced) ← builds on everything
 ```
 
 **Key insights:**
-- Phase 1 (content platform) ships first and grows continuously — it's not a one-time deliverable
+- Phase 0 includes analytics and admin foundation from day one — you're measuring from the start
+- Phase 1 (content platform) ships first with built-in CMS and newsletter — it IS the first product
 - Phases 0, 1, 2, and 7 can be built in parallel
 - Phase 2 (standalone tools) ships early for SEO/marketing with no navigation dependency
 - Phase 1 content (knowledge base, research board) naturally feeds into Phase 2 (equipment templates informed by research)
 - The research board creates a flywheel: community research → knowledge base articles → equipment templates → better tools
-- Phase 9 (live passage) transforms Above Deck from a planning tool into an underway companion — needs routes (Phase 3) and groups (Phase 8) to be meaningful
+- Phase 9 (admin expansion) scales with the community — basic moderation is in Phase 1, full admin comes when user base grows
+- Phase 10 (live passage) transforms Above Deck from a planning tool into an underway companion
 
 ---
 
