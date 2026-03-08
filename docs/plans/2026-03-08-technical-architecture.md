@@ -779,6 +779,13 @@ above-deck/
 │       ├── deploy-web.yml            # Netlify deploy
 │       └── deploy-api.yml            # Go API deploy
 │
+├── docker/
+│   ├── web.Dockerfile               # Astro frontend container
+│   ├── api.Dockerfile               # Go API container
+│   └── nginx.conf                   # Reverse proxy config (if needed)
+├── docker-compose.yml                # Full local dev stack
+├── docker-compose.prod.yml           # Production compose (optional)
+├── .dockerignore
 ├── CLAUDE.md
 ├── package.json                      # Workspace root (pnpm)
 └── pnpm-workspace.yaml
@@ -790,6 +797,90 @@ above-deck/
 - `packages/web` — Astro frontend (TypeScript)
 - `packages/api` — Go backend (separate build)
 - Shared types could live in `packages/shared` if needed later
+
+### Docker (From Day One)
+
+The entire stack is Dockerized for consistent development and deployment.
+
+**docker-compose.yml** runs the full local environment:
+
+```yaml
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    ports:
+      - "4321:4321"
+    volumes:
+      - ./packages/web:/app/packages/web
+      - /app/packages/web/node_modules
+    environment:
+      - PUBLIC_SUPABASE_URL=http://supabase-kong:8000
+      - PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./packages/api:/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@supabase-db:5432/postgres
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+    depends_on:
+      - supabase-db
+
+  supabase-db:
+    image: supabase/postgres:15.6.1.143
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - supabase-db-data:/var/lib/postgresql/data
+      - ./supabase/migrations:/docker-entrypoint-initdb.d
+
+  supabase-kong:
+    image: kong:2.8.1
+    # Supabase API gateway — routes auth, storage, realtime
+
+  supabase-auth:
+    image: supabase/gotrue:v2.164.0
+    # Google OAuth provider
+
+  supabase-realtime:
+    image: supabase/realtime:v2.33.70
+    # WebSocket subscriptions for chat, collaboration
+
+  supabase-storage:
+    image: supabase/storage-api:v1.12.3
+    # Photo/file uploads
+
+  analytics:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@supabase-db:5432/umami
+    depends_on:
+      - supabase-db
+
+volumes:
+  supabase-db-data:
+```
+
+**Docker strategy:**
+- **Development**: `docker compose up` runs everything locally — no external dependencies
+- **Production**: Individual containers deployed to Fly.io (Go API), Netlify (web static build), Supabase Cloud (managed DB)
+- **CI**: Docker images built and tested in GitHub Actions
+- Hot-reload: volume mounts for packages/web and packages/api enable live development
+- Supabase local: full Supabase stack (DB, Auth, Realtime, Storage) runs locally via Docker
+- Analytics: Umami runs alongside for local analytics testing
 
 ---
 
@@ -844,6 +935,24 @@ Roles stored in `profiles.role` and enforced via:
 
 ## Deployment Architecture
 
+### Local Development (Docker Compose)
+
+```
+docker compose up
+  ├── web (Astro dev server, port 4321)
+  ├── api (Go API, port 8080)
+  ├── supabase-db (PostgreSQL + PostGIS, port 54322)
+  ├── supabase-kong (API gateway, port 8000)
+  ├── supabase-auth (Google OAuth)
+  ├── supabase-realtime (WebSocket)
+  ├── supabase-storage (file uploads)
+  └── analytics (Umami, port 3000)
+```
+
+Everything runs locally with zero external dependencies. Hot-reload via volume mounts.
+
+### Production
+
 ```
 ┌────────────────────────────┐
 │         Netlify CDN        │
@@ -851,25 +960,25 @@ Roles stored in `profiles.role` and enforced via:
 │  • Static pages (blog, KB) │
 │  • SSR pages (forum, app)  │
 │  • PWA assets + SW         │
+│  • Built from Docker image │
 └─────────────┬──────────────┘
               │
               │ API calls
               ▼
 ┌────────────────────────────┐
-│     Go API (containerized) │
-│  • Fly.io or Railway       │
+│   Go API (Docker on Fly.io)│
+│  • Docker image deployed   │
 │  • Auto-scaling            │
 │  • Connects to Supabase DB │
 └─────────────┬──────────────┘
               │
               ▼
 ┌────────────────────────────┐
-│        Supabase            │
+│     Supabase Cloud         │
 │  • PostgreSQL + PostGIS    │
 │  • Auth                    │
 │  • Realtime                │
 │  • Storage (photos)        │
-│  • Edge Functions (if any) │
 └────────────────────────────┘
 ```
 
@@ -885,15 +994,18 @@ Push to main → GitHub Actions
   ├── Lint + Type Check (frontend)
   ├── Unit Tests (Vitest)
   ├── Go Tests
+  ├── Build Docker images
+  ├── Run integration tests against Docker compose
   ├── Build Astro
   ├── Deploy to Netlify (frontend)
-  └── Deploy to Fly.io (Go API)
+  └── Deploy Docker image to Fly.io (Go API)
 
 PR → GitHub Actions
   ├── Lint + Type Check
   ├── Unit Tests
   ├── Go Tests
-  ├── Playwright E2E (against preview deploy)
+  ├── Build Docker images (verify they build)
+  ├── Playwright E2E (against docker compose preview)
   └── Preview deploy URL posted to PR
 ```
 
@@ -933,4 +1045,5 @@ PR → GitHub Actions
 | Analytics | Plausible or Umami | Privacy-respecting; self-hostable; no third-party trackers |
 | Testing | Vitest + Playwright | Fast unit tests; reliable E2E; TDD workflow |
 | Package manager | pnpm | Fast, disk-efficient, good workspace support |
-| Deployment | Netlify + Fly.io + Supabase | All have free tiers; minimal ops |
+| Containerization | Docker + Docker Compose | Consistent dev/prod; entire stack runs locally; no "works on my machine" |
+| Deployment | Netlify + Fly.io + Supabase | All have free tiers; minimal ops; Docker images for Go API |

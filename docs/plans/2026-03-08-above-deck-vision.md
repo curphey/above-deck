@@ -494,9 +494,10 @@ These sailors:
 - **0.2** PWA setup: service worker, manifest, installable
 - **0.3** Supabase setup: project, database, Google Auth
 - **0.4** CI/CD: GitHub Actions → Netlify deploy
-- **0.5** Design system: colour palette, typography, component tokens in Mantine theme
-- **0.6** Analytics setup: self-hosted privacy-respecting analytics (Plausible or Umami)
-- **0.7** Admin foundation: protected admin routes, role-based access
+- **0.5** Docker: Dockerfiles for web + API, docker-compose.yml for full local stack (Supabase, analytics, everything)
+- **0.6** Design system: colour palette, typography, component tokens in Mantine theme
+- **0.7** Analytics setup: self-hosted privacy-respecting analytics (Plausible or Umami)
+- **0.8** Admin foundation: protected admin routes, role-based access
 
 ### Phase 1: Content Platform & Community
 > *Launch the site. Start building audience and community before any app features exist. This IS the first product.*

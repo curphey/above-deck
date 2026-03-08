@@ -34,6 +34,15 @@ Above Deck is a free, open-source sailing platform built for the community. It w
 - Dates and times use formats appropriate to location context
 - English only for now, but architecture should not hardcode strings (i18n-ready structure without the translation effort)
 
+### Dockerized From Day One
+
+- Entire stack runs in Docker — `docker compose up` for full local development
+- Dockerfiles for Astro frontend and Go API
+- Docker Compose includes Supabase (DB, Auth, Realtime, Storage), analytics (Umami), and all services
+- Production: Docker images deployed to Fly.io (API), Netlify (web build)
+- No "works on my machine" — consistent environments from development to production
+- Contributors can get running with a single command
+
 ### UI Framework
 
 - **Mantine** — React component library (clean, accessible, dark mode, responsive)
