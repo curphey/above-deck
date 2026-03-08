@@ -34,6 +34,12 @@ Above Deck is a free, open-source sailing platform built for the community. It w
 - Dates and times use formats appropriate to location context
 - English only for now, but architecture should not hardcode strings (i18n-ready structure without the translation effort)
 
+### UI Framework
+
+- **Mantine** — React component library (clean, accessible, dark mode, responsive)
+- **Tabler Icons** — Icon set (Mantine's default, consistent style)
+- Mantine's built-in components (tabs, accordions, segmented controls) support progressive disclosure natively
+
 ### Open Source & Transparency
 
 - Full codebase public on GitHub
@@ -100,6 +106,29 @@ Groups serve multiple purposes:
 - Profiles with verified experience + certifications enable trust for crewing
 - Logged passages in-app serve as verifiable experience records
 - Crew-wanted/crew-available matching based on qualifications and availability
+
+## Builder's Hub (Blog / Vlog / Forum)
+
+Built into the Above Deck site (not a separate platform):
+
+### Blog & Vlog
+
+- Development journal — share plans, progress, decisions, and behind-the-scenes
+- MDX-powered content within Astro (rich media, embedded code, components)
+- YouTube video embeds for tutorials and vlogs
+- RSS feed for subscribers
+
+### Community Forum
+
+- Chat-style forum for users to ask questions, share tips, and discuss features
+- Threaded discussions organized by topic
+- Builder can respond directly — transparent, accessible development
+
+### Changelog
+
+- In-app update feed — users see what's new without checking GitHub
+- Tied to releases — each deploy can auto-generate a changelog entry
+- "What's new" badge/notification for returning users
 
 ## Help & Education
 
