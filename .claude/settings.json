@@ -1,0 +1,25 @@
+{
+  "enabledPlugins": {
+    "superpowers@superpowers-marketplace": true,
+    "voltagent-core-dev@voltagent-subagents": true,
+    "voltagent-qa-sec@voltagent-subagents": true,
+    "voltagent-lang@voltagent-subagents": true,
+    "voltagent-infra@voltagent-subagents": true,
+    "voltagent-data-ai@voltagent-subagents": true,
+    "voltagent-dev-exp@voltagent-subagents": true,
+    "voltagent-domains@voltagent-subagents": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-plugins.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}
