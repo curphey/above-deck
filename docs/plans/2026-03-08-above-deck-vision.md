@@ -286,26 +286,48 @@ These sailors:
 - YouTube video embeds for tutorials and vlogs
 - RSS feed
 
-**6.2 Community Forum**
+**6.2 Weekly Newsletter**
+- Email newsletter subscribers can sign up for
+- Weekly digest: new blog posts, research highlights, feature updates, community activity
+- Drives re-engagement and keeps the community informed between visits
+
+**6.3 Community Forum**
 - Chat-style forum: questions, tips, feature discussions
 - Threaded discussions organized by topic
 - Builder responds directly — transparent, accessible development
 
-**6.3 Changelog**
+**6.4 Changelog**
 - In-app update feed — what's new without checking GitHub
 - Tied to releases
 - "What's new" badge/notification for returning users
 
-### Feature Group 7: Help & Education
+### Feature Group 7: Knowledge & Learning
 
-**7.1 In-App Help**
+**7.1 Knowledge Base**
+- Curated how-to guides for common sailing tasks
+- Topics: "How to install solar panels", "How to size your battery bank", "How to plan an Atlantic crossing", "How to pick an anchor", "How to read weather GRIBs"
+- Written by the builder and community contributors
+- Searchable, categorized, linked from relevant app features
+- MDX-powered for rich content (diagrams, embedded calculators, videos)
+
+**7.2 Research Board** (inspired by Project Kamp)
+- Community-driven explorations and investigations
+- Card-based, filterable list with status tracking (draft / in-progress / complete)
+- Topics: "Best watermaker for a 40ft cat", "Starlink vs Iridium for offshore", "DIY lithium battery conversion", "Cheapest AIS transponders compared"
+- Anyone can start a research thread, community contributes findings
+- Voting/usefulness system to surface best content
+- Links to equipment registry templates when research covers specific products
+- Encourages innovative, open-ended investigation — not just "how to" but "what's the best way?"
+
+**7.3 In-App Help**
 - Contextual help: tooltips, guided tours for new features
 - Help content embedded, not external wiki links
 - Onboarding that teaches by doing
+- Links to relevant knowledge base articles and research
 
-**7.2 Video Tutorials**
+**7.4 Video Tutorials**
 - YouTube video tutorials for key workflows
-- Embedded in relevant help contexts
+- Embedded in relevant help contexts and knowledge base articles
 
 ### Feature Group 8: Advanced Features (Future)
 
@@ -392,112 +414,124 @@ These sailors:
 
 ## Execution Order
 
-### Phase 0: Foundation
-> *Get the site live and the builder's hub running. Start building audience before the app exists.*
+### Phase 0: Technical Foundation
+> *Set up the project infrastructure. Nothing visible to users yet.*
 
 - **0.1** Project scaffolding: Astro + React + Mantine + Tabler Icons
 - **0.2** PWA setup: service worker, manifest, installable
-- **0.3** Builder's hub: blog (MDX), changelog page, RSS feed
-- **0.4** Landing page: mission statement, feature preview, email signup
-- **0.5** Supabase setup: project, database, Google Auth
-- **0.6** CI/CD: GitHub Actions → Netlify deploy
-- **0.7** Community forum (basic): threaded discussions
+- **0.3** Supabase setup: project, database, Google Auth
+- **0.4** CI/CD: GitHub Actions → Netlify deploy
+- **0.5** Design system: colour palette, typography, component tokens in Mantine theme
 
-### Phase 1: Standalone Tools
+### Phase 1: Content Platform & Community
+> *Launch the site. Start building audience and community before any app features exist. This IS the first product.*
+
+- **1.1** Landing page: mission statement, feature preview, vision, email signup
+- **1.2** Builder's blog (MDX): development journal, plans, decisions, behind-the-scenes
+- **1.3** Vlog integration: YouTube embeds for build vlogs and tutorials
+- **1.4** Changelog page: in-app update feed, "what's new" notifications
+- **1.5** RSS feed for blog + changelog
+- **1.6** Weekly newsletter: email signup, weekly digest of posts/updates/community activity
+- **1.7** Community forum: threaded discussions, topic categories, user posting
+- **1.8** Knowledge base: curated how-to guides (MDX), searchable, categorized
+- **1.9** Research board: community-driven investigations, card-based with status (draft/in-progress/complete), voting, filtering
+- **1.10** Video tutorial framework: embedded YouTube in knowledge base articles
+
+### Phase 2: Standalone Tools
 > *Ship useful tools that work without the full platform. SEO acquisition + early user value.*
 
-- **1.1** Solar system sizer (standalone calculator, no auth required)
-- **1.2** Generation calculator (standalone, no auth required)
-- **1.3** Power consumer database (common appliances with default wattages)
-- **1.4** Boat model template database (seed top 30 boats)
-- **1.5** Equipment registry (requires auth)
-- **1.6** Equipment spec templates (seed popular engines, watermakers, panels)
-- **1.7** Service tracking with alerts
+- **2.1** Solar system sizer (standalone calculator, no auth required)
+- **2.2** Generation calculator (standalone, no auth required)
+- **2.3** Power consumer database (common appliances with default wattages)
+- **2.4** Boat model template database (seed top 30 boats)
+- **2.5** Equipment registry (requires auth)
+- **2.6** Equipment spec templates (seed popular engines, watermakers, panels)
+- **2.7** Service tracking with alerts
 
-### Phase 2: Core Navigation
+### Phase 3: Core Navigation
 > *The heart of the platform — plan a passage on a map.*
 
-- **2.1** Map with marine overlay (Mapbox + OpenSeaMap)
-- **2.2** Route plotting with waypoints
-- **2.3** Multi-leg voyage planning with daily splits
-- **2.4** Distance, bearing, ETA calculations
-- **2.5** Vessel profiles (boat type, draft, speed)
-- **2.6** Day-by-day itinerary view
-- **2.7** GPX export/import
+- **3.1** Map with marine overlay (Mapbox + OpenSeaMap)
+- **3.2** Route plotting with waypoints
+- **3.3** Multi-leg voyage planning with daily splits
+- **3.4** Distance, bearing, ETA calculations
+- **3.5** Vessel profiles (boat type, draft, speed)
+- **3.6** Day-by-day itinerary view
+- **3.7** GPX export/import
 
-### Phase 3: Weather & Tides
+### Phase 4: Weather & Tides
 > *Make routes weather-aware and tide-safe.*
 
-- **3.1** Weather data integration (Open-Meteo Marine API)
-- **3.2** Weather overlay on map (animated wind)
-- **3.3** Weather timeline per leg
-- **3.4** Weather window identification
-- **3.5** Tidal predictions at waypoints (Neaps + APIs)
-- **3.6** Tidal height graphs
-- **3.7** Tidal gate warnings
+- **4.1** Weather data integration (Open-Meteo Marine API)
+- **4.2** Weather overlay on map (animated wind)
+- **4.3** Weather timeline per leg
+- **4.4** Weather window identification
+- **4.5** Tidal predictions at waypoints (Neaps + APIs)
+- **4.6** Tidal height graphs
+- **4.7** Tidal gate warnings
 
-### Phase 4: Points of Interest
+### Phase 5: Points of Interest
 > *Where to stop, fuel up, eat, anchor.*
 
-- **4.1** POI database seeded from OSM + NOAA + GFW
-- **4.2** Map filter chips by category
-- **4.3** POI detail pages (depth, shelter, facilities, approach notes)
-- **4.4** Auto-suggest stops along routes
-- **4.5** Community contributions (reviews, photos, tips)
-- **4.6** Visit verification
+- **5.1** POI database seeded from OSM + NOAA + GFW
+- **5.2** Map filter chips by category
+- **5.3** POI detail pages (depth, shelter, facilities, approach notes)
+- **5.4** Auto-suggest stops along routes
+- **5.5** Community contributions (reviews, photos, tips)
+- **5.6** Visit verification
 
-### Phase 5: Passage Resources
+### Phase 6: Passage Resources
 > *Connect vessel data + weather to answer "do I have enough?"*
 
-- **5.1** Fuel planning (motoring estimates from wind thresholds)
-- **5.2** Water planning (crew consumption + watermaker)
-- **5.3** Passage energy forecast (solar generation along route)
-- **5.4** Unified passage resource summary
-- **5.5** Engine hours + service integration
-- **5.6** What-if scenarios
+- **6.1** Fuel planning (motoring estimates from wind thresholds)
+- **6.2** Water planning (crew consumption + watermaker)
+- **6.3** Passage energy forecast (solar generation along route)
+- **6.4** Unified passage resource summary
+- **6.5** Engine hours + service integration
+- **6.6** What-if scenarios
 
-### Phase 6: User Profiles & Auth
+### Phase 7: User Profiles & Auth
 > *Identity, experience, and privacy.*
 
-- **6.1** User profiles (basic info, bio, photo)
-- **6.2** Sailing experience and certifications
-- **6.3** Privacy controls (private/group/public per section)
-- **6.4** Boats linked to profiles and equipment registry
-- **6.5** Voyage logs linked to profiles
+- **7.1** User profiles (basic info, bio, photo)
+- **7.2** Sailing experience and certifications
+- **7.3** Privacy controls (private/group/public per section)
+- **7.4** Boats linked to profiles and equipment registry
+- **7.5** Voyage logs linked to profiles
 
-### Phase 7: Social & Collaboration
+### Phase 8: Social & Collaboration
 > *Connect sailors to each other.*
 
-- **7.1** Crew collaboration on passages (invite, comment, suggest)
-- **7.2** Groups (boat crew, yacht clubs, rally fleets, friends)
-- **7.3** Group chat
-- **7.4** Direct messaging (person to person)
-- **7.5** Boat-to-boat messaging
-- **7.6** AIS overlay with profile linking
-- **7.7** Crewing (crew-wanted/available matching)
+- **8.1** Crew collaboration on passages (invite, comment, suggest)
+- **8.2** Groups (boat crew, yacht clubs, rally fleets, friends)
+- **8.3** Group chat
+- **8.4** Direct messaging (person to person)
+- **8.5** Boat-to-boat messaging
+- **8.6** AIS overlay with profile linking
+- **8.7** Crewing (crew-wanted/available matching)
 
-### Phase 8: AI Agent
+### Phase 9: AI Agent
 > *The intelligent assistant.*
 
-- **8.1** Claude API integration
-- **8.2** Boat/crew/preference context passing
-- **8.3** Natural language passage planning
-- **8.4** Weather-aware suggestions
-- **8.5** POI recommendations
-- **8.6** Conversational route modification
+- **9.1** Claude API integration
+- **9.2** Boat/crew/preference context passing
+- **9.3** Natural language passage planning
+- **9.4** Weather-aware suggestions
+- **9.5** POI recommendations
+- **9.6** Conversational route modification
 
-### Phase 9: Advanced Features
+### Phase 10: Advanced Features
 > *Polish and extend.*
 
-- **9.1** Voyage logging (GPS tracking, auto-logbook)
-- **9.2** Community-shared voyages
-- **9.3** Heatmap of sailing tracks
-- **9.4** Hazard data overlays
-- **9.5** Weather routing with polars
-- **9.6** Live sharing with family/friends
-- **9.7** SignalK integration
-- **9.8** Passage difficulty ratings
-- **9.9** In-app help system + video tutorials
+- **10.1** Voyage logging (GPS tracking, auto-logbook)
+- **10.2** Community-shared voyages
+- **10.3** Heatmap of sailing tracks
+- **10.4** Hazard data overlays
+- **10.5** Weather routing with polars
+- **10.6** Live sharing with family/friends
+- **10.7** SignalK integration
+- **10.8** Passage difficulty ratings
+- **10.9** In-app contextual help system
 
 ---
 
@@ -505,21 +539,31 @@ These sailors:
 
 ```
 Phase 0 (Foundation)
-  ├── Phase 1 (Standalone Tools) ──── no dependencies on other phases
-  ├── Phase 6 (Profiles) ──────────── needs auth from Phase 0
   │
-  └── Phase 2 (Navigation)
-        ├── Phase 3 (Weather & Tides)
-        │     └── Phase 5 (Resources) ← also needs Phase 1 (equipment)
-        ├── Phase 4 (POIs)
-        │     └── also needs Phase 6 (Profiles) for community contributions
-        └── Phase 7 (Social) ← needs Phase 6 (Profiles)
-              └── Phase 8 (AI Agent) ← benefits from all prior phases
+  ├── Phase 1 (Content Platform) ──── first thing to ship, builds audience
+  │     └── grows continuously alongside all other phases
+  │
+  ├── Phase 2 (Standalone Tools) ──── no dependencies on navigation
+  │
+  ├── Phase 7 (Profiles) ──────────── needs auth from Phase 0
+  │
+  └── Phase 3 (Navigation)
+        ├── Phase 4 (Weather & Tides)
+        │     └── Phase 6 (Resources) ← also needs Phase 2 (equipment)
+        ├── Phase 5 (POIs)
+        │     └── also needs Phase 7 (Profiles) for community contributions
+        └── Phase 8 (Social) ← needs Phase 7 (Profiles)
+              └── Phase 9 (AI Agent) ← benefits from all prior phases
 
-Phase 9 (Advanced) ← builds on everything
+Phase 10 (Advanced) ← builds on everything
 ```
 
-**Key insight**: Phases 0, 1, and 6 can be built in parallel. Phase 1 (standalone tools) has no dependency on navigation and can ship early for marketing. Phase 6 (profiles) only needs auth.
+**Key insights:**
+- Phase 1 (content platform) ships first and grows continuously — it's not a one-time deliverable
+- Phases 0, 1, 2, and 7 can be built in parallel
+- Phase 2 (standalone tools) ships early for SEO/marketing with no navigation dependency
+- Phase 1 content (knowledge base, research board) naturally feeds into Phase 2 (equipment templates informed by research)
+- The research board creates a flywheel: community research → knowledge base articles → equipment templates → better tools
 
 ---
 
