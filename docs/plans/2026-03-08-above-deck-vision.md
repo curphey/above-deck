@@ -329,28 +329,66 @@ These sailors:
 - YouTube video tutorials for key workflows
 - Embedded in relevant help contexts and knowledge base articles
 
-### Feature Group 8: Advanced Features (Future)
+### Feature Group 8: Live Passage Experience
 
-**8.1 Voyage Logging**
-- Track actual passage with GPS
-- Auto-logbook entries (position, weather, speed at intervals)
-- Photos pinned to route locations
-- Compare planned vs. actual route
+> *Above Deck isn't just for planning — it's your companion while underway.*
+
+**8.1 Live Tracking & Beacon**
+- GPS tracking of your passage in real-time
+- Live position beacon shareable with family/friends via web link (no account needed)
+- "Share my trip" link — recipients see your boat moving on a map with ETA to destination
+- Configurable update interval (battery-conscious: every 5/15/30 min)
+- Position history trail visible to followers
+- Works offline — caches positions and syncs when connectivity returns
+
+**8.2 Fleet Coordination (Rally/Group Sailing)**
+- Live positions of all boats in a group on one map
+- See your rally fleet spread out across the ocean in real-time
+- Group WhatsApp integration — create/link WhatsApp groups for fleet comms
+- In-app group chat as backup when WhatsApp unavailable (offshore)
+- "Buddy boat" pairing — two boats tracking each other closely
+- Distance/bearing to other group members
+
+**8.3 Voyage Logging**
+- Auto-logbook entries (position, weather, speed, heading at intervals)
+- Manual log entries (sail changes, events, notes)
+- Photos pinned to route locations with GPS
+- Compare planned vs. actual route overlay
 - Passage statistics and sailing CV
 
-**8.2 Community Content**
+**8.4 Live Weather & Conditions**
+- Updated weather along remaining route as new forecasts arrive
+- "Conditions now" dashboard — current wind, waves, barometric trend
+- Alerts when conditions diverge significantly from forecast
+- Weather routing recalculation suggestions ("winds have shifted — consider altering course")
+
+**8.5 Resource Tracking Underway**
+- Fuel remaining estimate based on engine hours logged
+- Water remaining estimate based on consumption tracking
+- Battery state of charge (manual input or SignalK integration)
+- "Will I make it?" projections updated with actual conditions
+
+**8.6 Safety Features**
+- MOB (Man Overboard) button — marks GPS position, alerts crew/group, starts timer
+- Emergency contacts notification — one-tap alert to designated contacts with position
+- Check-in schedule — set regular check-in times, alert if missed
+- Passage plan filed with shore contact — auto-shared with emergency info
+
+### Feature Group 9: Advanced Features (Future)
+
+**9.1 Community Content**
 - Community-shared voyages and itineraries (Komoot Collections)
 - "Where sailors actually go" heatmap from logged tracks
 - Passage difficulty rating system
 - Passage composition breakdown (open water / coastal / channel / harbour approach)
 
-**8.3 Advanced Planning**
+**9.2 Advanced Planning**
 - Weather routing with boat polars (isochrone method)
 - Passage notes (auto-generated waypoint guidance)
 - Provisioning planner
 - Watch schedule generator
 
-**8.4 Hazard Data**
+**9.3 Hazard Data**
 - Orca interaction zones (Iberian Peninsula)
 - Shark incident heat maps
 - Piracy advisory zones
@@ -358,13 +396,10 @@ These sailors:
 - Shipping lanes / Traffic Separation Schemes
 - Depth warnings based on vessel draft
 
-**8.5 Live Sharing**
-- Share voyage progress with family/friends via web link (no account needed)
-- PDF passage plan export for crew briefing
-
-**8.6 SignalK Integration**
+**9.4 SignalK Integration**
 - Live boat instrument data (instruments, tank levels, engine hours)
 - Auto-update engine hours in equipment registry
+- Feed real data into resource tracking underway
 - Open protocol, aligns with open-source values
 
 ---
@@ -510,28 +545,40 @@ These sailors:
 - **8.6** AIS overlay with profile linking
 - **8.7** Crewing (crew-wanted/available matching)
 
-### Phase 9: AI Agent
+### Phase 9: Live Passage Experience
+> *From planning tool to underway companion.*
+
+- **9.1** GPS tracking and position logging
+- **9.2** Live beacon sharing (web link for family/friends, no account needed)
+- **9.3** Voyage logging (auto-logbook entries, manual notes, photos)
+- **9.4** Planned vs. actual route overlay
+- **9.5** Fleet/group live positions on shared map
+- **9.6** WhatsApp group integration for fleet comms
+- **9.7** Buddy boat pairing
+- **9.8** Live resource tracking (fuel, water, battery remaining)
+- **9.9** Safety features (MOB button, emergency alerts, check-in schedule)
+
+### Phase 10: AI Agent
 > *The intelligent assistant.*
 
-- **9.1** Claude API integration
-- **9.2** Boat/crew/preference context passing
-- **9.3** Natural language passage planning
-- **9.4** Weather-aware suggestions
-- **9.5** POI recommendations
-- **9.6** Conversational route modification
+- **10.1** Claude API integration
+- **10.2** Boat/crew/preference context passing
+- **10.3** Natural language passage planning
+- **10.4** Weather-aware suggestions
+- **10.5** POI recommendations
+- **10.6** Conversational route modification
 
-### Phase 10: Advanced Features
+### Phase 11: Advanced Features
 > *Polish and extend.*
 
-- **10.1** Voyage logging (GPS tracking, auto-logbook)
-- **10.2** Community-shared voyages
-- **10.3** Heatmap of sailing tracks
-- **10.4** Hazard data overlays
-- **10.5** Weather routing with polars
-- **10.6** Live sharing with family/friends
-- **10.7** SignalK integration
-- **10.8** Passage difficulty ratings
-- **10.9** In-app contextual help system
+- **11.1** Community-shared voyages
+- **11.2** Heatmap of sailing tracks
+- **11.3** Hazard data overlays
+- **11.4** Weather routing with polars
+- **11.5** SignalK integration
+- **11.6** Passage difficulty ratings
+- **11.7** In-app contextual help system
+- **11.8** Live weather recalculation underway
 
 ---
 
@@ -552,10 +599,11 @@ Phase 0 (Foundation)
         │     └── Phase 6 (Resources) ← also needs Phase 2 (equipment)
         ├── Phase 5 (POIs)
         │     └── also needs Phase 7 (Profiles) for community contributions
-        └── Phase 8 (Social) ← needs Phase 7 (Profiles)
-              └── Phase 9 (AI Agent) ← benefits from all prior phases
+        ├── Phase 8 (Social) ← needs Phase 7 (Profiles)
+        └── Phase 9 (Live Passage) ← needs Phase 3 (navigation) + Phase 8 (social/groups)
+              └── Phase 10 (AI Agent) ← benefits from all prior phases
 
-Phase 10 (Advanced) ← builds on everything
+Phase 11 (Advanced) ← builds on everything
 ```
 
 **Key insights:**
@@ -564,6 +612,7 @@ Phase 10 (Advanced) ← builds on everything
 - Phase 2 (standalone tools) ships early for SEO/marketing with no navigation dependency
 - Phase 1 content (knowledge base, research board) naturally feeds into Phase 2 (equipment templates informed by research)
 - The research board creates a flywheel: community research → knowledge base articles → equipment templates → better tools
+- Phase 9 (live passage) transforms Above Deck from a planning tool into an underway companion — needs routes (Phase 3) and groups (Phase 8) to be meaningful
 
 ---
 
