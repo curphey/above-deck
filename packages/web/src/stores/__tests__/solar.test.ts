@@ -6,10 +6,6 @@ describe('useSolarStore', () => {
     useSolarStore.setState(useSolarStore.getInitialState());
   });
 
-  it('has default journey mode of new-system', () => {
-    expect(useSolarStore.getState().journeyMode).toBe('new-system');
-  });
-
   it('has default crew size of 2', () => {
     expect(useSolarStore.getState().crewSize).toBe(2);
   });
@@ -22,19 +18,9 @@ describe('useSolarStore', () => {
     expect(useSolarStore.getState().batteryChemistry).toBe('lifepo4');
   });
 
-  it('sets journey mode', () => {
-    useSolarStore.getState().setJourneyMode('check-existing');
-    expect(useSolarStore.getState().journeyMode).toBe('check-existing');
-  });
-
   it('sets crew size', () => {
     useSolarStore.getState().setCrewSize(4);
     expect(useSolarStore.getState().crewSize).toBe(4);
-  });
-
-  it('sets cruising style', () => {
-    useSolarStore.getState().setCruisingStyle('offshore');
-    expect(useSolarStore.getState().cruisingStyle).toBe('offshore');
   });
 
   it('toggles an appliance on/off', () => {
@@ -51,6 +37,7 @@ describe('useSolarStore', () => {
       usageType: 'intermittent' as const,
       crewScaling: false,
       enabled: true,
+      origin: 'stock' as const,
     };
     useSolarStore.getState().setAppliances([appliance]);
     useSolarStore.getState().toggleAppliance('test-1');
@@ -71,6 +58,7 @@ describe('useSolarStore', () => {
       usageType: 'intermittent' as const,
       crewScaling: false,
       enabled: true,
+      origin: 'stock' as const,
     };
     useSolarStore.getState().setAppliances([appliance]);
     useSolarStore.getState().updateApplianceHours('test-1', 'anchor', 10);
@@ -134,5 +122,60 @@ describe('useSolarStore', () => {
   it('sets derating factor', () => {
     useSolarStore.getState().setDeratingFactor(0.6);
     expect(useSolarStore.getState().deratingFactor).toBe(0.6);
+  });
+
+  it('should set solarPanelWatts', () => {
+    useSolarStore.getState().setSolarPanelWatts(400);
+    expect(useSolarStore.getState().solarPanelWatts).toBe(400);
+  });
+
+  it('should set panelType', () => {
+    useSolarStore.getState().setPanelType('semi-flexible');
+    expect(useSolarStore.getState().panelType).toBe('semi-flexible');
+  });
+
+  it('should not have cruisingStyle', () => {
+    const state = useSolarStore.getState();
+    expect('cruisingStyle' in state).toBe(false);
+  });
+
+  it('should set appliance origin field', () => {
+    const appliance = {
+      id: '1', name: 'Test', category: 'navigation',
+      wattsTypical: 10, wattsMin: 5, wattsMax: 15,
+      hoursPerDayAnchor: 1, hoursPerDayPassage: 1,
+      dutyCycle: 1, usageType: 'always-on' as const,
+      crewScaling: false, enabled: true, origin: 'stock' as const,
+    };
+    useSolarStore.getState().setAppliances([appliance]);
+    expect(useSolarStore.getState().appliances[0].origin).toBe('stock');
+  });
+
+  it('should remove appliance by id', () => {
+    const a1 = {
+      id: '1', name: 'A', category: 'navigation',
+      wattsTypical: 10, wattsMin: 5, wattsMax: 15,
+      hoursPerDayAnchor: 1, hoursPerDayPassage: 1,
+      dutyCycle: 1, usageType: 'always-on' as const,
+      crewScaling: false, enabled: true, origin: 'catalog' as const,
+    };
+    const a2 = { ...a1, id: '2', name: 'B', origin: 'stock' as const };
+    useSolarStore.getState().setAppliances([a1, a2]);
+    useSolarStore.getState().removeAppliance('1');
+    expect(useSolarStore.getState().appliances).toHaveLength(1);
+    expect(useSolarStore.getState().appliances[0].id).toBe('2');
+  });
+
+  it('should update appliance watts', () => {
+    const appliance = {
+      id: '1', name: 'Test', category: 'navigation',
+      wattsTypical: 10, wattsMin: 5, wattsMax: 15,
+      hoursPerDayAnchor: 1, hoursPerDayPassage: 1,
+      dutyCycle: 1, usageType: 'always-on' as const,
+      crewScaling: false, enabled: true, origin: 'stock' as const,
+    };
+    useSolarStore.getState().setAppliances([appliance]);
+    useSolarStore.getState().updateApplianceWatts('1', 25);
+    expect(useSolarStore.getState().appliances[0].wattsTypical).toBe(25);
   });
 });

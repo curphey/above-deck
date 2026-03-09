@@ -11,6 +11,7 @@ export interface Appliance {
   usageType: 'always-on' | 'scheduled' | 'intermittent';
   crewScaling: boolean;
   enabled: boolean;
+  origin: 'stock' | 'catalog' | 'custom';
 }
 
 export interface SystemConfig {
@@ -58,4 +59,4 @@ export interface PvgisMonthlyData {
   temperature: number;
 }
 
-export type JourneyMode = 'new-system' | 'check-existing' | 'add-upgrade';
+export type PanelType = 'rigid' | 'semi-flexible' | 'flexible';

@@ -1,23 +1,24 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Appliance, JourneyMode } from '@/lib/solar/types';
+import type { Appliance, PanelType } from '@/lib/solar/types';
 
-export type CruisingStyle = 'weekend' | 'coastal' | 'offshore';
 export type ViewMode = 'anchor' | 'passage';
 
 interface SolarState {
-  journeyMode: JourneyMode;
-  setJourneyMode: (mode: JourneyMode) => void;
   boatModelId: string | null;
   setBoatModelId: (id: string | null) => void;
   crewSize: number;
   setCrewSize: (size: number) => void;
-  cruisingStyle: CruisingStyle;
-  setCruisingStyle: (style: CruisingStyle) => void;
+  solarPanelWatts: number;
+  setSolarPanelWatts: (watts: number) => void;
+  panelType: PanelType;
+  setPanelType: (type: PanelType) => void;
   appliances: Appliance[];
   setAppliances: (appliances: Appliance[]) => void;
   toggleAppliance: (id: string) => void;
   updateApplianceHours: (id: string, mode: 'anchor' | 'passage', hours: number) => void;
+  removeAppliance: (id: string) => void;
+  updateApplianceWatts: (id: string, watts: number) => void;
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
   latitude: number;
@@ -41,10 +42,10 @@ interface SolarState {
 }
 
 export const initialState = {
-  journeyMode: 'new-system' as JourneyMode,
   boatModelId: null as string | null,
   crewSize: 2,
-  cruisingStyle: 'coastal' as CruisingStyle,
+  solarPanelWatts: 0,
+  panelType: 'rigid' as PanelType,
   appliances: [] as Appliance[],
   viewMode: 'anchor' as ViewMode,
   latitude: 36.0,
@@ -63,10 +64,10 @@ export const useSolarStore = create<SolarState>()(
   persist(
     (set) => ({
       ...initialState,
-      setJourneyMode: (mode) => set({ journeyMode: mode }),
       setBoatModelId: (id) => set({ boatModelId: id }),
       setCrewSize: (size) => set({ crewSize: size }),
-      setCruisingStyle: (style) => set({ cruisingStyle: style }),
+      setSolarPanelWatts: (watts) => set({ solarPanelWatts: watts }),
+      setPanelType: (type) => set({ panelType: type }),
       setAppliances: (appliances) => set({ appliances }),
       toggleAppliance: (id) =>
         set((state) => ({
@@ -84,6 +85,16 @@ export const useSolarStore = create<SolarState>()(
               : a
           ),
         })),
+      removeAppliance: (id) =>
+        set((state) => ({
+          appliances: state.appliances.filter((a) => a.id !== id),
+        })),
+      updateApplianceWatts: (id, watts) =>
+        set((state) => ({
+          appliances: state.appliances.map((a) =>
+            a.id === id ? { ...a, wattsTypical: watts } : a
+          ),
+        })),
       setViewMode: (mode) => set({ viewMode: mode }),
       setLocation: (lat, lon, name) =>
         set({ latitude: lat, longitude: lon, regionName: name }),
@@ -98,10 +109,10 @@ export const useSolarStore = create<SolarState>()(
     {
       name: 'above-deck-solar',
       partialize: (state) => ({
-        journeyMode: state.journeyMode,
         boatModelId: state.boatModelId,
         crewSize: state.crewSize,
-        cruisingStyle: state.cruisingStyle,
+        solarPanelWatts: state.solarPanelWatts,
+        panelType: state.panelType,
         appliances: state.appliances,
         viewMode: state.viewMode,
         latitude: state.latitude,
