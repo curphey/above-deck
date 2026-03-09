@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Chip, Group, SegmentedControl, Stack, Table, Text, Title } from '@mantine/core';
+import { Chip, Group, NumberInput, SegmentedControl, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useSolarStore, type ViewMode } from '@/stores/solar';
-import { EquipmentRow } from './EquipmentRow';
+import { ApplianceCard } from './ApplianceCard';
 import { AddEquipmentModal } from './AddEquipmentModal';
 import type { Appliance } from '@/lib/solar/types';
 
@@ -18,9 +18,9 @@ export function EquipmentSection() {
   const viewMode = useSolarStore((s) => s.viewMode);
   const setViewMode = useSolarStore((s) => s.setViewMode);
   const crewSize = useSolarStore((s) => s.crewSize);
+  const setCrewSize = useSolarStore((s) => s.setCrewSize);
   const toggleAppliance = useSolarStore((s) => s.toggleAppliance);
   const removeAppliance = useSolarStore((s) => s.removeAppliance);
-  const updateApplianceWatts = useSolarStore((s) => s.updateApplianceWatts);
   const updateApplianceHours = useSolarStore((s) => s.updateApplianceHours);
 
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -45,10 +45,21 @@ export function EquipmentSection() {
 
   return (
     <Stack gap="md">
+      <Title order={3} ff={HEADING_FONT} tt="uppercase" c="dimmed" fz="sm"
+        style={{ letterSpacing: '1px', borderBottom: '1px solid var(--mantine-color-default-border)', paddingBottom: 8 }}>
+        3. Equipment — {Math.round(totalWh)} Wh/day
+      </Title>
+
       <Group justify="space-between">
-        <Title order={3} ff={HEADING_FONT}>
-          Equipment — {Math.round(totalWh)} Wh/day
-        </Title>
+        <NumberInput
+          label="Crew"
+          value={crewSize}
+          onChange={(val) => setCrewSize(Number(val) || 2)}
+          min={1}
+          max={12}
+          w={80}
+          size="xs"
+        />
         <SegmentedControl size="xs" value={viewMode}
           onChange={(val) => setViewMode(val as ViewMode)}
           data={[
@@ -71,27 +82,19 @@ export function EquipmentSection() {
           Select a boat above to load its standard equipment, or add items manually.
         </Text>
       ) : (
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Appliance</Table.Th>
-              <Table.Th>Watts</Table.Th>
-              <Table.Th>Hours/day</Table.Th>
-              <Table.Th>Duty</Table.Th>
-              <Table.Th>Daily</Table.Th>
-              <Table.Th>On</Table.Th>
-              <Table.Th />
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {filtered.map((a) => (
-              <EquipmentRow key={a.id} appliance={a} viewMode={viewMode}
-                crewSize={crewSize} onToggle={toggleAppliance}
-                onRemove={removeAppliance} onUpdateWatts={updateApplianceWatts}
-                onUpdateHours={updateApplianceHours} />
-            ))}
-          </Table.Tbody>
-        </Table>
+        <SimpleGrid cols={{ base: 1, xs: 2, sm: 3, lg: 4 }}>
+          {filtered.map((a) => (
+            <ApplianceCard
+              key={a.id}
+              appliance={a}
+              viewMode={viewMode}
+              crewSize={crewSize}
+              onToggle={toggleAppliance}
+              onUpdateHours={updateApplianceHours}
+              onRemove={removeAppliance}
+            />
+          ))}
+        </SimpleGrid>
       )}
 
       <AddEquipmentModal
