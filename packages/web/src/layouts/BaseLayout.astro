@@ -1,4 +1,7 @@
 ---
+import { ColorSchemeScript } from '../components/MantineProvider';
+import { AppShellWrapper } from '../components/AppShellWrapper';
+
 interface Props {
   title: string;
   description?: string;
@@ -15,8 +18,11 @@ const { title, description = 'The sailing platform for modern cruisers' } = Astr
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <ColorSchemeScript defaultColorScheme="dark" />
 </head>
 <body>
-  <slot />
+  <AppShellWrapper client:load>
+    <slot />
+  </AppShellWrapper>
 </body>
 </html>
