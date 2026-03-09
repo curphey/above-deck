@@ -45,7 +45,7 @@ export function BalanceSection({ consumption, charging, recommendation }: Balanc
           <Card padding="md" withBorder>
             <Text size="xs" c="dimmed" tt="uppercase">Net balance</Text>
             <Text size="xl" fw={700} c={balanceColor}>
-              {netBalance >= 0 ? '+' : ''}{netBalance} Wh
+              {netBalance >= 0 ? '+' : ''}{Math.round(netBalance)} Wh
             </Text>
           </Card>
         </Grid.Col>

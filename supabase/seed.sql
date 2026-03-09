@@ -1,16 +1,20 @@
 -- Seed data for local development
 -- This file runs on first database startup
+-- Sources: Manufacturer spec sheets, owner's manuals, and marine equipment reviews.
+-- See docs/plans/2026-03-09-energy-planner-redesign.md for source links.
 
 -- Power consumers: Navigation
+-- Sources: Garmin GPSMAP 723/923/1243 specs, Raymarine Axiom/EV-200, B&G Vulcan/Triton2,
+--          Vesper Cortex M1, Garmin GMR Fantom 18x/24x, Raymarine Quantum 2
 INSERT INTO power_consumers (name, category, icon, watts_typical, watts_min, watts_max, hours_per_day_anchor, hours_per_day_passage, duty_cycle, usage_type, crew_scaling, sort_order) VALUES
-('Chartplotter (7")', 'navigation', 'IconDeviceDesktop', 20, 15, 25, 2, 16, 1.0, 'scheduled', false, 1),
-('Chartplotter (9-12")', 'navigation', 'IconDeviceDesktop', 32, 25, 40, 2, 16, 1.0, 'scheduled', false, 2),
-('Autopilot (tiller)', 'navigation', 'IconCompass', 17, 10, 24, 0, 20, 1.0, 'scheduled', false, 3),
+('Chartplotter (7")', 'navigation', 'IconDeviceDesktop', 15, 7, 20, 2, 16, 1.0, 'scheduled', false, 1),
+('Chartplotter (9-12")', 'navigation', 'IconDeviceDesktop', 20, 15, 35, 2, 16, 1.0, 'scheduled', false, 2),
+('Autopilot (tiller)', 'navigation', 'IconCompass', 15, 5, 30, 0, 20, 1.0, 'scheduled', false, 3),
 ('Autopilot (wheel)', 'navigation', 'IconCompass', 42, 24, 60, 0, 20, 1.0, 'scheduled', false, 4),
-('Radar', 'navigation', 'IconRadar', 32, 20, 45, 0, 8, 1.0, 'intermittent', false, 5),
-('AIS transponder', 'navigation', 'IconBroadcast', 3.5, 2, 5, 24, 24, 1.0, 'always-on', false, 6),
-('Instruments (depth/speed/wind)', 'navigation', 'IconGauge', 3.5, 2, 5, 0, 16, 1.0, 'scheduled', false, 7),
-('GPS (standalone)', 'navigation', 'IconMapPin', 2, 1, 3, 0, 24, 1.0, 'always-on', false, 8);
+('Radar', 'navigation', 'IconRadar', 25, 17, 35, 0, 8, 1.0, 'intermittent', false, 5),
+('AIS transponder', 'navigation', 'IconBroadcast', 5, 3, 6, 24, 24, 1.0, 'always-on', false, 6),
+('Instruments (depth/speed/wind)', 'navigation', 'IconGauge', 2, 1, 3, 0, 16, 1.0, 'scheduled', false, 7),
+('GPS (standalone)', 'navigation', 'IconMapPin', 0.5, 0.3, 1, 0, 24, 1.0, 'always-on', false, 8);
 
 -- Power consumers: Communication
 INSERT INTO power_consumers (name, category, icon, watts_typical, watts_min, watts_max, hours_per_day_anchor, hours_per_day_passage, duty_cycle, usage_type, crew_scaling, sort_order) VALUES
@@ -21,11 +25,12 @@ INSERT INTO power_consumers (name, category, icon, watts_typical, watts_min, wat
 ('WiFi booster', 'communication', 'IconWifi', 8.5, 5, 12, 8, 2, 1.0, 'scheduled', false, 5);
 
 -- Power consumers: Refrigeration
+-- Sources: Isotherm Cruise 65/130 specs, Dometic CoolMatic CRX-50/110, Vitrifrigo DP2600
 INSERT INTO power_consumers (name, category, icon, watts_typical, watts_min, watts_max, hours_per_day_anchor, hours_per_day_passage, duty_cycle, usage_type, crew_scaling, sort_order) VALUES
-('Small fridge (top-loading)', 'refrigeration', 'IconFridge', 37, 30, 45, 24, 24, 0.4, 'always-on', false, 1),
-('Large fridge (front-opening)', 'refrigeration', 'IconFridge', 65, 50, 80, 24, 24, 0.5, 'always-on', false, 2),
-('Freezer (dedicated)', 'refrigeration', 'IconSnowflake', 55, 40, 70, 24, 24, 0.4, 'always-on', false, 3),
-('Fridge/freezer combo (efficient)', 'refrigeration', 'IconFridge', 45, 35, 55, 24, 24, 0.35, 'always-on', false, 4);
+('Small fridge (top-loading)', 'refrigeration', 'IconFridge', 45, 35, 55, 24, 24, 0.35, 'always-on', false, 1),
+('Large fridge (front-opening)', 'refrigeration', 'IconFridge', 55, 45, 65, 24, 24, 0.45, 'always-on', false, 2),
+('Freezer (dedicated)', 'refrigeration', 'IconSnowflake', 55, 40, 70, 24, 24, 0.5, 'always-on', false, 3),
+('Fridge/freezer combo (efficient)', 'refrigeration', 'IconFridge', 55, 42, 65, 24, 24, 0.5, 'always-on', false, 4);
 
 -- Power consumers: Lighting
 INSERT INTO power_consumers (name, category, icon, watts_typical, watts_min, watts_max, hours_per_day_anchor, hours_per_day_passage, duty_cycle, usage_type, crew_scaling, sort_order) VALUES
@@ -45,7 +50,7 @@ INSERT INTO power_consumers (name, category, icon, watts_typical, watts_min, wat
 
 -- Power consumers: Comfort / Galley
 INSERT INTO power_consumers (name, category, icon, watts_typical, watts_min, watts_max, hours_per_day_anchor, hours_per_day_passage, duty_cycle, usage_type, crew_scaling, sort_order) VALUES
-('Cabin fan (12V)', 'comfort-galley', 'IconWind', 12, 6, 18, 12, 8, 1.0, 'scheduled', false, 1),
+('Cabin fan (12V)', 'comfort-galley', 'IconWind', 4, 1.5, 7, 12, 8, 1.0, 'scheduled', false, 1),
 ('Microwave (via inverter)', 'comfort-galley', 'IconMicrowave', 1000, 800, 1200, 0.15, 0.1, 1.0, 'intermittent', true, 2),
 ('Coffee maker (via inverter)', 'comfort-galley', 'IconCoffee', 800, 600, 1000, 0.15, 0.15, 1.0, 'intermittent', false, 3),
 ('Electric kettle (via inverter)', 'comfort-galley', 'IconCoffee', 1250, 1000, 1500, 0.1, 0.1, 1.0, 'intermittent', false, 4),
@@ -103,19 +108,24 @@ INSERT INTO product_specs (component_type, make, model, specs, source_url, compa
 ('alternator-regulator', 'Balmar', 'MC-614', '{"max_field_current_a": 12, "lifepo4_compatible": true, "multi_stage": true}', 'https://www.balmar.net/mc-614/', '{12}', 250, 350);
 
 -- Boat model templates
+-- Sources: Lagoon technical spec sheets, Beneteau general specifications,
+--          Jeanneau owner's manuals, FP Elba 45/Isla 40 owner's manuals,
+--          Bavaria C42 sailboatdata, Yanmar/Volvo Penta engine datasheets
+-- Alternator amps: Yanmar 3YM30=60A, 4JH-CR series=125A, Volvo Penta D1/D2=115A
+-- Lagoon 50 uses 80A per Lagoon spec sheet despite 4JH57 engine's 125A rating
 INSERT INTO boat_model_templates (make, model, year_range, boat_type, length_ft, default_crew, factory_solar_watts, factory_battery_ah, factory_battery_chemistry, system_voltage, engine_make, engine_model, engine_alternator_amps) VALUES
-('Lagoon', '40', '2019-2024', 'catamaran', 40, 3, 0, 200, 'agm', 12, 'Yanmar', '3YM30', 80),
-('Lagoon', '42', '2019-2024', 'catamaran', 42, 3, 0, 200, 'agm', 12, 'Yanmar', '4JH45', 80),
-('Lagoon', '43', '2020-2024', 'catamaran', 43, 3, 0, 200, 'agm', 12, 'Yanmar', '4JH45', 80),
-('Lagoon', '46', '2019-2024', 'catamaran', 46, 4, 0, 400, 'agm', 12, 'Yanmar', '4JH57', 80),
-('Lagoon', '50', '2018-2024', 'catamaran', 50, 4, 200, 400, 'agm', 12, 'Yanmar', '4JH80', 120),
-('Beneteau', 'Oceanis 40.1', '2019-2024', 'monohull', 40, 2, 0, 200, 'agm', 12, 'Yanmar', '3YM30', 80),
-('Beneteau', 'Oceanis 46.1', '2019-2024', 'monohull', 46, 3, 0, 200, 'agm', 12, 'Yanmar', '4JH45', 80),
-('Jeanneau', 'Sun Odyssey 440', '2019-2024', 'monohull', 44, 2, 0, 200, 'agm', 12, 'Yanmar', '4JH45', 80),
-('Jeanneau', 'Sun Odyssey 490', '2019-2024', 'monohull', 49, 3, 0, 200, 'agm', 12, 'Yanmar', '4JH57', 80),
-('Fountaine Pajot', 'Elba 45', '2020-2024', 'catamaran', 45, 3, 0, 300, 'agm', 12, 'Yanmar', '4JH45', 80),
-('Fountaine Pajot', 'Isla 40', '2019-2024', 'catamaran', 40, 3, 0, 200, 'agm', 12, 'Yanmar', '3YM30', 80),
-('Bavaria', 'C42', '2020-2024', 'monohull', 42, 2, 0, 200, 'agm', 12, 'Volvo Penta', 'D2-40', 80);
+('Lagoon', '40', '2019-2024', 'catamaran', 40, 3, 0, 280, 'agm', 12, 'Yanmar', '3YM30', 60),
+('Lagoon', '42', '2019-2024', 'catamaran', 42, 3, 0, 280, 'agm', 12, 'Yanmar', '4JH45', 125),
+('Lagoon', '43', '2025-2026', 'catamaran', 43, 3, 0, 280, 'agm', 12, 'Yanmar', '4JH57', 125),
+('Lagoon', '46', '2019-2024', 'catamaran', 46, 4, 0, 420, 'agm', 12, 'Yanmar', '4JH57', 125),
+('Lagoon', '50', '2018-2024', 'catamaran', 50, 4, 0, 420, 'agm', 12, 'Yanmar', '4JH57', 80),
+('Beneteau', 'Oceanis 40.1', '2020-2024', 'monohull', 40, 2, 0, 460, 'agm', 12, 'Yanmar', '4JH45', 125),
+('Beneteau', 'Oceanis 46.1', '2019-2024', 'monohull', 46, 3, 0, 200, 'agm', 12, 'Yanmar', '4JH57', 125),
+('Jeanneau', 'Sun Odyssey 440', '2019-2024', 'monohull', 44, 2, 0, 230, 'agm', 12, 'Yanmar', '4JH45', 125),
+('Jeanneau', 'Sun Odyssey 490', '2019-2024', 'monohull', 49, 3, 0, 345, 'agm', 12, 'Yanmar', '4JH57', 125),
+('Fountaine Pajot', 'Elba 45', '2020-2024', 'catamaran', 45, 3, 0, 600, 'agm', 12, 'Volvo Penta', 'D2-60', 115),
+('Fountaine Pajot', 'Isla 40', '2019-2024', 'catamaran', 40, 3, 0, 345, 'agm', 12, 'Volvo Penta', 'D1-30', 115),
+('Bavaria', 'C42', '2020-2024', 'monohull', 42, 2, 0, 330, 'agm', 12, 'Volvo Penta', 'D2-40', 115);
 
 -- Default appliance IDs for monohull templates (13 standard appliances)
 UPDATE boat_model_templates SET default_appliance_ids = ARRAY(
