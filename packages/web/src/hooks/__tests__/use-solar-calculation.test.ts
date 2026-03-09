@@ -29,10 +29,18 @@ describe('computeResults', () => {
       peakSunHours: 4.5,
       alternatorAmps: 75,
       motoringHoursPerDay: 1.5,
+      solarPanelWatts: 400,
+      panelType: 'rigid',
+      shorepower: 'no',
     });
     expect(result.consumption.totalWhPerDayAnchor).toBeCloseTo(576);
     expect(result.recommendation.panelWatts.recommended).toBeGreaterThan(0);
     expect(result.recommendation.batteryAh.recommended).toBeGreaterThan(0);
+    expect(result.charging).toBeDefined();
+    expect(result.charging.solarWhPerDay).toBeGreaterThan(0);
+    expect(result.charging.totalWhPerDay).toBe(
+      result.charging.solarWhPerDay + result.charging.alternatorWhPerDay
+    );
   });
 
   it('returns zero consumption with no enabled appliances', () => {
@@ -47,6 +55,9 @@ describe('computeResults', () => {
       peakSunHours: 4.5,
       alternatorAmps: 75,
       motoringHoursPerDay: 1.5,
+      solarPanelWatts: 0,
+      panelType: 'rigid',
+      shorepower: 'no',
     });
     expect(result.consumption.totalWhPerDayAnchor).toBe(0);
   });

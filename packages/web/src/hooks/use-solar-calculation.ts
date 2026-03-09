@@ -2,7 +2,9 @@ import { useMemo } from 'react';
 import { useSolarStore } from '@/stores/solar';
 import { calculateConsumption } from '@/lib/solar/engine';
 import { calculateRecommendation } from '@/lib/solar/sizing';
-import type { Appliance, ConsumptionResult, SolarRecommendation } from '@/lib/solar/types';
+import { calculateDailyCharging } from '@/lib/solar/charging';
+import type { Appliance, ConsumptionResult, SolarRecommendation, PanelType } from '@/lib/solar/types';
+import type { ChargingResult } from '@/lib/solar/charging';
 
 interface ComputeInput {
   appliances: Appliance[];
@@ -14,11 +16,15 @@ interface ComputeInput {
   peakSunHours: number;
   alternatorAmps: number;
   motoringHoursPerDay: number;
+  solarPanelWatts: number;
+  panelType: PanelType;
+  shorepower: 'no' | 'sometimes' | 'often';
 }
 
 interface ComputeResult {
   consumption: ConsumptionResult;
   recommendation: SolarRecommendation;
+  charging: ChargingResult;
 }
 
 // Pure function — exported for testing without React context
@@ -50,7 +56,18 @@ export function computeResults(input: ComputeInput): ComputeResult {
     maxAcLoadWatts,
   });
 
-  return { consumption, recommendation };
+  const charging = calculateDailyCharging({
+    solarPanelWatts: input.solarPanelWatts,
+    panelType: input.panelType,
+    peakSunHours: input.peakSunHours,
+    deratingFactor: input.deratingFactor,
+    alternatorAmps: input.alternatorAmps,
+    motoringHoursPerDay: input.motoringHoursPerDay,
+    systemVoltage: input.systemVoltage,
+    shorepower: input.shorepower,
+  });
+
+  return { consumption, recommendation, charging };
 }
 
 // React hook — reads from Zustand store, returns memoized results
@@ -58,6 +75,7 @@ export function useSolarCalculation(peakSunHours: number) {
   const {
     appliances, crewSize, systemVoltage, batteryChemistry,
     daysAutonomy, deratingFactor, alternatorAmps, motoringHoursPerDay,
+    solarPanelWatts, panelType, shorepower,
   } = useSolarStore();
 
   return useMemo(
@@ -66,11 +84,13 @@ export function useSolarCalculation(peakSunHours: number) {
         appliances, crewSize, systemVoltage, batteryChemistry,
         daysAutonomy, deratingFactor, peakSunHours,
         alternatorAmps, motoringHoursPerDay,
+        solarPanelWatts, panelType, shorepower,
       }),
     [
       appliances, crewSize, systemVoltage, batteryChemistry,
       daysAutonomy, deratingFactor, peakSunHours,
       alternatorAmps, motoringHoursPerDay,
+      solarPanelWatts, panelType, shorepower,
     ]
   );
 }
