@@ -9,6 +9,7 @@ export default defineConfig({
   adapter: node({ mode: 'standalone' }),
   integrations: [react(), sitemap()],
   vite: {
+    envDir: '../../',
     ssr: {
       noExternal: ['@mantine/core', '@mantine/hooks'],
     },
