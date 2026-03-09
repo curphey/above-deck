@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Container, Divider, Stack, Title } from '@mantine/core';
+import { Container, Stack } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MantineProvider } from '../MantineProvider';
 
@@ -7,6 +7,7 @@ import { useSolarCalculation } from '@/hooks/use-solar-calculation';
 import { useSolarStore } from '@/stores/solar';
 import { REGIONS } from './RegionPicker';
 
+import { JourneySelector } from './JourneySelector';
 import { YourBoatSection } from './YourBoatSection';
 import { EquipmentSection } from './EquipmentSection';
 import { ChargingSection } from './ChargingSection';
@@ -14,10 +15,9 @@ import { StorageSection } from './StorageSection';
 import { BalanceSection } from './BalanceSection';
 import { SaveBar } from './SaveBar';
 
-const HEADING_FONT = "'Space Mono', monospace";
-
 function EnergyPlannerInner() {
   const regionName = useSolarStore((s) => s.regionName);
+  const viewMode = useSolarStore((s) => s.viewMode);
 
   const peakSunHours = useMemo(() => {
     const region = REGIONS.find((r) => r.label === regionName);
@@ -26,33 +26,30 @@ function EnergyPlannerInner() {
 
   const { consumption, recommendation, charging } = useSolarCalculation(peakSunHours);
 
+  const dailyDrainWh = viewMode === 'anchor'
+    ? consumption.totalWhPerDayAnchor
+    : consumption.totalWhPerDayPassage;
+
   return (
     <>
       <Container size="lg" py="xl" pb={80}>
         <Stack gap="xl">
-          <Title order={2} ff={HEADING_FONT}>Energy Planner</Title>
+          {/* 1. Journey */}
+          <JourneySelector />
 
-          {/* 1. Your Boat */}
+          {/* 2. Your Boat */}
           <YourBoatSection />
 
-          <Divider />
-
-          {/* 2. Equipment (drains) */}
+          {/* 3. Equipment (drains) */}
           <EquipmentSection />
 
-          <Divider />
-
-          {/* 3. Charging (fills) */}
+          {/* 4. Charging (fills) */}
           <ChargingSection charging={charging} />
 
-          <Divider />
+          {/* 5. Storage (buffer) */}
+          <StorageSection recommendation={recommendation} dailyDrainWh={dailyDrainWh} />
 
-          {/* 4. Storage (buffer) */}
-          <StorageSection recommendation={recommendation} dailyDrainWh={consumption.totalWhPerDayAnchor} />
-
-          <Divider />
-
-          {/* 5. Balance */}
+          {/* 6. Balance */}
           <BalanceSection
             consumption={consumption}
             charging={charging}

@@ -26,7 +26,9 @@ export function BalanceSection({ consumption, charging, recommendation }: Balanc
 
   return (
     <Stack gap="md">
-      <Title order={3} ff={HEADING_FONT}>Balance</Title>
+      <Title order={3} ff={HEADING_FONT} tt="uppercase" c="dimmed" fz="sm" style={{ letterSpacing: '1px', borderBottom: '1px solid var(--mantine-color-default-border)', paddingBottom: 8 }}>
+        6. Balance
+      </Title>
 
       <Grid>
         <Grid.Col span={{ base: 6, sm: 3 }}>

@@ -26,8 +26,8 @@ export function ChargingSection({ charging }: ChargingSectionProps) {
 
   return (
     <Stack gap="md">
-      <Title order={3} ff={HEADING_FONT}>
-        Charging — {charging.totalWhPerDay} Wh/day
+      <Title order={3} ff={HEADING_FONT} tt="uppercase" c="dimmed" fz="sm" style={{ letterSpacing: '1px', borderBottom: '1px solid var(--mantine-color-default-border)', paddingBottom: 8 }}>
+        4. Charging — {charging.totalWhPerDay} Wh/day
       </Title>
 
       {/* Solar */}
