@@ -25,6 +25,7 @@ export function useApplianceCatalog() {
         usageType: row.usage_type,
         crewScaling: row.crew_scaling ?? false,
         enabled: true,
+        origin: 'catalog',
       }));
     },
     staleTime: 1000 * 60 * 60,
