@@ -35,8 +35,14 @@ interface SolarState {
   setAlternatorAmps: (amps: number) => void;
   motoringHoursPerDay: number;
   setMotoringHoursPerDay: (hours: number) => void;
-  shorepower: 'no' | 'sometimes' | 'often';
-  setShorepower: (val: 'no' | 'sometimes' | 'often') => void;
+  journeyType: 'plan' | 'check' | 'upgrade';
+  setJourneyType: (type: 'plan' | 'check' | 'upgrade') => void;
+  shorePowerHoursPerDay: number;
+  setShorePowerHoursPerDay: (hours: number) => void;
+  shoreChargerAmps: number;
+  setShoreChargerAmps: (amps: number) => void;
+  batteryBankAh: number;
+  setBatteryBankAh: (ah: number) => void;
   deratingFactor: number;
   setDeratingFactor: (factor: number) => void;
 }
@@ -56,7 +62,10 @@ export const initialState = {
   daysAutonomy: 3,
   alternatorAmps: 75,
   motoringHoursPerDay: 1.5,
-  shorepower: 'no' as const,
+  journeyType: 'plan' as const,
+  shorePowerHoursPerDay: 0,
+  shoreChargerAmps: 30,
+  batteryBankAh: 0,
   deratingFactor: 0.75,
 };
 
@@ -103,7 +112,10 @@ export const useSolarStore = create<SolarState>()(
       setDaysAutonomy: (days) => set({ daysAutonomy: days }),
       setAlternatorAmps: (amps) => set({ alternatorAmps: amps }),
       setMotoringHoursPerDay: (hours) => set({ motoringHoursPerDay: hours }),
-      setShorepower: (val) => set({ shorepower: val }),
+      setJourneyType: (type) => set({ journeyType: type }),
+      setShorePowerHoursPerDay: (hours) => set({ shorePowerHoursPerDay: hours }),
+      setShoreChargerAmps: (amps) => set({ shoreChargerAmps: amps }),
+      setBatteryBankAh: (ah) => set({ batteryBankAh: ah }),
       setDeratingFactor: (factor) => set({ deratingFactor: factor }),
     }),
     {
@@ -123,7 +135,10 @@ export const useSolarStore = create<SolarState>()(
         daysAutonomy: state.daysAutonomy,
         alternatorAmps: state.alternatorAmps,
         motoringHoursPerDay: state.motoringHoursPerDay,
-        shorepower: state.shorepower,
+        journeyType: state.journeyType,
+        shorePowerHoursPerDay: state.shorePowerHoursPerDay,
+        shoreChargerAmps: state.shoreChargerAmps,
+        batteryBankAh: state.batteryBankAh,
         deratingFactor: state.deratingFactor,
       }),
     }

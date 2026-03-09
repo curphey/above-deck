@@ -114,9 +114,45 @@ describe('useSolarStore', () => {
     expect(useSolarStore.getState().motoringHoursPerDay).toBe(3);
   });
 
-  it('sets shorepower', () => {
-    useSolarStore.getState().setShorepower('sometimes');
-    expect(useSolarStore.getState().shorepower).toBe('sometimes');
+  it('defaults journeyType to plan', () => {
+    expect(useSolarStore.getState().journeyType).toBe('plan');
+  });
+
+  it('sets journeyType to check', () => {
+    useSolarStore.getState().setJourneyType('check');
+    expect(useSolarStore.getState().journeyType).toBe('check');
+  });
+
+  it('defaults shorePowerHoursPerDay to 0', () => {
+    expect(useSolarStore.getState().shorePowerHoursPerDay).toBe(0);
+  });
+
+  it('sets shorePowerHoursPerDay to 2.5', () => {
+    useSolarStore.getState().setShorePowerHoursPerDay(2.5);
+    expect(useSolarStore.getState().shorePowerHoursPerDay).toBe(2.5);
+  });
+
+  it('defaults shoreChargerAmps to 30', () => {
+    expect(useSolarStore.getState().shoreChargerAmps).toBe(30);
+  });
+
+  it('sets shoreChargerAmps', () => {
+    useSolarStore.getState().setShoreChargerAmps(50);
+    expect(useSolarStore.getState().shoreChargerAmps).toBe(50);
+  });
+
+  it('defaults batteryBankAh to 0', () => {
+    expect(useSolarStore.getState().batteryBankAh).toBe(0);
+  });
+
+  it('sets batteryBankAh to 400', () => {
+    useSolarStore.getState().setBatteryBankAh(400);
+    expect(useSolarStore.getState().batteryBankAh).toBe(400);
+  });
+
+  it('should not have shorepower field', () => {
+    const state = useSolarStore.getState();
+    expect('shorepower' in state).toBe(false);
   });
 
   it('sets derating factor', () => {
