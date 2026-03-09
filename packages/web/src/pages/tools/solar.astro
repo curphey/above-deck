@@ -4,5 +4,5 @@ import { EnergyPlanner } from '../../components/solar/EnergyPlanner';
 export const prerender = false;
 ---
 <BaseLayout title="Energy Planner — Above Deck">
-  <EnergyPlanner client:load />
+  <EnergyPlanner client:only="react" />
 </BaseLayout>
