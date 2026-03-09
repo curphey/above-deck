@@ -40,7 +40,7 @@ interface SolarState {
   setDeratingFactor: (factor: number) => void;
 }
 
-const initialState = {
+export const initialState = {
   journeyMode: 'new-system' as JourneyMode,
   boatModelId: null as string | null,
   crewSize: 2,

@@ -100,4 +100,39 @@ describe('useSolarStore', () => {
     useSolarStore.getState().setViewMode('passage');
     expect(useSolarStore.getState().viewMode).toBe('passage');
   });
+
+  it('sets battery chemistry', () => {
+    useSolarStore.getState().setBatteryChemistry('agm');
+    expect(useSolarStore.getState().batteryChemistry).toBe('agm');
+  });
+
+  it('sets system voltage', () => {
+    useSolarStore.getState().setSystemVoltage(24);
+    expect(useSolarStore.getState().systemVoltage).toBe(24);
+  });
+
+  it('sets days of autonomy', () => {
+    useSolarStore.getState().setDaysAutonomy(5);
+    expect(useSolarStore.getState().daysAutonomy).toBe(5);
+  });
+
+  it('sets alternator amps', () => {
+    useSolarStore.getState().setAlternatorAmps(100);
+    expect(useSolarStore.getState().alternatorAmps).toBe(100);
+  });
+
+  it('sets motoring hours per day', () => {
+    useSolarStore.getState().setMotoringHoursPerDay(3);
+    expect(useSolarStore.getState().motoringHoursPerDay).toBe(3);
+  });
+
+  it('sets shorepower', () => {
+    useSolarStore.getState().setShorepower('sometimes');
+    expect(useSolarStore.getState().shorepower).toBe('sometimes');
+  });
+
+  it('sets derating factor', () => {
+    useSolarStore.getState().setDeratingFactor(0.6);
+    expect(useSolarStore.getState().deratingFactor).toBe(0.6);
+  });
 });
