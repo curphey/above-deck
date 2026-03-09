@@ -48,7 +48,7 @@ function EnergyPlannerInner() {
           <Divider />
 
           {/* 4. Storage (buffer) */}
-          <StorageSection recommendation={recommendation} />
+          <StorageSection recommendation={recommendation} dailyDrainWh={consumption.totalWhPerDayAnchor} />
 
           <Divider />
 
