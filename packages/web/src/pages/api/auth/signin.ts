@@ -20,7 +20,8 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   });
 
   if (error) {
-    return new Response(error.message, { status: 500 });
+    console.error('Sign-in error:', error);
+    return new Response('Authentication failed', { status: 500 });
   }
 
   return redirect(data.url);

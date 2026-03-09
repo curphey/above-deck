@@ -1,8 +1,10 @@
 FROM node:20-slim
 RUN corepack enable && corepack prepare pnpm@latest --activate
-WORKDIR /app
-COPY packages/web/package.json .
-RUN pnpm install
+WORKDIR /workspace
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/web/package.json packages/web/
+RUN pnpm install --filter @above-deck/web
+WORKDIR /workspace/packages/web
 COPY packages/web .
 EXPOSE 4321
 CMD ["pnpm", "dev", "--host", "0.0.0.0"]

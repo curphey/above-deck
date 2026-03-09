@@ -132,7 +132,7 @@ BEGIN
     UPDATE discussions SET reply_count = reply_count + 1, updated_at = now()
     WHERE id = NEW.discussion_id;
   ELSIF TG_OP = 'DELETE' THEN
-    UPDATE discussions SET reply_count = reply_count - 1, updated_at = now()
+    UPDATE discussions SET reply_count = GREATEST(reply_count - 1, 0), updated_at = now()
     WHERE id = OLD.discussion_id;
   END IF;
   RETURN NULL;

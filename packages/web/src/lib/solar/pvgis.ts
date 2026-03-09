@@ -30,6 +30,7 @@ export function peakSunHours(monthlyData: PvgisMonthlyData[], month: number): nu
 }
 
 export function annualAveragePeakSunHours(monthlyData: PvgisMonthlyData[]): number {
+  if (monthlyData.length === 0) return 4.0; // fallback
   const sum = monthlyData.reduce((acc, m) => acc + m.horizontalIrradiance, 0);
   return sum / monthlyData.length;
 }
