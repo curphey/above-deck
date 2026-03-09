@@ -14,6 +14,13 @@ RUN pnpm install --filter @above-deck/web --frozen-lockfile
 
 # Copy source and build
 COPY packages/web packages/web
+
+# PUBLIC_* env vars are inlined by Astro at build time
+ARG PUBLIC_SUPABASE_URL
+ARG PUBLIC_SUPABASE_ANON_KEY
+ENV PUBLIC_SUPABASE_URL=$PUBLIC_SUPABASE_URL
+ENV PUBLIC_SUPABASE_ANON_KEY=$PUBLIC_SUPABASE_ANON_KEY
+
 RUN pnpm --filter @above-deck/web build
 
 # ── Stage 2: Production ────────────────────────

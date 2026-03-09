@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Container, Divider, Grid, Stack, Title } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MantineProvider } from '../MantineProvider';
 
 import { useApplianceCatalog } from '@/hooks/use-appliance-catalog';
 import { useSolarCalculation } from '@/hooks/use-solar-calculation';
@@ -125,8 +126,10 @@ export function EnergyPlanner() {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <EnergyPlannerInner />
-    </QueryClientProvider>
+    <MantineProvider>
+      <QueryClientProvider client={queryClient}>
+        <EnergyPlannerInner />
+      </QueryClientProvider>
+    </MantineProvider>
   );
 }
