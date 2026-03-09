@@ -65,7 +65,11 @@ tmp/screenshots/     # Screenshots (gitignored)
 | Accent — Neutral | Ocean Blue | `#60a5fa` | Links, interactive elements, focus states |
 | Grid/Lines | Blueprint Grey | `#2d2d4a` | Chart gridlines, borders, dividers at low opacity |
 
-**Typography:** Monospace or geometric sans-serif for headings (draughtsman feel). Clean sans-serif for body text. Consider: JetBrains Mono or IBM Plex Mono for headings, Inter or IBM Plex Sans for body.
+**Typography (Google Fonts only):**
+- Headings: **Space Mono** — monospace with character, draughtsman feel
+- Body: **Inter** — clean, highly legible, excellent at small sizes
+- Code/specs: **Fira Code** — monospace for technical data, specs, calculations
+- All fonts loaded via Google Fonts CDN. No self-hosted or commercial fonts.
 
 **Design Principles:**
 - Dark mode is the default — sailors plan at night
