@@ -1,0 +1,2 @@
+-- Seed data for local development
+-- This file runs on first database startup

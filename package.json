@@ -1,0 +1,10 @@
+{
+  "name": "above-deck",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @above-deck/web dev",
+    "build": "pnpm --filter @above-deck/web build",
+    "test": "pnpm --filter @above-deck/web test",
+    "test:e2e": "pnpm --filter @above-deck/web test:e2e"
+  }
+}
