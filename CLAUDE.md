@@ -1,4 +1,4 @@
-# Sailing Itinerary - Project Guidelines
+# Project Guidelines
 
 ## Critical Rules
 
@@ -41,3 +41,48 @@ tasks/todo.md        # Work tracking
 tasks/lessons.md     # Lessons learned from past mistakes
 tmp/screenshots/     # Screenshots (gitignored)
 ```
+
+## Brand Guidelines
+
+**Name:** TBD (working name: Above Deck)
+
+### Visual Identity
+
+**Aesthetic:** Minimalist, draughtsman-like — think architectural blueprints, technical drawing precision. Clean lines, generous whitespace, no visual clutter. The UI should feel like a well-drawn schematic, not a SaaS marketing page.
+
+**Colour Palette:**
+
+| Role | Colour | Hex | Usage |
+|------|--------|-----|-------|
+| Background (dark) | Deep Navy | `#1a1a2e` | Primary background, dark mode default |
+| Surface | Midnight Blue | `#16213e` | Cards, panels, elevated surfaces |
+| Background (light) | Off-White | `#f5f5f0` | Light mode background (warm, not sterile) |
+| Primary Text (dark) | Pale Grey | `#e0e0e0` | Body text on dark backgrounds |
+| Primary Text (light) | Charcoal | `#2d2d3a` | Body text on light backgrounds |
+| Secondary Text | Slate | `#8b8b9e` | Labels, captions, metadata |
+| Accent — Positive | Sea Green | `#4ade80` | Solar generation, surplus, healthy status |
+| Accent — Warning | Coral | `#f87171` | Consumption, deficit, attention needed |
+| Accent — Neutral | Ocean Blue | `#60a5fa` | Links, interactive elements, focus states |
+| Grid/Lines | Blueprint Grey | `#2d2d4a` | Chart gridlines, borders, dividers at low opacity |
+
+**Typography:** Monospace or geometric sans-serif for headings (draughtsman feel). Clean sans-serif for body text. Consider: JetBrains Mono or IBM Plex Mono for headings, Inter or IBM Plex Sans for body.
+
+**Design Principles:**
+- Dark mode is the default — sailors plan at night
+- Blueprint aesthetic: fine lines, precise spacing, technical clarity
+- No decorative elements — every visual element serves a function
+- Progressive disclosure: simple surfaces that reveal depth on interaction
+- Generous whitespace — let content breathe
+- Card-based layouts with subtle borders, not heavy shadows
+- Charts and schematics use the accent palette on dark backgrounds — like a backlit drafting table
+
+**Tone of Voice:**
+- Direct and knowledgeable — speak like a fellow sailor, not a marketer
+- Technical accuracy matters — never simplify to the point of being wrong
+- Community-first — "we" not "our platform", no commercial language
+- Trusted and transparent — explain the why, not just the what
+- No dark patterns, no urgency tactics, no upselling
+
+**Logo:** TBD — should feel like a maker's mark or technical stamp, not a corporate logo
+
+**Icons:** Tabler Icons (Mantine's default set) — consistent line weight, minimal style
