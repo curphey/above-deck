@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Energy Planner — Low-Fi Wireframe</title>
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #f0f0f0;
+      color: #333;
+      line-height: 1.5;
+      padding: 0 0 80px 0;
+    }
+
+    /* ─── Wireframe annotation style ─── */
+    .annotation {
+      font-size: 11px;
+      color: #e74c3c;
+      font-style: italic;
+      margin-top: 4px;
+      padding-left: 4px;
+      border-left: 2px solid #e74c3c;
+    }
+
+    /* ─── Layout ─── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    section {
+      margin: 32px 0;
+      padding: 24px;
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+    }
+
+    section h2 {
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #666;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    /* ─── Navigation bar ─── */
+    .nav-bar {
+      background: #fff;
+      border-bottom: 2px solid #ccc;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-bar .logo {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      font-size: 13px;
+    }
+    .nav-links a {
+      color: #666;
+      text-decoration: none;
+    }
+    .nav-links a.active {
+      color: #333;
+      font-weight: bold;
+      border-bottom: 2px solid #333;
+      padding-bottom: 2px;
+    }
+    .nav-auth {
+      font-size: 13px;
+      color: #999;
+      border: 1px solid #ccc;
+      padding: 4px 12px;
+      border-radius: 3px;
+    }
+
+    /* ─── Section anchors nav ─── */
+    .section-nav {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 8px 20px;
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      position: sticky;
+      top: 46px;
+      z-index: 99;
+    }
+    .section-nav a {
+      color: #888;
+      text-decoration: none;
+    }
+    .section-nav a:hover {
+      color: #333;
+    }
+
+    /* ─── Grey placeholder boxes ─── */
+    .placeholder {
+      background: #e8e8e8;
+      border: 1px dashed #aaa;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #777;
+      font-size: 13px;
+      text-align: center;
+      padding: 12px;
+    }
+    .placeholder.tall { min-height: 200px; }
+    .placeholder.medium { min-height: 120px; }
+    .placeholder.short { min-height: 60px; }
+
+    /* ─── Journey selector cards ─── */
+    .journey-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .journey-card {
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .journey-card:hover {
+      border-color: #888;
+    }
+    .journey-card.selected {
+      border-color: #333;
+      background: #f8f8f8;
+    }
+    .journey-card .icon-placeholder {
+      width: 48px;
+      height: 48px;
+      background: #ddd;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+    }
+    .journey-card h3 {
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .journey-card p {
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* ─── Quick Start inputs ─── */
+    .quick-start-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 16px;
+      align-items: end;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .input-group label {
+      font-size: 12px;
+      font-weight: bold;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .input-mock {
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #999;
+      background: #fafafa;
+    }
+    .style-toggle {
+      display: flex;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .style-toggle span {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      color: #888;
+      cursor: pointer;
+      border-right: 1px solid #ccc;
+    }
+    .style-toggle span:last-child { border-right: none; }
+    .style-toggle span.selected {
+      background: #333;
+      color: #fff;
+    }
+
+    /* ─── Instant results banner ─── */
+    .results-banner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .result-stat {
+      text-align: center;
+      padding: 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fafafa;
+    }
+    .result-stat .value {
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+    }
+    .result-stat .unit {
+      font-size: 12px;
+      color: #888;
+    }
+    .result-stat .label {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #aaa;
+      margin-right: 4px;
+    }
+    .status-dot.green { background: #4ade80; }
+    .status-dot.amber { background: #fbbf24; }
+    .status-dot.red { background: #f87171; }
+    .location-note {
+      text-align: center;
+      font-size: 12px;
+      color: #888;
+      margin-top: 12px;
+    }
+    .location-note a {
+      color: #60a5fa;
+      cursor: pointer;
+    }
+
+    /* ─── Customize: Appliance grid ─── */
+    .mode-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+    }
+    .mode-toggle button {
+      flex: 1;
+      padding: 8px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      background: #fafafa;
+      cursor: pointer;
+      color: #666;
+    }
+    .mode-toggle button.selected {
+      background: #333;
+      color: #fff;
+      border-color: #333;
+    }
+    .mode-toggle button:first-child { border-radius: 3px 0 0 3px; }
+    .mode-toggle button:last-child { border-radius: 0 3px 3px 0; }
+
+    .category-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .category-tab {
+      font-size: 11px;
+      padding: 4px 10px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      color: #888;
+      cursor: pointer;
+    }
+    .category-tab.selected {
+      background: #333;
+      color: #fff;
+      border-color: #333;
+    }
+
+    .appliance-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .appliance-card {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .appliance-card .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .appliance-card .card-header .name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .toggle-mock {
+      width: 36px;
+      height: 20px;
+      background: #ccc;
+      border-radius: 10px;
+      position: relative;
+    }
+    .toggle-mock.on { background: #4ade80; }
+    .toggle-mock.on::after {
+      content: '';
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+    }
+    .toggle-mock::after {
+      content: '';
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+    }
+    .appliance-card .watts {
+      font-size: 11px;
+      color: #888;
+    }
+    .slider-mock {
+      height: 4px;
+      background: #e0e0e0;
+      border-radius: 2px;
+      position: relative;
+    }
+    .slider-mock .fill {
+      height: 100%;
+      background: #aaa;
+      border-radius: 2px;
+      width: 40%;
+    }
+    .slider-mock .thumb {
+      width: 12px;
+      height: 12px;
+      background: #666;
+      border-radius: 50%;
+      position: absolute;
+      top: -4px;
+      left: 38%;
+    }
+    .hours-label {
+      font-size: 10px;
+      color: #aaa;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ─── Customize: Map region picker ─── */
+    .map-section {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+    }
+    .map-section h3 {
+      font-size: 13px;
+      font-weight: bold;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    /* ─── Customize: System preferences ─── */
+    .preferences-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+    }
+
+    /* ─── Detailed results: 3 tiers ─── */
+    .tiers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .tier-column {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .tier-column.recommended {
+      border: 2px solid #333;
+    }
+    .tier-header {
+      padding: 12px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #f5f5f5;
+      border-bottom: 1px solid #ddd;
+    }
+    .tier-column.recommended .tier-header {
+      background: #333;
+      color: #fff;
+    }
+    .tier-body {
+      padding: 12px;
+    }
+    .component-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 12px;
+    }
+    .component-row:last-child { border-bottom: none; }
+    .component-row .comp-label { color: #888; }
+    .component-row .comp-value { font-weight: 600; }
+
+    .product-example {
+      margin-top: 12px;
+    }
+    .product-example h4 {
+      font-size: 11px;
+      color: #999;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .product-card-mock {
+      background: #f5f5f5;
+      border: 1px dashed #ccc;
+      border-radius: 3px;
+      padding: 8px;
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+
+    /* ─── Charts 2x2 grid ─── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* ─── Save bar ─── */
+    .save-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 2px solid #ccc;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      align-items: center;
+      z-index: 100;
+    }
+    .btn-mock {
+      padding: 8px 20px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: #fafafa;
+      color: #666;
+      cursor: pointer;
+    }
+    .btn-mock.primary {
+      background: #333;
+      color: #fff;
+      border-color: #333;
+    }
+
+    /* ─── Mobile responsive ─── */
+    @media (max-width: 768px) {
+      .journey-cards { grid-template-columns: 1fr; }
+      .quick-start-row { grid-template-columns: 1fr; }
+      .results-banner { grid-template-columns: repeat(2, 1fr); }
+      .appliance-grid { grid-template-columns: 1fr 1fr; }
+      .preferences-grid { grid-template-columns: 1fr; }
+      .tiers-grid { grid-template-columns: 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .appliance-grid { grid-template-columns: 1fr; }
+      .results-banner { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ NAV BAR ═══ -->
+  <div class="nav-bar">
+    <div class="logo">ABOVE DECK</div>
+    <div class="nav-links">
+      <a href="#" class="active">Tools</a>
+      <a href="#">Knowledge</a>
+      <a href="#">Blog</a>
+      <a href="#">Community</a>
+    </div>
+    <div class="nav-auth">Sign in with Google</div>
+  </div>
+
+  <!-- ═══ SECTION NAV ═══ -->
+  <div class="section-nav">
+    <a href="#journey">Journey</a>
+    <a href="#quickstart">Quick Start</a>
+    <a href="#results-banner">Results</a>
+    <a href="#customize">Customize</a>
+    <a href="#detailed-results">Details</a>
+    <a href="#charts">Charts</a>
+    <a href="#schematic">Schematic</a>
+  </div>
+
+  <div class="container">
+
+    <!-- ═══ SECTION 1: JOURNEY SELECTOR ═══ -->
+    <section id="journey">
+      <h2>1. What brings you here?</h2>
+      <div class="journey-cards">
+        <div class="journey-card selected" onclick="selectJourney(this)">
+          <div class="icon-placeholder"></div>
+          <h3>Plan a new system</h3>
+          <p>Full sizing from scratch — boat, loads, location, complete recommendation</p>
+        </div>
+        <div class="journey-card" onclick="selectJourney(this)">
+          <div class="icon-placeholder"></div>
+          <h3>Check my existing setup</h3>
+          <p>Enter what you have — see if your solar and batteries are enough</p>
+        </div>
+        <div class="journey-card" onclick="selectJourney(this)">
+          <div class="icon-placeholder"></div>
+          <h3>Add or upgrade</h3>
+          <p>Adding a watermaker? Switching to lithium? See what changes</p>
+        </div>
+      </div>
+      <div class="annotation">Selecting a journey pre-configures visible sections below. All share same engine. User can switch at any time.</div>
+    </section>
+
+    <!-- ═══ SECTION 2: QUICK START ═══ -->
+    <section id="quickstart">
+      <h2>2. Quick Start — 30 seconds</h2>
+      <div class="quick-start-row">
+        <div class="input-group">
+          <label>Your boat</label>
+          <div class="input-mock">Search... e.g. "Lagoon 43"</div>
+          <div class="annotation">Autocomplete from boat_model_templates. Selecting pre-fills factory specs, default appliances, crew capacity. "Custom / I don't know" option triggers length + type picker.</div>
+        </div>
+        <div class="input-group">
+          <label>Crew</label>
+          <div class="input-mock" style="text-align: center;">2 &nbsp; [-] [+]</div>
+          <div class="annotation">Pre-filled from boat model. Stepper control. Affects crew-scaled appliances (water pump, charging, galley).</div>
+        </div>
+        <div class="input-group">
+          <label>Cruising style</label>
+          <div class="style-toggle">
+            <span>Weekend</span>
+            <span class="selected">Coastal</span>
+            <span>Offshore</span>
+          </div>
+          <div class="annotation">Pre-selects an appliance profile. Weekend = minimal. Coastal = typical. Offshore = everything including watermaker, SSB, sat comms.</div>
+        </div>
+      </div>
+      <div class="annotation" style="margin-top: 12px;">Three inputs only. Result appears instantly below. Default solar irradiance uses Mediterranean average (~4.5 PSH). Note in results links to map picker in Customize section.</div>
+    </section>
+
+    <!-- ═══ SECTION 3: INSTANT RESULTS BANNER ═══ -->
+    <section id="results-banner">
+      <h2>3. Your system at a glance</h2>
+      <div class="results-banner">
+        <div class="result-stat">
+          <div class="value">2,340</div>
+          <div class="unit">Wh/day</div>
+          <div class="label">Daily consumption</div>
+        </div>
+        <div class="result-stat">
+          <div class="value">480</div>
+          <div class="unit">watts</div>
+          <div class="label"><span class="status-dot green"></span>Solar needed</div>
+        </div>
+        <div class="result-stat">
+          <div class="value">400</div>
+          <div class="unit">Ah</div>
+          <div class="label">Battery bank</div>
+        </div>
+        <div class="result-stat">
+          <div class="value">+15%</div>
+          <div class="unit">surplus</div>
+          <div class="label"><span class="status-dot green"></span>Daily balance</div>
+        </div>
+      </div>
+      <div class="location-note">
+        Based on typical Mediterranean sunshine (4.5 PSH). <a href="#map-picker">Adjust for your cruising area ↓</a>
+      </div>
+      <div class="annotation">Updates in real-time as inputs change. Status dots: green = surplus, amber = marginal, red = deficit. No "Calculate" button — results are always live.</div>
+    </section>
+
+    <!-- ═══ SECTION 4: CUSTOMIZE ═══ -->
+    <section id="customize">
+      <h2>4. Customize</h2>
+
+      <!-- Anchor / Passage toggle -->
+      <div class="mode-toggle">
+        <button class="selected">At Anchor</button>
+        <button>On Passage</button>
+      </div>
+      <div class="annotation">Toggles which hours/day values show for each appliance. Anchor = at rest. Passage = motoring/sailing with nav gear active.</div>
+
+      <!-- Category tabs -->
+      <div class="category-tabs">
+        <span class="category-tab selected">All</span>
+        <span class="category-tab">Navigation</span>
+        <span class="category-tab">Communication</span>
+        <span class="category-tab">Refrigeration</span>
+        <span class="category-tab">Lighting</span>
+        <span class="category-tab">Water Systems</span>
+        <span class="category-tab">Comfort / Galley</span>
+        <span class="category-tab">Charging</span>
+        <span class="category-tab">Sailing / Safety</span>
+      </div>
+
+      <!-- Appliance grid -->
+      <div class="appliance-grid">
+        <!-- Card 1 -->
+        <div class="appliance-card">
+          <div class="card-header">
+            <span class="name">Chartplotter</span>
+            <div class="toggle-mock on"></div>
+          </div>
+          <div class="watts">25W typical (15–40W)</div>
+          <div class="slider-mock"><div class="fill"></div><div class="thumb"></div></div>
+          <div class="hours-label"><span>0h</span><span>4h/day</span><span>24h</span></div>
+          <div class="annotation">Slider sets hours/day. Tap value to type exact number. Wattage editable in Advanced.</div>
+        </div>
+        <!-- Card 2 -->
+        <div class="appliance-card">
+          <div class="card-header">
+            <span class="name">Autopilot</span>
+            <div class="toggle-mock on"></div>
+          </div>
+          <div class="watts">60W typical (30–120W)</div>
+          <div class="slider-mock"><div class="fill" style="width:70%"></div><div class="thumb" style="left:68%"></div></div>
+          <div class="hours-label"><span>0h</span><span>8h/day</span><span>24h</span></div>
+        </div>
+        <!-- Card 3 -->
+        <div class="appliance-card">
+          <div class="card-header">
+            <span class="name">Fridge (large)</span>
+            <div class="toggle-mock on"></div>
+          </div>
+          <div class="watts">60W typical (40–80W)</div>
+          <div class="slider-mock"><div class="fill" style="width:100%"></div><div class="thumb" style="left:97%"></div></div>
+          <div class="hours-label"><span>0h</span><span>24h/day</span><span>24h</span></div>
+          <div class="annotation">Always-on appliance. Duty cycle 0.4 applied internally (fridge cycles on/off). Shown as 24h but effective consumption is ~40%.</div>
+        </div>
+        <!-- Card 4 -->
+        <div class="appliance-card">
+          <div class="card-header">
+            <span class="name">Starlink</span>
+            <div class="toggle-mock on"></div>
+          </div>
+          <div class="watts">50W typical (40–100W)</div>
+          <div class="slider-mock"><div class="fill" style="width:50%"></div><div class="thumb" style="left:48%"></div></div>
+          <div class="hours-label"><span>0h</span><span>12h/day</span><span>24h</span></div>
+        </div>
+        <!-- Card 5 -->
+        <div class="appliance-card">
+          <div class="card-header">
+            <span class="name">Watermaker</span>
+            <div class="toggle-mock"></div>
+          </div>
+          <div class="watts">350W typical (200–600W)</div>
+          <div class="slider-mock"><div class="fill" style="width:0"></div><div class="thumb" style="left:0"></div></div>
+          <div class="hours-label"><span>0h</span><span>off</span><span>24h</span></div>
+          <div class="annotation">Toggled off. Grey/muted state. Turning on adds significant load — results update immediately showing impact.</div>
+        </div>
+        <!-- Card 6 -->
+        <div class="appliance-card">
+          <div class="card-header">
+            <span class="name">Cabin LEDs</span>
+            <div class="toggle-mock on"></div>
+          </div>
+          <div class="watts">20W typical (10–30W)</div>
+          <div class="slider-mock"><div class="fill" style="width:25%"></div><div class="thumb" style="left:23%"></div></div>
+          <div class="hours-label"><span>0h</span><span>5h/day</span><span>24h</span></div>
+        </div>
+        <!-- Card 7 — crew scaled -->
+        <div class="appliance-card" style="border-left: 3px solid #60a5fa;">
+          <div class="card-header">
+            <span class="name">Device Charging</span>
+            <div class="toggle-mock on"></div>
+          </div>
+          <div class="watts">60W typical × 2 crew</div>
+          <div class="slider-mock"><div class="fill" style="width:30%"></div><div class="thumb" style="left:28%"></div></div>
+          <div class="hours-label"><span>0h</span><span>4h/day</span><span>24h</span></div>
+          <div class="annotation">Blue left border = crew-scaled appliance. Wattage multiplied by (crewSize / 2). "× 2 crew" shown.</div>
+        </div>
+        <!-- Card 8 -->
+        <div class="appliance-card">
+          <div class="card-header">
+            <span class="name">+ Add appliance</span>
+          </div>
+          <div class="placeholder short" style="border: none; background: none; color: #aaa;">Custom appliance with your own wattage and hours</div>
+        </div>
+      </div>
+
+      <!-- ─── Map-based region picker ─── -->
+      <div class="map-section" id="map-picker">
+        <h3>Cruising Region</h3>
+        <div class="placeholder tall">
+          <div>
+            <strong>MAPBOX INTERACTIVE MAP</strong><br><br>
+            Pre-highlighted clickable cruising zones:<br>
+            Caribbean · Mediterranean · Northern Europe<br>
+            SE Asia · South Pacific · East Coast US<br>
+            West Coast US · Indian Ocean · Red Sea<br><br>
+            Click zone → selects region → shows avg peak sun hours<br>
+            "Or drop a pin for exact location" → lat/lon → PVGIS lookup
+          </div>
+        </div>
+        <div class="annotation">Mapbox GL JS. Zones are GeoJSON polygons with pre-computed PVGIS averages. Clicking a zone is instant. Pin drop triggers PVGIS API call (cached). Selected region updates results immediately.</div>
+      </div>
+
+      <!-- System preferences -->
+      <div class="preferences-grid">
+        <div class="input-group">
+          <label>Battery Chemistry</label>
+          <div class="style-toggle">
+            <span>AGM</span>
+            <span class="selected">LiFePO4</span>
+          </div>
+          <div class="annotation">AGM: 50% DoD, heavier, cheaper. LiFePO4: 80% DoD, lighter, needs BMS + smart regulator. Side-by-side comparison via "Learn more" link to KB.</div>
+        </div>
+        <div class="input-group">
+          <label>System Voltage</label>
+          <div class="style-toggle">
+            <span class="selected">12V</span>
+            <span>24V</span>
+            <span>48V</span>
+          </div>
+          <div class="annotation">Affects battery count, wire gauge, MPPT sizing. Most boats under 45ft are 12V.</div>
+        </div>
+        <div class="input-group">
+          <label>Days of Autonomy</label>
+          <div class="input-mock" style="text-align: center;">3 days &nbsp; [-] [+]</div>
+          <div class="annotation">How many days without sun the battery bank should sustain. Default 3. Range 1-7. Higher = bigger bank.</div>
+        </div>
+      </div>
+
+      <!-- Alternator / charging sources -->
+      <div class="preferences-grid" style="border-top: 1px solid #eee; padding-top: 16px; margin-top: 16px;">
+        <div class="input-group">
+          <label>Engine Alternator</label>
+          <div class="input-mock">75A @ 14V</div>
+          <div class="annotation">Pre-filled from boat model. Amps × voltage × motoring hours × 0.7 efficiency = daily alternator contribution.</div>
+        </div>
+        <div class="input-group">
+          <label>Motoring Hours / Day</label>
+          <div class="input-mock" style="text-align: center;">1.5 hrs &nbsp; [-] [+]</div>
+          <div class="annotation">Typical: 1-2h coastal, 4-8h passage. Pre-filled from cruising style.</div>
+        </div>
+        <div class="input-group">
+          <label>Shore Power Access</label>
+          <div class="style-toggle">
+            <span class="selected">No</span>
+            <span>Sometimes</span>
+            <span>Often</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 5: DETAILED RESULTS — 3 TIERS ═══ -->
+    <section id="detailed-results">
+      <h2>5. System Recommendation</h2>
+      <div class="tiers-grid">
+        <!-- Minimum -->
+        <div class="tier-column">
+          <div class="tier-header">Minimum</div>
+          <div class="tier-body">
+            <div class="component-row">
+              <span class="comp-label">Solar Panels</span>
+              <span class="comp-value">360W</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">MPPT Controller</span>
+              <span class="comp-value">30A / 100V</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Battery Bank</span>
+              <span class="comp-value">300Ah LiFePO4</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Inverter</span>
+              <span class="comp-value">1000W</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Alternator</span>
+              <span class="comp-value">+45Ah/day</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Battery Monitor</span>
+              <span class="comp-value">Shunt-based</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Main Wiring</span>
+              <span class="comp-value">4 AWG</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommended (highlighted) -->
+        <div class="tier-column recommended">
+          <div class="tier-header">Recommended</div>
+          <div class="tier-body">
+            <div class="component-row">
+              <span class="comp-label">Solar Panels</span>
+              <span class="comp-value">480W</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">MPPT Controller</span>
+              <span class="comp-value">50A / 100V</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Battery Bank</span>
+              <span class="comp-value">400Ah LiFePO4</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Inverter</span>
+              <span class="comp-value">2000W</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Alternator</span>
+              <span class="comp-value">+45Ah/day</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Battery Monitor</span>
+              <span class="comp-value">Shunt-based</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Main Wiring</span>
+              <span class="comp-value">2 AWG</span>
+            </div>
+
+            <div class="product-example">
+              <h4>Example products</h4>
+              <div class="product-card-mock">Victron SmartSolar 100/50 MPPT — €180</div>
+              <div class="product-card-mock">Battle Born 100Ah LiFePO4 × 4 — €4,200</div>
+              <div class="product-card-mock">Victron MultiPlus 12/2000 — €950</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comfortable -->
+        <div class="tier-column">
+          <div class="tier-header">Comfortable</div>
+          <div class="tier-body">
+            <div class="component-row">
+              <span class="comp-label">Solar Panels</span>
+              <span class="comp-value">600W</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">MPPT Controller</span>
+              <span class="comp-value">50A / 150V</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Battery Bank</span>
+              <span class="comp-value">600Ah LiFePO4</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Inverter</span>
+              <span class="comp-value">3000W</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Alternator</span>
+              <span class="comp-value">+45Ah/day</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Battery Monitor</span>
+              <span class="comp-value">Shunt-based</span>
+            </div>
+            <div class="component-row">
+              <span class="comp-label">Main Wiring</span>
+              <span class="comp-value">1/0 AWG</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="annotation" style="margin-top: 12px;">Three tiers from the sizing engine. "Recommended" is the primary. Product examples from product_specs table — 2-3 per component. "Don't see your product? Request it →" link below each section.</div>
+
+      <div style="text-align: center; margin-top: 16px;">
+        <span class="btn-mock">Don't see your product? Request it</span>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 6: CHARTS ═══ -->
+    <section id="charts">
+      <h2>6. Visualizations</h2>
+      <div class="charts-grid">
+        <div class="placeholder tall">
+          <div>
+            <strong>24-HOUR ENERGY FLOW</strong><br><br>
+            X: 00:00 → 24:00<br>
+            Green bell curve = solar generation<br>
+            Red stacked areas = consumption by category<br>
+            Grey area = battery charging/discharging<br><br>
+            Toggleable: At Anchor / On Passage
+          </div>
+        </div>
+        <div class="placeholder tall">
+          <div>
+            <strong>MONTHLY GENERATION</strong><br><br>
+            X: Jan → Dec (12 bars)<br>
+            Green bars = solar generation per month (PVGIS)<br>
+            Red horizontal line = daily consumption<br><br>
+            Highlights deficit months in red<br>
+            Surplus months in green
+          </div>
+        </div>
+        <div class="placeholder tall">
+          <div>
+            <strong>CONSUMPTION BREAKDOWN</strong><br><br>
+            Donut chart<br>
+            Segments by category (colour-coded)<br>
+            Centre: total daily Wh<br><br>
+            Refrigeration · Navigation · Comfort<br>
+            Lighting · Comms · Water · Charging · Safety
+          </div>
+        </div>
+        <div class="placeholder tall">
+          <div>
+            <strong>MULTI-LOCATION COMPARE</strong><br><br>
+            Side-by-side bars for 2-3 locations<br>
+            "Your 480W setup produces:<br>
+            Caribbean: 2,160 Wh/day<br>
+            Med: 1,800 Wh/day<br>
+            UK: 920 Wh/day"<br><br>
+            <em>Only shown when multiple locations selected</em>
+          </div>
+        </div>
+      </div>
+      <div class="annotation">All Recharts. Real-time updates. 24h chart is the hero visual — shown prominently. Monthly chart uses PVGIS data. Donut is supplementary. Multi-location only if 2+ locations picked.</div>
+    </section>
+
+    <!-- ═══ SECTION 7: SYSTEM SCHEMATIC ═══ -->
+    <section id="schematic">
+      <h2>7. System Schematic</h2>
+      <div class="placeholder" style="min-height: 300px;">
+        <div>
+          <strong>AUTO-GENERATED SVG WIRING DIAGRAM</strong><br><br>
+          <pre style="text-align: left; font-size: 11px; line-height: 1.6;">
+  [Solar Panels 480W]
+        |
+  [MPPT 100/50] ──── [Battery Monitor]
+        |                    |
+  [Battery Bank 400Ah LiFePO4] ──── [BMS]
+        |         |
+  [DC Panel]    [Inverter 2000W]
+     |               |
+  [DC Loads]    [AC Panel]
+                     |
+                [AC Loads]
+
+  [Alternator] → [Smart Regulator] → [Batteries]
+  [Shore Power] → [Inverter/Charger] → [Batteries]
+
+  ◉ Fuse/breaker locations marked
+  ◉ Wire gauges labelled on each run
+  ◉ Colour-coded by circuit type
+          </pre>
+          <br>
+          Adapts to config: LiFePO4 → shows BMS + smart reg.<br>
+          No AC loads → inverter hidden. 24V → series batteries.
+        </div>
+      </div>
+      <div class="annotation">SVG rendered from config. Exportable as PDF. Clean technical drawing style — not photo-realistic. Colour-coded circuits. Component specs labelled. Useful for showing a marine electrician.</div>
+    </section>
+
+    <!-- ═══ SECTION 8: WHAT IF? ═══ -->
+    <section>
+      <h2>8. "What If?" Panel</h2>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div class="btn-mock" style="text-align: left;">+ What if I add 200W more solar?</div>
+        <div class="btn-mock" style="text-align: left;">+ What if I switch from AGM to LiFePO4?</div>
+        <div class="btn-mock" style="text-align: left;">+ What if I add a watermaker?</div>
+        <div class="btn-mock" style="text-align: left;">+ What if I cruise the Med instead of Caribbean?</div>
+        <div class="btn-mock" style="text-align: left;">+ What if I add a washer/dryer?</div>
+      </div>
+      <div class="annotation">Clicking a "What if" applies the change and shows before/after delta. Results update in real-time. Clear delta display: "Adding 200W solar increases daily generation from 1,800 to 2,340 Wh (+30%)"</div>
+    </section>
+
+  </div>
+
+  <!-- ═══ SAVE BAR (sticky bottom) ═══ -->
+  <div class="save-bar">
+    <span class="btn-mock primary">Save to browser</span>
+    <span class="btn-mock">Sign in to save across devices</span>
+    <span class="btn-mock" style="opacity: 0.5; pointer-events: none;">Share link</span>
+    <div class="annotation" style="border: none; font-size: 10px;">Auto-saves to localStorage always. "Sign in" → Google OAuth → saves to Supabase. "Share link" active after sign-in.</div>
+  </div>
+
+  <!-- ═══ Minimal interactivity for demo ═══ -->
+  <script>
+    function selectJourney(el) {
+      document.querySelectorAll('.journey-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+  </script>
+
+</body>
+</html>
