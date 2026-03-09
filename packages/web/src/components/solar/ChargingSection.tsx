@@ -19,8 +19,10 @@ export function ChargingSection({ charging }: ChargingSectionProps) {
   const setAlternatorAmps = useSolarStore((s) => s.setAlternatorAmps);
   const motoringHoursPerDay = useSolarStore((s) => s.motoringHoursPerDay);
   const setMotoringHoursPerDay = useSolarStore((s) => s.setMotoringHoursPerDay);
-  const shorepower = useSolarStore((s) => s.shorepower);
-  const setShorepower = useSolarStore((s) => s.setShorepower);
+  const shorePowerHoursPerDay = useSolarStore((s) => s.shorePowerHoursPerDay);
+  const setShorePowerHoursPerDay = useSolarStore((s) => s.setShorePowerHoursPerDay);
+  const shoreChargerAmps = useSolarStore((s) => s.shoreChargerAmps);
+  const setShoreChargerAmps = useSolarStore((s) => s.setShoreChargerAmps);
 
   return (
     <Stack gap="md">
@@ -52,6 +54,7 @@ export function ChargingSection({ charging }: ChargingSectionProps) {
       </Grid>
       <Text size="xs" c="dimmed">
         Estimated solar: {charging.solarWhPerDay} Wh/day
+        {charging.shoreWhPerDay > 0 && ` · Shore: ${charging.shoreWhPerDay} Wh/day`}
       </Text>
 
       {/* Alternator */}
@@ -67,15 +70,20 @@ export function ChargingSection({ charging }: ChargingSectionProps) {
             onChange={(val) => setMotoringHoursPerDay(Number(val) || 0)}
             min={0} max={24} step={0.5} decimalScale={1} />
         </Grid.Col>
-        <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Text size="sm" mb={4}>Shore power</Text>
-          <SegmentedControl fullWidth value={shorepower}
-            onChange={(val) => setShorepower(val as 'no' | 'sometimes' | 'often')}
-            data={[
-              { label: 'No', value: 'no' },
-              { label: 'Sometimes', value: 'sometimes' },
-              { label: 'Often', value: 'often' },
-            ]} />
+      </Grid>
+
+      {/* Shore Power */}
+      <Text fw={600} size="sm" mt="md">Shore Power</Text>
+      <Grid>
+        <Grid.Col span={{ base: 6, sm: 4 }}>
+          <NumberInput label="Shore power hours/day" value={shorePowerHoursPerDay}
+            onChange={(val) => setShorePowerHoursPerDay(Number(val) || 0)}
+            min={0} max={24} step={0.5} decimalScale={1} />
+        </Grid.Col>
+        <Grid.Col span={{ base: 6, sm: 4 }}>
+          <NumberInput label="Shore charger amps" value={shoreChargerAmps}
+            onChange={(val) => setShoreChargerAmps(Number(val) || 0)}
+            min={0} max={100} />
         </Grid.Col>
       </Grid>
     </Stack>
