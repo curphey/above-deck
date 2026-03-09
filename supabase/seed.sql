@@ -116,3 +116,26 @@ INSERT INTO boat_model_templates (make, model, year_range, boat_type, length_ft,
 ('Fountaine Pajot', 'Elba 45', '2020-2024', 'catamaran', 45, 3, 0, 300, 'agm', 12, 'Yanmar', '4JH45', 80),
 ('Fountaine Pajot', 'Isla 40', '2019-2024', 'catamaran', 40, 3, 0, 200, 'agm', 12, 'Yanmar', '3YM30', 80),
 ('Bavaria', 'C42', '2020-2024', 'monohull', 42, 2, 0, 200, 'agm', 12, 'Volvo Penta', 'D2-40', 80);
+
+-- Default appliance IDs for monohull templates (13 standard appliances)
+UPDATE boat_model_templates SET default_appliance_ids = ARRAY(
+  SELECT id FROM power_consumers WHERE name IN (
+    'Chartplotter (7")', 'VHF radio (receive)', 'AIS transponder',
+    'Autopilot (wheel)', 'LED navigation lights (tricolor)', 'LED cabin lights (all)',
+    'Cockpit/deck light', 'LED anchor light', 'Instruments (depth/speed/wind)',
+    'Small fridge (top-loading)', 'Bilge pump (auto)',
+    'Phone/tablet charging (x2)', 'Cabin fan (12V)'
+  )
+) WHERE boat_type = 'monohull';
+
+-- Default appliance IDs for catamaran templates (16 appliances including radar, freezer, windlass)
+UPDATE boat_model_templates SET default_appliance_ids = ARRAY(
+  SELECT id FROM power_consumers WHERE name IN (
+    'Chartplotter (9-12")', 'VHF radio (receive)', 'AIS transponder',
+    'Autopilot (wheel)', 'LED navigation lights (tricolor)', 'LED cabin lights (all)',
+    'Cockpit/deck light', 'LED anchor light', 'Instruments (depth/speed/wind)',
+    'Small fridge (top-loading)', 'Freezer (dedicated)', 'Bilge pump (auto)',
+    'Phone/tablet charging (x2)', 'Cabin fan (12V)',
+    'Radar', 'Electric windlass'
+  )
+) WHERE boat_type = 'catamaran';
