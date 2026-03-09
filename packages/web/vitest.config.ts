@@ -4,8 +4,13 @@ import { resolve } from 'path';
 export default defineConfig({
   test: {
     environment: 'jsdom',
+    environmentOptions: {
+      jsdom: {
+        url: 'http://localhost',
+      },
+    },
     globals: true,
-    setupFiles: [],
+    setupFiles: ['./src/test/setup.ts'],
   },
   resolve: {
     alias: {
