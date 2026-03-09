@@ -1,4 +1,4 @@
-import { Grid, NumberInput, SegmentedControl, Text, Stack } from '@mantine/core';
+import { Grid, NumberInput, SegmentedControl, Input, Stack } from '@mantine/core';
 import { useSolarStore } from '@/stores/solar';
 import type { CruisingStyle } from '@/stores/solar';
 import { BoatSelector } from './BoatSelector';
@@ -32,17 +32,14 @@ export function QuickStart() {
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Stack gap={4}>
-          <Text size="sm" fw={500}>
-            Cruising style
-          </Text>
+        <Input.Wrapper label="Cruising style">
           <SegmentedControl
             value={cruisingStyle}
             onChange={(val) => setCruisingStyle(val as CruisingStyle)}
             data={styleOptions}
             fullWidth
           />
-        </Stack>
+        </Input.Wrapper>
       </Grid.Col>
     </Grid>
   );

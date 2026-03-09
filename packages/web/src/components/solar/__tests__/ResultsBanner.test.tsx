@@ -98,7 +98,7 @@ describe('ResultsBanner', () => {
   });
 
   it('shows deficit when balance is negative', () => {
-    const deficitRec = { ...mockRecommendation, dailyBalance: -500 };
+    const deficitRec = { ...mockRecommendation, dailyGenerationWh: 1500, dailyBalance: -900 };
     renderWithMantine(
       <ResultsBanner
         consumption={mockConsumption}

@@ -57,7 +57,7 @@ export function ApplianceGrid() {
             size="xs"
             variant="outline"
           >
-            {cat === 'All' ? 'All' : cat.replace('-', ' ')}
+            {cat === 'All' ? 'All' : cat.replaceAll('-', ' ')}
           </Chip>
         ))}
       </Group>

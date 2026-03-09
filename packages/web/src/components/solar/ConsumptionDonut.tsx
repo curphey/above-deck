@@ -25,7 +25,7 @@ export function ConsumptionDonut({
 }: ConsumptionDonutProps) {
   const data = Object.entries(breakdown)
     .map(([category, values]) => ({
-      name: category.replace('-', ' '),
+      name: category.replaceAll('-', ' '),
       value: Math.round(viewMode === 'anchor' ? values.anchor : values.passage),
       color: CATEGORY_COLORS[category] ?? '#888',
     }))
@@ -46,8 +46,8 @@ export function ConsumptionDonut({
               outerRadius={100}
               paddingAngle={2}
             >
-              {data.map((entry, i) => (
-                <Cell key={i} fill={entry.color} />
+              {data.map((entry) => (
+                <Cell key={entry.name} fill={entry.color} />
               ))}
             </Pie>
             <Tooltip

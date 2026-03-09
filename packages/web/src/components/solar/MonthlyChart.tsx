@@ -28,7 +28,7 @@ export function MonthlyChart({
 }: MonthlyChartProps) {
   const data = monthlyData.map((m) => ({
     month: MONTH_LABELS[m.month - 1] ?? `M${m.month}`,
-    generation: Math.round((m.optimalIrradiance * panelWatts) / 1000),
+    generation: Math.round(m.optimalIrradiance * panelWatts),
   }));
 
   return (

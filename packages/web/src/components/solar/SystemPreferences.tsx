@@ -1,4 +1,4 @@
-import { Grid, NumberInput, SegmentedControl, Stack, Text } from '@mantine/core';
+import { Grid, NumberInput, SegmentedControl, Stack, Input } from '@mantine/core';
 import { useSolarStore } from '@/stores/solar';
 
 export function SystemPreferences() {
@@ -19,10 +19,7 @@ export function SystemPreferences() {
     <Stack gap="md">
       <Grid>
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Stack gap={4}>
-            <Text size="sm" fw={500}>
-              Battery chemistry
-            </Text>
+          <Input.Wrapper label="Battery chemistry">
             <SegmentedControl
               value={batteryChemistry}
               onChange={(val) => setBatteryChemistry(val as 'agm' | 'lifepo4')}
@@ -32,13 +29,10 @@ export function SystemPreferences() {
               ]}
               fullWidth
             />
-          </Stack>
+          </Input.Wrapper>
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Stack gap={4}>
-            <Text size="sm" fw={500}>
-              System voltage
-            </Text>
+          <Input.Wrapper label="System voltage">
             <SegmentedControl
               value={String(systemVoltage)}
               onChange={(val) => setSystemVoltage(Number(val) as 12 | 24 | 48)}
@@ -49,7 +43,7 @@ export function SystemPreferences() {
               ]}
               fullWidth
             />
-          </Stack>
+          </Input.Wrapper>
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 4 }}>
           <NumberInput
@@ -82,10 +76,7 @@ export function SystemPreferences() {
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Stack gap={4}>
-            <Text size="sm" fw={500}>
-              Shore power
-            </Text>
+          <Input.Wrapper label="Shore power">
             <SegmentedControl
               value={shorepower}
               onChange={(val) => setShorepower(val as 'no' | 'sometimes' | 'often')}
@@ -96,7 +87,7 @@ export function SystemPreferences() {
               ]}
               fullWidth
             />
-          </Stack>
+          </Input.Wrapper>
         </Grid.Col>
       </Grid>
     </Stack>

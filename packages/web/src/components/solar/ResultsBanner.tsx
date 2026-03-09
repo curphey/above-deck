@@ -28,7 +28,8 @@ export function ResultsBanner({
       ? consumption.totalWhPerDayAnchor
       : consumption.totalWhPerDayPassage;
 
-  const balance = getBalanceStatus(recommendation.dailyBalance, dailyWh);
+  const generatedWh = recommendation.dailyGenerationWh;
+  const balance = getBalanceStatus(generatedWh - dailyWh, dailyWh);
 
   return (
     <Stack gap="sm">

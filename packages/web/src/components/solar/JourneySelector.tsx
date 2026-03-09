@@ -45,7 +45,11 @@ export function JourneySelector() {
             borderColor: journeyMode === mode ? 'var(--mantine-color-ocean-6)' : undefined,
             borderWidth: journeyMode === mode ? 2 : undefined,
           }}
+          role="button"
+          tabIndex={0}
           onClick={() => setJourneyMode(mode)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setJourneyMode(mode); } }}
+          aria-pressed={journeyMode === mode}
           data-testid={`journey-${mode}`}
         >
           <Stack gap="sm">
