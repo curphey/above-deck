@@ -31,7 +31,7 @@ describe('computeResults', () => {
       motoringHoursPerDay: 1.5,
       solarPanelWatts: 400,
       panelType: 'rigid',
-      shorepower: 'no',
+      shorePowerHoursPerDay: 0, shoreChargerAmps: 30,
     });
     expect(result.consumption.totalWhPerDayAnchor).toBeCloseTo(576);
     expect(result.recommendation.panelWatts.recommended).toBeGreaterThan(0);
@@ -39,7 +39,7 @@ describe('computeResults', () => {
     expect(result.charging).toBeDefined();
     expect(result.charging.solarWhPerDay).toBeGreaterThan(0);
     expect(result.charging.totalWhPerDay).toBe(
-      result.charging.solarWhPerDay + result.charging.alternatorWhPerDay
+      result.charging.solarWhPerDay + result.charging.alternatorWhPerDay + result.charging.shoreWhPerDay
     );
   });
 
@@ -57,7 +57,7 @@ describe('computeResults', () => {
       motoringHoursPerDay: 1.5,
       solarPanelWatts: 0,
       panelType: 'rigid',
-      shorepower: 'no',
+      shorePowerHoursPerDay: 0, shoreChargerAmps: 30,
     });
     expect(result.consumption.totalWhPerDayAnchor).toBe(0);
   });

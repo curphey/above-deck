@@ -16,12 +16,14 @@ export interface ChargingInput {
   alternatorAmps: number;
   motoringHoursPerDay: number;
   systemVoltage: number;
-  shorepower: 'no' | 'sometimes' | 'often';
+  shorePowerHoursPerDay: number;
+  shoreChargerAmps: number;
 }
 
 export interface ChargingResult {
   solarWhPerDay: number;
   alternatorWhPerDay: number;
+  shoreWhPerDay: number;
   totalWhPerDay: number;
 }
 
@@ -33,5 +35,8 @@ export function calculateDailyCharging(input: ChargingInput): ChargingResult {
   const alternatorWhPerDay = Math.round(
     input.alternatorAmps * input.motoringHoursPerDay * ALTERNATOR_EFFICIENCY * input.systemVoltage
   );
-  return { solarWhPerDay, alternatorWhPerDay, totalWhPerDay: solarWhPerDay + alternatorWhPerDay };
+  const shoreWhPerDay = Math.round(
+    input.shoreChargerAmps * input.systemVoltage * input.shorePowerHoursPerDay
+  );
+  return { solarWhPerDay, alternatorWhPerDay, shoreWhPerDay, totalWhPerDay: solarWhPerDay + alternatorWhPerDay + shoreWhPerDay };
 }

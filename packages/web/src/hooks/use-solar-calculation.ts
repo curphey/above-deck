@@ -18,7 +18,8 @@ interface ComputeInput {
   motoringHoursPerDay: number;
   solarPanelWatts: number;
   panelType: PanelType;
-  shorepower: 'no' | 'sometimes' | 'often';
+  shorePowerHoursPerDay: number;
+  shoreChargerAmps: number;
 }
 
 interface ComputeResult {
@@ -64,7 +65,8 @@ export function computeResults(input: ComputeInput): ComputeResult {
     alternatorAmps: input.alternatorAmps,
     motoringHoursPerDay: input.motoringHoursPerDay,
     systemVoltage: input.systemVoltage,
-    shorepower: input.shorepower,
+    shorePowerHoursPerDay: input.shorePowerHoursPerDay,
+    shoreChargerAmps: input.shoreChargerAmps,
   });
 
   return { consumption, recommendation, charging };
@@ -75,7 +77,7 @@ export function useSolarCalculation(peakSunHours: number) {
   const {
     appliances, crewSize, systemVoltage, batteryChemistry,
     daysAutonomy, deratingFactor, alternatorAmps, motoringHoursPerDay,
-    solarPanelWatts, panelType, shorepower,
+    solarPanelWatts, panelType, shorePowerHoursPerDay, shoreChargerAmps,
   } = useSolarStore();
 
   return useMemo(
@@ -84,13 +86,13 @@ export function useSolarCalculation(peakSunHours: number) {
         appliances, crewSize, systemVoltage, batteryChemistry,
         daysAutonomy, deratingFactor, peakSunHours,
         alternatorAmps, motoringHoursPerDay,
-        solarPanelWatts, panelType, shorepower,
+        solarPanelWatts, panelType, shorePowerHoursPerDay, shoreChargerAmps,
       }),
     [
       appliances, crewSize, systemVoltage, batteryChemistry,
       daysAutonomy, deratingFactor, peakSunHours,
       alternatorAmps, motoringHoursPerDay,
-      solarPanelWatts, panelType, shorepower,
+      solarPanelWatts, panelType, shorePowerHoursPerDay, shoreChargerAmps,
     ]
   );
 }
