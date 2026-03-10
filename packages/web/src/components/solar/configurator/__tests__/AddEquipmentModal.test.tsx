@@ -70,7 +70,7 @@ describe('AddEquipmentModal', () => {
         filterType="store"
       />,
     );
-    expect(screen.getByText(/Battery Bank/i)).toBeDefined();
+    expect(screen.getAllByText(/Battery Bank/i).length).toBeGreaterThan(0);
   });
 
   it('calls onAdd when Add button clicked', () => {
