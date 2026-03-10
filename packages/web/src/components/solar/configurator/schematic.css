@@ -1,0 +1,67 @@
+/* Schematic Canvas — Blueprint aesthetic */
+
+.schematic-edge-active {
+  stroke-dasharray: 6 4;
+  animation: flowDash 1s linear infinite;
+}
+
+.schematic-edge-fast {
+  animation-duration: 0.5s;
+}
+
+.schematic-edge-medium {
+  animation-duration: 0.8s;
+}
+
+.schematic-edge-slow {
+  animation-duration: 1.2s;
+}
+
+@keyframes flowDash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.schematic-edge-disabled {
+  stroke: #2d2d4a;
+  stroke-dasharray: none;
+  opacity: 0.3;
+}
+
+.schematic-node {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.schematic-node-disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.schematic-node-selected rect {
+  stroke: #60a5fa;
+  filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.5));
+}
+
+.schematic-node:hover:not(.schematic-node-disabled) rect {
+  stroke-opacity: 1;
+}
+
+.schematic-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  fill: #e0e0e0;
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
+.schematic-watts {
+  font-family: 'Fira Code', monospace;
+  font-size: 9px;
+  fill: #8b8b9e;
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+}
