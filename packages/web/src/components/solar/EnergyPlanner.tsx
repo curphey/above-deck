@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Stack } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MantineProvider } from '../MantineProvider';
@@ -42,9 +42,6 @@ class EnergyPlannerErrorBoundary extends React.Component<ErrorBoundaryProps, Err
     return this.props.children;
   }
 }
-
-// Need React import for class component
-import React from 'react';
 
 // --- Inner component ---
 
