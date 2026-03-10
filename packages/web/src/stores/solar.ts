@@ -74,8 +74,6 @@ interface SolarState {
   motoringHoursPerDay: number;
   /** @deprecated Use equipment array with ChargeEquipment instead */
   setMotoringHoursPerDay: (hours: number) => void;
-  journeyType: 'plan' | 'check' | 'upgrade';
-  setJourneyType: (type: 'plan' | 'check' | 'upgrade') => void;
   /** @deprecated Use equipment array with ChargeEquipment instead */
   shorePowerHoursPerDay: number;
   /** @deprecated Use equipment array with ChargeEquipment instead */
@@ -84,10 +82,6 @@ interface SolarState {
   shoreChargerAmps: number;
   /** @deprecated Use equipment array with ChargeEquipment instead */
   setShoreChargerAmps: (amps: number) => void;
-  /** @deprecated Use equipment array with StoreEquipment instead */
-  batteryBankAh: number;
-  /** @deprecated Use equipment array with StoreEquipment instead */
-  setBatteryBankAh: (ah: number) => void;
   deratingFactor: number;
   setDeratingFactor: (factor: number) => void;
 }
@@ -114,10 +108,8 @@ export const initialState = {
   daysAutonomy: 3,
   alternatorAmps: 75,
   motoringHoursPerDay: 1.5,
-  journeyType: 'plan' as const,
   shorePowerHoursPerDay: 0,
   shoreChargerAmps: 30,
-  batteryBankAh: 0,
   deratingFactor: 0.75,
 };
 
@@ -217,13 +209,10 @@ export const useSolarStore = create<SolarState>()(
       setAlternatorAmps: (amps) => set({ alternatorAmps: amps }),
       /** @deprecated */
       setMotoringHoursPerDay: (hours) => set({ motoringHoursPerDay: hours }),
-      setJourneyType: (type) => set({ journeyType: type }),
       /** @deprecated */
       setShorePowerHoursPerDay: (hours) => set({ shorePowerHoursPerDay: hours }),
       /** @deprecated */
       setShoreChargerAmps: (amps) => set({ shoreChargerAmps: amps }),
-      /** @deprecated */
-      setBatteryBankAh: (ah) => set({ batteryBankAh: ah }),
       setDeratingFactor: (factor) => set({ deratingFactor: factor }),
     }),
     {
@@ -249,10 +238,8 @@ export const useSolarStore = create<SolarState>()(
         daysAutonomy: state.daysAutonomy,
         alternatorAmps: state.alternatorAmps,
         motoringHoursPerDay: state.motoringHoursPerDay,
-        journeyType: state.journeyType,
         shorePowerHoursPerDay: state.shorePowerHoursPerDay,
         shoreChargerAmps: state.shoreChargerAmps,
-        batteryBankAh: state.batteryBankAh,
         deratingFactor: state.deratingFactor,
       }),
     }
