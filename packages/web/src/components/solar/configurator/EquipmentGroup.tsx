@@ -34,7 +34,7 @@ export function EquipmentGroup({
   const total = items.reduce((sum, item) => sum + (whPerDayMap.get(item.id) ?? 0), 0);
   const delta = previousTotal !== null ? total - previousTotal : null;
 
-  const [showDelta, setShowDelta] = useState(delta !== null);
+  const [showDelta, setShowDelta] = useState(delta !== null && delta !== 0);
 
   useEffect(() => {
     if (delta === null || delta === 0) {
