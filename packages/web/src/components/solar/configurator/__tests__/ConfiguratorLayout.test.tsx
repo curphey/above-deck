@@ -87,8 +87,9 @@ describe('ConfiguratorLayout', () => {
 
   it('shows equipment items in correct groups', () => {
     wrap(<ConfiguratorLayout />);
-    expect(screen.getByText('Fridge')).toBeDefined();
-    expect(screen.getByText('Solar Panel')).toBeDefined();
-    expect(screen.getByText('House Bank')).toBeDefined();
+    // Items appear both in equipment cards and schematic nodes
+    expect(screen.getAllByText('Fridge').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Solar Panel').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('House Bank').length).toBeGreaterThanOrEqual(1);
   });
 });

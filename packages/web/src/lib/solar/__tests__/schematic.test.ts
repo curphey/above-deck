@@ -120,245 +120,309 @@ const defaultCtx = {
   systemVoltage: 12,
 };
 
+function build(equipment: EquipmentInstance[], overrides: Partial<typeof defaultCtx> = {}) {
+  const ctx = { ...defaultCtx, ...overrides };
+  return buildSchematicGraph(equipment, ctx.viewMode, ctx.crewSize, ctx.peakSunHours, ctx.deratingFactor, ctx.systemVoltage);
+}
+
 describe('buildSchematicGraph', () => {
   it('returns empty graph for empty equipment', () => {
-    const graph = buildSchematicGraph([], defaultCtx.viewMode, defaultCtx.crewSize, defaultCtx.peakSunHours, defaultCtx.deratingFactor, defaultCtx.systemVoltage);
+    const graph = build([]);
     expect(graph.nodes).toEqual([]);
     expect(graph.edges).toEqual([]);
   });
 
-  it('builds solar + battery + DC drain topology (4 nodes, 3 edges)', () => {
+  it('creates individual nodes for each equipment item', () => {
     const equipment: EquipmentInstance[] = [
-      makeSolarPanel(),
-      makeBattery(),
-      makeDCDrain(),
+      makeSolarPanel({ id: 'p1' }),
+      makeSolarPanel({ id: 'p2', name: 'Second Panel', panelWatts: 100 }),
+      makeBattery({ id: 'b1' }),
+      makeDCDrain({ id: 'd1', name: 'LED Lights' }),
+      makeDCDrain({ id: 'd2', name: 'Radar' }),
     ];
 
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
+    const graph = build(equipment);
 
-    // Should have: solar-panel, mppt, battery-bank, dc-loads
+    // Individual nodes: 2 solar + 1 MPPT + 1 battery + 2 DC drains = 6
+    expect(graph.nodes).toHaveLength(6);
+
+    // Each equipment has its own node
+    expect(graph.nodes.find((n) => n.id === 'node-p1')).toBeDefined();
+    expect(graph.nodes.find((n) => n.id === 'node-p2')).toBeDefined();
+    expect(graph.nodes.find((n) => n.id === 'node-b1')).toBeDefined();
+    expect(graph.nodes.find((n) => n.id === 'node-d1')).toBeDefined();
+    expect(graph.nodes.find((n) => n.id === 'node-d2')).toBeDefined();
+    // Plus infrastructure
+    expect(graph.nodes.find((n) => n.id === 'node-mppt')).toBeDefined();
+  });
+
+  it('builds solar + battery + DC drain topology with individual nodes', () => {
+    const equipment: EquipmentInstance[] = [
+      makeSolarPanel({ id: 'p1' }),
+      makeBattery({ id: 'b1' }),
+      makeDCDrain({ id: 'd1' }),
+    ];
+
+    const graph = build(equipment);
+
+    // Nodes: solar panel + MPPT + battery + DC drain = 4
     expect(graph.nodes).toHaveLength(4);
-    const nodeTypes = graph.nodes.map((n) => n.type).sort();
-    expect(nodeTypes).toEqual(['battery-bank', 'dc-loads', 'mppt', 'solar-panel']);
 
-    // Should have: solar->mppt, mppt->battery, battery->dc-loads
+    const nodeTypes = graph.nodes.map((n) => n.type).sort();
+    expect(nodeTypes).toEqual(['battery', 'dc-drain', 'mppt', 'solar-panel']);
+
+    // Edges: solar→mppt, mppt→battery, battery→drain = 3
     expect(graph.edges).toHaveLength(3);
-    const solarToMppt = graph.edges.find((e) => e.from === 'node-solar-panel' && e.to === 'node-mppt');
-    const mpptToBat = graph.edges.find((e) => e.from === 'node-mppt' && e.to === 'node-battery-bank');
-    const batToDc = graph.edges.find((e) => e.from === 'node-battery-bank' && e.to === 'node-dc-loads');
+
+    const solarToMppt = graph.edges.find((e) => e.from === 'node-p1' && e.to === 'node-mppt');
+    const mpptToBat = graph.edges.find((e) => e.from === 'node-mppt' && e.to === 'node-b1');
+    const batToDrain = graph.edges.find((e) => e.from === 'node-b1' && e.to === 'node-d1');
 
     expect(solarToMppt).toBeDefined();
     expect(mpptToBat).toBeDefined();
-    expect(batToDc).toBeDefined();
+    expect(batToDrain).toBeDefined();
 
-    // All charge edges
     expect(solarToMppt!.type).toBe('charge');
     expect(mpptToBat!.type).toBe('charge');
-    // Drain edge
-    expect(batToDc!.type).toBe('drain');
+    expect(batToDrain!.type).toBe('drain');
   });
 
-  it('includes inverter and ac-loads when AC drains exist', () => {
+  it('connects each solar panel individually to MPPT', () => {
     const equipment: EquipmentInstance[] = [
-      makeSolarPanel(),
-      makeAlternator(),
-      makeBattery(),
-      makeACDrain(),
+      makeSolarPanel({ id: 'p1', panelWatts: 200 }),
+      makeSolarPanel({ id: 'p2', panelWatts: 100 }),
+      makeBattery({ id: 'b1' }),
+      makeDCDrain({ id: 'd1' }),
     ];
 
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
+    const graph = build(equipment);
 
-    const nodeTypes = graph.nodes.map((n) => n.type).sort();
-    expect(nodeTypes).toContain('inverter');
-    expect(nodeTypes).toContain('ac-loads');
-    expect(nodeTypes).toContain('alternator');
+    const p1ToMppt = graph.edges.find((e) => e.from === 'node-p1' && e.to === 'node-mppt');
+    const p2ToMppt = graph.edges.find((e) => e.from === 'node-p2' && e.to === 'node-mppt');
 
-    // Battery -> inverter -> ac-loads edges
-    const batToInv = graph.edges.find((e) => e.from === 'node-battery-bank' && e.to === 'node-inverter');
-    const invToAc = graph.edges.find((e) => e.from === 'node-inverter' && e.to === 'node-ac-loads');
+    expect(p1ToMppt).toBeDefined();
+    expect(p2ToMppt).toBeDefined();
+
+    // Individual panel Wh: 200 * 5 * 0.85 * 1.0 = 850
+    expect(p1ToMppt!.watts).toBe(850);
+    // 100 * 5 * 0.85 * 1.0 = 425
+    expect(p2ToMppt!.watts).toBe(425);
+  });
+
+  it('connects battery to each individual DC drain', () => {
+    const equipment: EquipmentInstance[] = [
+      makeSolarPanel({ id: 'p1' }),
+      makeBattery({ id: 'b1' }),
+      makeDCDrain({ id: 'd1', name: 'LED Lights', wattsTypical: 20, hoursPerDayAnchor: 6 }),
+      makeDCDrain({ id: 'd2', name: 'Radar', wattsTypical: 48, hoursPerDayAnchor: 24 }),
+    ];
+
+    const graph = build(equipment);
+
+    const batToD1 = graph.edges.find((e) => e.from === 'node-b1' && e.to === 'node-d1');
+    const batToD2 = graph.edges.find((e) => e.from === 'node-b1' && e.to === 'node-d2');
+
+    expect(batToD1).toBeDefined();
+    expect(batToD2).toBeDefined();
+
+    // LED: 20W * 6h * 1.0 * 1.0 = 120 Wh
+    expect(batToD1!.watts).toBe(120);
+    // Radar: 48W * 24h * 1.0 * 1.0 = 1152 Wh
+    expect(batToD2!.watts).toBe(1152);
+  });
+
+  it('includes inverter and individual AC drains', () => {
+    const equipment: EquipmentInstance[] = [
+      makeSolarPanel({ id: 'p1' }),
+      makeBattery({ id: 'b1' }),
+      makeACDrain({ id: 'ac1', name: 'Microwave', wattsTypical: 800, hoursPerDayAnchor: 0.25 }),
+    ];
+
+    const graph = build(equipment);
+
+    const inverterNode = graph.nodes.find((n) => n.type === 'inverter');
+    const acNode = graph.nodes.find((n) => n.id === 'node-ac1');
+
+    expect(inverterNode).toBeDefined();
+    expect(acNode).toBeDefined();
+    expect(acNode!.type).toBe('ac-drain');
+
+    // Battery → inverter
+    const batToInv = graph.edges.find((e) => e.from === 'node-b1' && e.to === 'node-inverter');
     expect(batToInv).toBeDefined();
-    expect(invToAc).toBeDefined();
     expect(batToInv!.type).toBe('drain');
+
+    // Inverter → individual AC drain
+    const invToAc = graph.edges.find((e) => e.from === 'node-inverter' && e.to === 'node-ac1');
+    expect(invToAc).toBeDefined();
     expect(invToAc!.type).toBe('drain');
+
+    // AC drain watts: 800 * 0.25 = 200 Wh
+    expect(acNode!.watts).toBe(200);
+    // Inverter watts include efficiency: 200 / 0.85 = 235
+    expect(inverterNode!.watts).toBe(Math.round(200 / INVERTER_EFFICIENCY));
   });
 
   it('includes regulator node when alternator + LiFePO4 battery', () => {
     const equipment: EquipmentInstance[] = [
-      makeAlternator(),
-      makeBattery({ chemistry: 'lifepo4' }),
-      makeDCDrain(),
+      makeAlternator({ id: 'alt-1' }),
+      makeBattery({ id: 'b1', chemistry: 'lifepo4' }),
+      makeDCDrain({ id: 'd1' }),
     ];
 
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
+    const graph = build(equipment);
 
-    const nodeTypes = graph.nodes.map((n) => n.type);
-    expect(nodeTypes).toContain('regulator');
+    const regNode = graph.nodes.find((n) => n.type === 'regulator');
+    expect(regNode).toBeDefined();
 
-    const altToReg = graph.edges.find((e) => e.from === 'node-alternator' && e.to === 'node-regulator');
-    const regToBat = graph.edges.find((e) => e.from === 'node-regulator' && e.to === 'node-battery-bank');
+    const altToReg = graph.edges.find((e) => e.from === 'node-alt-1' && e.to === 'node-regulator');
+    const regToBat = graph.edges.find((e) => e.from === 'node-regulator' && e.to === 'node-b1');
     expect(altToReg).toBeDefined();
     expect(regToBat).toBeDefined();
   });
 
   it('skips regulator for alternator + AGM battery', () => {
     const equipment: EquipmentInstance[] = [
-      makeAlternator(),
-      makeBattery({ chemistry: 'agm' }),
-      makeDCDrain(),
+      makeAlternator({ id: 'alt-1' }),
+      makeBattery({ id: 'b1', chemistry: 'agm' }),
+      makeDCDrain({ id: 'd1' }),
     ];
 
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
+    const graph = build(equipment);
 
     const nodeTypes = graph.nodes.map((n) => n.type);
     expect(nodeTypes).not.toContain('regulator');
 
-    // alternator connects directly to battery
-    const altToBat = graph.edges.find((e) => e.from === 'node-alternator' && e.to === 'node-battery-bank');
+    // Alternator connects directly to battery
+    const altToBat = graph.edges.find((e) => e.from === 'node-alt-1' && e.to === 'node-b1');
     expect(altToBat).toBeDefined();
   });
 
-  it('includes shore-charger node when shore power exists', () => {
+  it('includes shore-charger connecting to battery', () => {
     const equipment: EquipmentInstance[] = [
-      makeShore(),
-      makeBattery(),
-      makeDCDrain(),
+      makeShore({ id: 'shore-1' }),
+      makeBattery({ id: 'b1' }),
+      makeDCDrain({ id: 'd1' }),
     ];
 
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
+    const graph = build(equipment);
 
-    const nodeTypes = graph.nodes.map((n) => n.type);
-    expect(nodeTypes).toContain('shore-charger');
+    const shoreNode = graph.nodes.find((n) => n.id === 'node-shore-1');
+    expect(shoreNode).toBeDefined();
+    expect(shoreNode!.type).toBe('shore-charger');
 
-    const shoreToBat = graph.edges.find((e) => e.from === 'node-shore-charger' && e.to === 'node-battery-bank');
+    const shoreToBat = graph.edges.find((e) => e.from === 'node-shore-1' && e.to === 'node-b1');
     expect(shoreToBat).toBeDefined();
     expect(shoreToBat!.type).toBe('charge');
   });
 
   it('marks nodes enabled: false when equipment is disabled', () => {
     const equipment: EquipmentInstance[] = [
-      makeSolarPanel({ enabled: false }),
-      makeBattery(),
-      makeDCDrain({ enabled: false }),
+      makeSolarPanel({ id: 'p1', enabled: false }),
+      makeBattery({ id: 'b1' }),
+      makeDCDrain({ id: 'd1', enabled: false }),
     ];
 
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
+    const graph = build(equipment);
 
-    const solarNode = graph.nodes.find((n) => n.type === 'solar-panel');
+    const solarNode = graph.nodes.find((n) => n.id === 'node-p1');
     const mpptNode = graph.nodes.find((n) => n.type === 'mppt');
-    const dcNode = graph.nodes.find((n) => n.type === 'dc-loads');
-    const batNode = graph.nodes.find((n) => n.type === 'battery-bank');
+    const drainNode = graph.nodes.find((n) => n.id === 'node-d1');
+    const batNode = graph.nodes.find((n) => n.id === 'node-b1');
 
     expect(solarNode!.enabled).toBe(false);
     expect(mpptNode!.enabled).toBe(false);
-    expect(dcNode!.enabled).toBe(false);
+    expect(drainNode!.enabled).toBe(false);
     expect(batNode!.enabled).toBe(true);
   });
 
-  it('calculates correct watts on solar charge edges', () => {
-    const panel = makeSolarPanel({ panelWatts: 200, panelType: 'rigid' });
+  it('calculates correct watts per individual drain item', () => {
+    const drain = makeDCDrain({ id: 'd1', wattsTypical: 20, hoursPerDayAnchor: 6, dutyCycle: 1 });
     const equipment: EquipmentInstance[] = [
-      panel,
-      makeBattery(),
-      makeDCDrain(),
-    ];
-
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
-
-    const solarNode = graph.nodes.find((n) => n.type === 'solar-panel');
-    // Solar node watts = total panel watts (nameplate)
-    expect(solarNode!.watts).toBe(200);
-
-    // Edge watts = daily Wh generation: 200 * 5 * 0.85 * 1.0 = 850
-    const solarEdge = graph.edges.find((e) => e.from === 'node-solar-panel');
-    expect(solarEdge!.watts).toBe(850);
-  });
-
-  it('calculates correct watts on drain edges', () => {
-    const drain = makeDCDrain({ wattsTypical: 20, hoursPerDayAnchor: 6, dutyCycle: 1 });
-    const equipment: EquipmentInstance[] = [
-      makeSolarPanel(),
-      makeBattery(),
+      makeSolarPanel({ id: 'p1' }),
+      makeBattery({ id: 'b1' }),
       drain,
     ];
 
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
+    const graph = build(equipment);
 
-    const dcNode = graph.nodes.find((n) => n.type === 'dc-loads');
-    // 20W * 6h * 1.0 duty * 1.0 crew(2/2) = 120 Wh
-    expect(dcNode!.watts).toBe(120);
-
-    const batToDc = graph.edges.find((e) => e.from === 'node-battery-bank' && e.to === 'node-dc-loads');
-    expect(batToDc!.watts).toBe(120);
+    const drainNode = graph.nodes.find((n) => n.id === 'node-d1');
+    // 20W * 6h * 1.0 * 1.0 = 120 Wh
+    expect(drainNode!.watts).toBe(120);
   });
 
-  it('calculates AC drain watts with inverter efficiency', () => {
-    const acDrain = makeACDrain({ wattsTypical: 800, hoursPerDayAnchor: 0.25, dutyCycle: 1 });
+  it('positions nodes in vertical rows: sources > controllers > battery > loads', () => {
     const equipment: EquipmentInstance[] = [
-      makeSolarPanel(),
-      makeBattery(),
-      acDrain,
+      makeSolarPanel({ id: 'p1' }),
+      makeBattery({ id: 'b1' }),
+      makeDCDrain({ id: 'd1' }),
     ];
 
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
+    const graph = build(equipment);
 
-    // AC drain: 800 * 0.25 * 1.0 * 1.0 = 200 Wh at the AC side
-    const acNode = graph.nodes.find((n) => n.type === 'ac-loads');
-    expect(acNode!.watts).toBe(200);
-
-    // Battery -> inverter edge includes inverter loss: 200 / 0.85 = 235 Wh (rounded)
-    const batToInv = graph.edges.find((e) => e.from === 'node-battery-bank' && e.to === 'node-inverter');
-    expect(batToInv!.watts).toBe(Math.round(200 / INVERTER_EFFICIENCY));
-  });
-
-  it('tracks equipmentIds on nodes', () => {
-    const panel1 = makeSolarPanel({ id: 'p1' });
-    const panel2 = makeSolarPanel({ id: 'p2', name: 'Second Panel', panelWatts: 100 });
-    const equipment: EquipmentInstance[] = [panel1, panel2, makeBattery(), makeDCDrain()];
-
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
-
-    const solarNode = graph.nodes.find((n) => n.type === 'solar-panel');
-    expect(solarNode!.equipmentIds).toContain('p1');
-    expect(solarNode!.equipmentIds).toContain('p2');
-  });
-
-  it('positions nodes in a vertical layout', () => {
-    const equipment: EquipmentInstance[] = [
-      makeSolarPanel(),
-      makeBattery(),
-      makeDCDrain(),
-    ];
-
-    const graph = buildSchematicGraph(equipment, 'anchor', 2, 5, 0.85, 12);
-
-    const solarNode = graph.nodes.find((n) => n.type === 'solar-panel')!;
+    const solarNode = graph.nodes.find((n) => n.id === 'node-p1')!;
     const mpptNode = graph.nodes.find((n) => n.type === 'mppt')!;
-    const batNode = graph.nodes.find((n) => n.type === 'battery-bank')!;
-    const dcNode = graph.nodes.find((n) => n.type === 'dc-loads')!;
+    const batNode = graph.nodes.find((n) => n.id === 'node-b1')!;
+    const drainNode = graph.nodes.find((n) => n.id === 'node-d1')!;
 
-    // Charging sources at top, controllers middle, battery center, loads bottom
     expect(solarNode.y).toBeLessThan(mpptNode.y);
     expect(mpptNode.y).toBeLessThan(batNode.y);
-    expect(batNode.y).toBeLessThan(dcNode.y);
+    expect(batNode.y).toBeLessThan(drainNode.y);
   });
 
   it('uses passage mode hours when viewMode is passage', () => {
     const drain = makeDCDrain({
+      id: 'd1',
       wattsTypical: 20,
       hoursPerDayAnchor: 6,
       hoursPerDayPassage: 10,
       dutyCycle: 1,
     });
     const equipment: EquipmentInstance[] = [
-      makeSolarPanel(),
-      makeBattery(),
+      makeSolarPanel({ id: 'p1' }),
+      makeBattery({ id: 'b1' }),
       drain,
     ];
 
-    const graph = buildSchematicGraph(equipment, 'passage', 2, 5, 0.85, 12);
+    const graph = build(equipment, { viewMode: 'passage' });
 
-    const dcNode = graph.nodes.find((n) => n.type === 'dc-loads');
+    const drainNode = graph.nodes.find((n) => n.id === 'node-d1');
     // 20W * 10h * 1.0 * 1.0 = 200 Wh
-    expect(dcNode!.watts).toBe(200);
+    expect(drainNode!.watts).toBe(200);
+  });
+
+  it('returns dynamic width/height based on node count', () => {
+    const equipment: EquipmentInstance[] = [
+      makeSolarPanel({ id: 'p1' }),
+      makeBattery({ id: 'b1' }),
+      makeDCDrain({ id: 'd1' }),
+      makeDCDrain({ id: 'd2', name: 'Radar' }),
+      makeDCDrain({ id: 'd3', name: 'AIS' }),
+      makeDCDrain({ id: 'd4', name: 'Pump' }),
+      makeDCDrain({ id: 'd5', name: 'GPS' }),
+    ];
+
+    const graph = build(equipment);
+
+    expect(graph.width).toBeGreaterThan(0);
+    expect(graph.height).toBeGreaterThan(0);
+    // With 5 drain items in the load row, width should be wider than minimum
+    expect(graph.width).toBeGreaterThanOrEqual(400);
+  });
+
+  it('sets equipmentIds to the specific equipment ID for individual nodes', () => {
+    const equipment: EquipmentInstance[] = [
+      makeSolarPanel({ id: 'p1' }),
+      makeBattery({ id: 'b1' }),
+      makeDCDrain({ id: 'd1' }),
+    ];
+
+    const graph = build(equipment);
+
+    const solarNode = graph.nodes.find((n) => n.id === 'node-p1')!;
+    expect(solarNode.equipmentIds).toEqual(['p1']);
+
+    const batNode = graph.nodes.find((n) => n.id === 'node-b1')!;
+    expect(batNode.equipmentIds).toEqual(['b1']);
   });
 });

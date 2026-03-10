@@ -5,18 +5,20 @@ import type { SchematicGraph } from '../../../../lib/solar/schematic';
 
 function makeTestGraph(): SchematicGraph {
   return {
+    width: 500,
+    height: 460,
     nodes: [
       {
-        id: 'node-solar-panel',
+        id: 'node-p1',
         type: 'solar-panel',
-        label: 'Solar Panels',
+        label: '200W Panel',
         watts: 200,
         enabled: true,
         equipmentIds: ['p1'],
-        x: 190,
+        x: 200,
         y: 20,
-        width: 120,
-        height: 60,
+        width: 100,
+        height: 50,
       },
       {
         id: 'node-mppt',
@@ -26,58 +28,78 @@ function makeTestGraph(): SchematicGraph {
         enabled: true,
         equipmentIds: ['p1'],
         x: 190,
-        y: 140,
+        y: 150,
         width: 120,
-        height: 60,
+        height: 50,
       },
       {
-        id: 'node-battery-bank',
-        type: 'battery-bank',
-        label: 'Battery Bank',
+        id: 'node-bat-1',
+        type: 'battery',
+        label: 'LiFePO4 200Ah',
         watts: 2400,
         enabled: true,
         equipmentIds: ['bat-1'],
-        x: 190,
-        y: 260,
-        width: 120,
-        height: 60,
+        x: 200,
+        y: 280,
+        width: 100,
+        height: 50,
       },
       {
-        id: 'node-dc-loads',
-        type: 'dc-loads',
-        label: 'DC Loads',
+        id: 'node-d1',
+        type: 'dc-drain',
+        label: 'LED Lights',
         watts: 120,
         enabled: true,
-        equipmentIds: ['d1', 'd2'],
-        x: 190,
-        y: 380,
-        width: 120,
-        height: 60,
+        equipmentIds: ['d1'],
+        x: 100,
+        y: 410,
+        width: 100,
+        height: 50,
+      },
+      {
+        id: 'node-d2',
+        type: 'dc-drain',
+        label: 'Radar',
+        watts: 200,
+        enabled: true,
+        equipmentIds: ['d2'],
+        x: 300,
+        y: 410,
+        width: 100,
+        height: 50,
       },
     ],
     edges: [
       {
-        id: 'edge-solar-to-mppt',
-        from: 'node-solar-panel',
+        id: 'edge-p1-to-mppt',
+        from: 'node-p1',
         to: 'node-mppt',
         type: 'charge',
         watts: 850,
         enabled: true,
       },
       {
-        id: 'edge-mppt-to-battery',
+        id: 'edge-mppt-to-bat-1',
         from: 'node-mppt',
-        to: 'node-battery-bank',
+        to: 'node-bat-1',
         type: 'charge',
         watts: 850,
         enabled: true,
       },
       {
-        id: 'edge-battery-to-dc',
-        from: 'node-battery-bank',
-        to: 'node-dc-loads',
+        id: 'edge-bat-1-to-d1',
+        from: 'node-bat-1',
+        to: 'node-d1',
         type: 'drain',
         watts: 120,
+        enabled: true,
+      },
+      {
+        id: 'edge-bat-1-to-d2',
+        from: 'node-bat-1',
+        to: 'node-d2',
+        type: 'drain',
+        watts: 200,
         enabled: true,
       },
     ],
@@ -102,14 +124,15 @@ describe('SchematicCanvas', () => {
     expect(svg).toBeTruthy();
   });
 
-  it('renders node labels as text elements', () => {
+  it('renders individual equipment node labels', () => {
     render(
       <SchematicCanvas graph={makeTestGraph()} selectedId={null} onNodeClick={() => {}} />,
     );
-    expect(screen.getByText('Solar Panels')).toBeTruthy();
+    expect(screen.getByText('200W Panel')).toBeTruthy();
     expect(screen.getByText('MPPT Controller')).toBeTruthy();
-    expect(screen.getByText('Battery Bank')).toBeTruthy();
-    expect(screen.getByText('DC Loads')).toBeTruthy();
+    expect(screen.getByText('LiFePO4 200Ah')).toBeTruthy();
+    expect(screen.getByText('LED Lights')).toBeTruthy();
+    expect(screen.getByText('Radar')).toBeTruthy();
   });
 
   it('applies selected class when selectedId matches a node equipmentId', () => {
@@ -129,7 +152,7 @@ describe('SchematicCanvas', () => {
     expect(selectedGroups.length).toBe(0);
   });
 
-  it('disabled nodes have reduced opacity', () => {
+  it('disabled nodes have the disabled class', () => {
     const { container } = render(
       <SchematicCanvas graph={makeDisabledGraph()} selectedId={null} onNodeClick={() => {}} />,
     );
@@ -142,19 +165,20 @@ describe('SchematicCanvas', () => {
     const { container } = render(
       <SchematicCanvas graph={makeTestGraph()} selectedId={null} onNodeClick={handler} />,
     );
-    // Click the DC loads node (has equipmentIds ['d1', 'd2'])
-    const dcGroup = container.querySelector('[data-node-id="node-dc-loads"]');
-    expect(dcGroup).toBeTruthy();
-    fireEvent.click(dcGroup!);
-    expect(handler).toHaveBeenCalledWith(['d1', 'd2']);
+    const d1Group = container.querySelector('[data-node-id="node-d1"]');
+    expect(d1Group).toBeTruthy();
+    fireEvent.click(d1Group!);
+    expect(handler).toHaveBeenCalledWith(['d1']);
   });
 
-  it('renders edges as path or line elements', () => {
+  it('renders edges as path elements with curved bezier', () => {
     const { container } = render(
       <SchematicCanvas graph={makeTestGraph()} selectedId={null} onNodeClick={() => {}} />,
     );
     const edgeElements = container.querySelectorAll('[data-edge-id]');
-    expect(edgeElements.length).toBe(3);
+    expect(edgeElements.length).toBe(4); // p1→mppt, mppt→bat, bat→d1, bat→d2
+    // Edges should be <path> not <line>
+    expect(edgeElements[0].tagName).toBe('path');
   });
 
   it('disabled edges have the disabled class', () => {
@@ -162,14 +186,22 @@ describe('SchematicCanvas', () => {
       <SchematicCanvas graph={makeDisabledGraph()} selectedId={null} onNodeClick={() => {}} />,
     );
     const disabledEdges = container.querySelectorAll('.schematic-edge-disabled');
-    expect(disabledEdges.length).toBe(2); // solar->mppt, mppt->battery
+    expect(disabledEdges.length).toBe(2);
   });
 
   it('renders empty SVG for empty graph', () => {
     const { container } = render(
-      <SchematicCanvas graph={{ nodes: [], edges: [] }} selectedId={null} onNodeClick={() => {}} />,
+      <SchematicCanvas graph={{ nodes: [], edges: [], width: 400, height: 200 }} selectedId={null} onNodeClick={() => {}} />,
     );
     const svg = container.querySelector('svg');
     expect(svg).toBeTruthy();
+  });
+
+  it('uses dynamic viewBox from graph dimensions', () => {
+    const { container } = render(
+      <SchematicCanvas graph={makeTestGraph()} selectedId={null} onNodeClick={() => {}} />,
+    );
+    const svg = container.querySelector('svg');
+    expect(svg?.getAttribute('viewBox')).toBe('0 0 500 460');
   });
 });
