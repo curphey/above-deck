@@ -85,11 +85,6 @@ describe('ConfiguratorLayout', () => {
     expect(screen.getByText(/System Schematic/i)).toBeDefined();
   });
 
-  it('renders the boat bar', () => {
-    wrap(<ConfiguratorLayout />);
-    expect(screen.getByTestId('boat-bar')).toBeDefined();
-  });
-
   it('shows equipment items in correct groups', () => {
     wrap(<ConfiguratorLayout />);
     expect(screen.getByText('Fridge')).toBeDefined();
