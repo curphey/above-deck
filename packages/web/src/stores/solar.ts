@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Appliance, PanelType, EquipmentInstance } from '@/lib/solar/types';
+import type { Appliance, PanelType, EquipmentInstance, CruisingStyle, BoatType, PvgisMonthlyData, PreviousMetrics } from '@/lib/solar/types';
 
 export type ViewMode = 'anchor' | 'passage';
 
@@ -10,6 +10,23 @@ interface SolarState {
   templateId: string | null;
   acCircuitVoltage: 110 | 220;
   equipment: EquipmentInstance[];
+
+  // --- New fields (v4) ---
+  wizardComplete: boolean;
+  cruisingStyle: CruisingStyle;
+  boatType: BoatType;
+  boatLengthFt: number;
+  monthlyIrradiance: PvgisMonthlyData[];
+  previousMetrics: PreviousMetrics | null;
+
+  // --- New actions (v4) ---
+  setWizardComplete: () => void;
+  setCruisingStyle: (style: CruisingStyle) => void;
+  setBoatType: (type: BoatType) => void;
+  setBoatLengthFt: (ft: number) => void;
+  setMonthlyIrradiance: (data: PvgisMonthlyData[]) => void;
+  snapshotMetrics: (drain: number, charge: number, balance: number, autonomy: number) => void;
+  resetToTemplate: () => void;
 
   // --- New actions (v3) ---
   setBoat: (
@@ -26,6 +43,7 @@ interface SolarState {
   toggleEquipment: (id: string) => void;
   duplicateEquipment: (id: string) => void;
   setEquipment: (items: EquipmentInstance[]) => void;
+  setBoatName: (name: string) => void;
 
   // --- Legacy fields (kept for existing components) ---
   /** @deprecated Use templateId instead */
@@ -86,7 +104,19 @@ interface SolarState {
   setDeratingFactor: (factor: number) => void;
 }
 
+export const v4Defaults = {
+  wizardComplete: false,
+  cruisingStyle: 'coastal' as CruisingStyle,
+  boatType: 'mono' as BoatType,
+  boatLengthFt: 40,
+  monthlyIrradiance: [] as PvgisMonthlyData[],
+  previousMetrics: null as PreviousMetrics | null,
+};
+
 export const initialState = {
+  // v4 fields
+  ...v4Defaults,
+
   // New fields
   boatName: '',
   templateId: null as string | null,
@@ -118,7 +148,28 @@ export const useSolarStore = create<SolarState>()(
     (set) => ({
       ...initialState,
 
-      // --- New actions ---
+      // --- v4 actions ---
+      setWizardComplete: () => set({ wizardComplete: true }),
+      setCruisingStyle: (style) => set({ cruisingStyle: style }),
+      setBoatType: (type) => set({ boatType: type }),
+      setBoatLengthFt: (ft) => set({ boatLengthFt: ft }),
+      setMonthlyIrradiance: (data) => set({ monthlyIrradiance: data }),
+      snapshotMetrics: (drain, charge, balance, autonomy) =>
+        set({
+          previousMetrics: {
+            drainWhPerDay: drain,
+            chargeWhPerDay: charge,
+            netBalance: balance,
+            daysAutonomy: autonomy,
+          },
+        }),
+      resetToTemplate: () =>
+        set({
+          equipment: [],
+          ...v4Defaults,
+        }),
+
+      // --- v3 actions ---
       setBoat: (templateId, name, equipment, voltage, acVoltage) =>
         set({
           templateId,
@@ -152,12 +203,13 @@ export const useSolarStore = create<SolarState>()(
           if (!item) return state;
           const copy = {
             ...item,
-            id: `${item.id}-${Date.now()}`,
+            id: `${item.id}-${crypto.randomUUID()}`,
             origin: 'added' as const,
           };
           return { equipment: [...state.equipment, copy] };
         }),
       setEquipment: (items) => set({ equipment: items }),
+      setBoatName: (name) => set({ boatName: name }),
 
       // --- Legacy actions ---
       /** @deprecated */
@@ -217,8 +269,35 @@ export const useSolarStore = create<SolarState>()(
     }),
     {
       name: 'above-deck-solar',
+      version: 4,
+      migrate: (persisted: unknown, version: number) => {
+        const state = persisted as Record<string, unknown>;
+        if (version < 3) {
+          // Ensure new v3 fields exist
+          if (!state.equipment) state.equipment = [];
+          if (!state.boatName) state.boatName = '';
+          if (!state.templateId) state.templateId = null;
+          if (!state.acCircuitVoltage) state.acCircuitVoltage = 220;
+        }
+        if (version < 4) {
+          state.wizardComplete = false;
+          state.cruisingStyle = 'coastal';
+          state.boatType = 'mono';
+          state.boatLengthFt = 40;
+          state.monthlyIrradiance = [];
+          state.previousMetrics = null;
+        }
+        return state;
+      },
       partialize: (state) => ({
-        // New fields
+        // v4 fields
+        wizardComplete: state.wizardComplete,
+        cruisingStyle: state.cruisingStyle,
+        boatType: state.boatType,
+        boatLengthFt: state.boatLengthFt,
+        monthlyIrradiance: state.monthlyIrradiance,
+        previousMetrics: state.previousMetrics,
+        // v3 fields
         boatName: state.boatName,
         templateId: state.templateId,
         acCircuitVoltage: state.acCircuitVoltage,

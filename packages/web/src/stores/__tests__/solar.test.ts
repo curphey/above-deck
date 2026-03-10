@@ -127,6 +127,13 @@ describe('useSolarStore', () => {
     });
   });
 
+  describe('setBoatName', () => {
+    it('updates boat name independently', () => {
+      useSolarStore.getState().setBoatName('Windchaser');
+      expect(useSolarStore.getState().boatName).toBe('Windchaser');
+    });
+  });
+
   // --- Equipment CRUD ---
   describe('addEquipment', () => {
     it('appends an item to equipment array', () => {
@@ -215,7 +222,7 @@ describe('useSolarStore', () => {
       expect(eq[0].id).toBe('orig-1');
       expect(eq[0].origin).toBe('stock');
       // Copy has new id and origin=added
-      expect(eq[1].id).toMatch(/^orig-1-\d+$/);
+      expect(eq[1].id).toMatch(/^orig-1-/);
       expect(eq[1].origin).toBe('added');
       expect(eq[1].name).toBe('Nav Light');
     });
@@ -246,6 +253,96 @@ describe('useSolarStore', () => {
       useSolarStore.getState().addEquipment(makeDrain());
       useSolarStore.getState().setEquipment([]);
       expect(useSolarStore.getState().equipment).toEqual([]);
+    });
+  });
+
+  // --- v4 fields ---
+  describe('v4 fields', () => {
+    it('has default wizardComplete of false', () => {
+      expect(useSolarStore.getState().wizardComplete).toBe(false);
+    });
+
+    it('has default cruisingStyle of coastal', () => {
+      expect(useSolarStore.getState().cruisingStyle).toBe('coastal');
+    });
+
+    it('has default boatType of mono', () => {
+      expect(useSolarStore.getState().boatType).toBe('mono');
+    });
+
+    it('has default boatLengthFt of 40', () => {
+      expect(useSolarStore.getState().boatLengthFt).toBe(40);
+    });
+
+    it('has default monthlyIrradiance of empty array', () => {
+      expect(useSolarStore.getState().monthlyIrradiance).toEqual([]);
+    });
+
+    it('has default previousMetrics of null', () => {
+      expect(useSolarStore.getState().previousMetrics).toBeNull();
+    });
+
+    it('setWizardComplete sets to true', () => {
+      useSolarStore.getState().setWizardComplete();
+      expect(useSolarStore.getState().wizardComplete).toBe(true);
+    });
+
+    it('setCruisingStyle sets to offshore', () => {
+      useSolarStore.getState().setCruisingStyle('offshore');
+      expect(useSolarStore.getState().cruisingStyle).toBe('offshore');
+    });
+
+    it('setBoatType sets to cat', () => {
+      useSolarStore.getState().setBoatType('cat');
+      expect(useSolarStore.getState().boatType).toBe('cat');
+    });
+
+    it('setBoatLengthFt sets to 45', () => {
+      useSolarStore.getState().setBoatLengthFt(45);
+      expect(useSolarStore.getState().boatLengthFt).toBe(45);
+    });
+
+    it('setMonthlyIrradiance sets data', () => {
+      const data = [
+        { month: 1, horizontalIrradiance: 3.5, optimalIrradiance: 4.2, temperature: 12 },
+        { month: 2, horizontalIrradiance: 4.1, optimalIrradiance: 4.8, temperature: 14 },
+      ];
+      useSolarStore.getState().setMonthlyIrradiance(data);
+      expect(useSolarStore.getState().monthlyIrradiance).toEqual(data);
+    });
+
+    it('snapshotMetrics creates correct PreviousMetrics object', () => {
+      useSolarStore.getState().snapshotMetrics(100, 150, 50, 2.5);
+      expect(useSolarStore.getState().previousMetrics).toEqual({
+        drainWhPerDay: 100,
+        chargeWhPerDay: 150,
+        netBalance: 50,
+        daysAutonomy: 2.5,
+      });
+    });
+
+    it('resetToTemplate clears equipment, resets cruisingStyle, sets wizardComplete false', () => {
+      // Set up some state first
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd1' }));
+      useSolarStore.getState().setCruisingStyle('offshore');
+      useSolarStore.getState().setWizardComplete();
+      useSolarStore.getState().setBoatType('cat');
+      useSolarStore.getState().setBoatLengthFt(55);
+      useSolarStore.getState().setMonthlyIrradiance([
+        { month: 1, horizontalIrradiance: 3.5, optimalIrradiance: 4.2, temperature: 12 },
+      ]);
+      useSolarStore.getState().snapshotMetrics(100, 150, 50, 2.5);
+
+      useSolarStore.getState().resetToTemplate();
+
+      const state = useSolarStore.getState();
+      expect(state.equipment).toEqual([]);
+      expect(state.cruisingStyle).toBe('coastal');
+      expect(state.wizardComplete).toBe(false);
+      expect(state.boatType).toBe('mono');
+      expect(state.boatLengthFt).toBe(40);
+      expect(state.monthlyIrradiance).toEqual([]);
+      expect(state.previousMetrics).toBeNull();
     });
   });
 
