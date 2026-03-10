@@ -202,7 +202,6 @@ function EnergyPlannerInner() {
   const duplicateEquipment = useSolarStore((s) => s.duplicateEquipment);
   const removeEquipment = useSolarStore((s) => s.removeEquipment);
   const addEquipment = useSolarStore((s) => s.addEquipment);
-  const setViewMode = useSolarStore((s) => s.setViewMode);
   const setCrewSize = useSolarStore((s) => s.setCrewSize);
   const setSystemVoltage = useSolarStore((s) => s.setSystemVoltage);
   const setAcCircuitVoltage = useSolarStore((s) => s.setAcCircuitVoltage);
@@ -301,14 +300,6 @@ function EnergyPlannerInner() {
           </Title>
           <BoatSelector />
           <Group>
-            <SegmentedControl
-              value={viewMode}
-              onChange={(val) => setViewMode(val as 'anchor' | 'passage')}
-              data={[
-                { value: 'anchor', label: 'Anchor' },
-                { value: 'passage', label: 'Passage' },
-              ]}
-            />
             <NumberInput
               label="Crew"
               value={crewSize}
@@ -317,6 +308,16 @@ function EnergyPlannerInner() {
               style={{ width: 80 }}
               onChange={(val) => setCrewSize(Number(val) || 2)}
             />
+          </Group>
+          <SummaryBar
+            drainWh={drainResult.totalWhPerDay}
+            chargeWh={chargeResult.totalWhPerDay}
+            netBalance={netBalance}
+            daysAutonomy={storageResult.daysAutonomy}
+          />
+
+          {/* Zone 2: Equipment Grid */}
+          <Group gap="md">
             <SegmentedControl
               value={String(systemVoltage)}
               onChange={(val) => setSystemVoltage(Number(val) as 12 | 24 | 48)}
@@ -335,14 +336,7 @@ function EnergyPlannerInner() {
               ]}
             />
           </Group>
-          <SummaryBar
-            drainWh={drainResult.totalWhPerDay}
-            chargeWh={chargeResult.totalWhPerDay}
-            netBalance={netBalance}
-            daysAutonomy={storageResult.daysAutonomy}
-          />
 
-          {/* Zone 2: Equipment Grid */}
           <EquipmentGroup
             title="Drain"
             items={drains}
