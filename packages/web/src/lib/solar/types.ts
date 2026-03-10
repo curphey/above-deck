@@ -60,3 +60,48 @@ export interface PvgisMonthlyData {
 }
 
 export type PanelType = 'rigid' | 'semi-flexible' | 'flexible';
+
+// --- Equipment Instance types (v3) ---
+
+interface EquipmentBase {
+  id: string;
+  catalogId: string | null;
+  name: string;
+  type: 'drain' | 'charge' | 'store';
+  enabled: boolean;
+  origin: 'stock' | 'added';
+  notes: string;
+}
+
+export interface DrainEquipment extends EquipmentBase {
+  type: 'drain';
+  category: string;
+  wattsTypical: number;
+  wattsMin: number;
+  wattsMax: number;
+  hoursPerDayAnchor: number;
+  hoursPerDayPassage: number;
+  dutyCycle: number;
+  crewScaling: boolean;
+  powerType: 'dc' | 'ac';
+}
+
+export interface ChargeEquipment extends EquipmentBase {
+  type: 'charge';
+  sourceType: 'solar' | 'alternator' | 'shore';
+  panelWatts?: number;
+  panelType?: PanelType;
+  regionName?: string;
+  alternatorAmps?: number;
+  motoringHoursPerDay?: number;
+  shoreHoursPerDay?: number;
+  shoreChargerAmps?: number;
+}
+
+export interface StoreEquipment extends EquipmentBase {
+  type: 'store';
+  chemistry: 'agm' | 'lifepo4';
+  capacityAh: number;
+}
+
+export type EquipmentInstance = DrainEquipment | ChargeEquipment | StoreEquipment;
