@@ -63,7 +63,7 @@ export type PanelType = 'rigid' | 'semi-flexible' | 'flexible';
 
 // --- Equipment Instance types (v3) ---
 
-interface EquipmentBase {
+export interface EquipmentBase {
   id: string;
   catalogId: string | null;
   name: string;
@@ -105,3 +105,39 @@ export interface StoreEquipment extends EquipmentBase {
 }
 
 export type EquipmentInstance = DrainEquipment | ChargeEquipment | StoreEquipment;
+
+// --- Configurator types (v4) ---
+
+export type CruisingStyle = 'weekend' | 'coastal' | 'offshore';
+export type BoatType = 'mono' | 'cat' | 'tri';
+
+export interface WizardConfig {
+  boatName: string;
+  templateId: string | null;
+  boatType: BoatType;
+  boatLengthFt: number;
+  systemVoltage: 12 | 24 | 48;
+  regionName: string;
+  latitude: number;
+  longitude: number;
+  peakSunHours: number;
+  deratingFactor: number;
+  cruisingStyle: CruisingStyle;
+  crewSize: number;
+}
+
+export interface CuratedRegion {
+  name: string;
+  lat: number;
+  lon: number;
+  psh: number;
+  deratingFactor: number;
+  thumbnailUrl: string;
+}
+
+export interface PreviousMetrics {
+  drainWhPerDay: number;
+  chargeWhPerDay: number;
+  netBalance: number;
+  daysAutonomy: number;
+}

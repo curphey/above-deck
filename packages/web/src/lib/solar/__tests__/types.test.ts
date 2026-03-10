@@ -4,6 +4,11 @@ import type {
   ChargeEquipment,
   StoreEquipment,
   EquipmentInstance,
+  CruisingStyle,
+  BoatType,
+  WizardConfig,
+  CuratedRegion,
+  PreviousMetrics,
 } from '../types';
 
 describe('EquipmentInstance types', () => {
@@ -177,6 +182,98 @@ describe('EquipmentInstance types', () => {
       );
       expect(stores).toHaveLength(1);
       expect(stores[0].capacityAh).toBe(400);
+    });
+  });
+});
+
+describe('Configurator types (v4)', () => {
+  describe('CruisingStyle', () => {
+    it('should accept valid cruising styles', () => {
+      const styles: CruisingStyle[] = ['weekend', 'coastal', 'offshore'];
+      expect(styles).toHaveLength(3);
+    });
+  });
+
+  describe('BoatType', () => {
+    it('should accept valid boat types', () => {
+      const types: BoatType[] = ['mono', 'cat', 'tri'];
+      expect(types).toHaveLength(3);
+    });
+  });
+
+  describe('WizardConfig', () => {
+    it('should create a valid wizard config object', () => {
+      const config: WizardConfig = {
+        boatName: 'Sea Breeze',
+        templateId: 'tmpl-coastal-40',
+        boatType: 'mono',
+        boatLengthFt: 40,
+        systemVoltage: 12,
+        regionName: 'Caribbean',
+        latitude: 15.0,
+        longitude: -61.0,
+        peakSunHours: 5.5,
+        deratingFactor: 0.75,
+        cruisingStyle: 'coastal',
+        crewSize: 2,
+      };
+
+      expect(config.boatName).toBe('Sea Breeze');
+      expect(config.boatType).toBe('mono');
+      expect(config.systemVoltage).toBe(12);
+      expect(config.cruisingStyle).toBe('coastal');
+    });
+
+    it('should allow null templateId', () => {
+      const config: WizardConfig = {
+        boatName: 'Custom Build',
+        templateId: null,
+        boatType: 'cat',
+        boatLengthFt: 45,
+        systemVoltage: 24,
+        regionName: 'Mediterranean',
+        latitude: 36.0,
+        longitude: 14.5,
+        peakSunHours: 4.5,
+        deratingFactor: 0.75,
+        cruisingStyle: 'offshore',
+        crewSize: 4,
+      };
+
+      expect(config.templateId).toBeNull();
+      expect(config.boatType).toBe('cat');
+    });
+  });
+
+  describe('CuratedRegion', () => {
+    it('should create a valid curated region object', () => {
+      const region: CuratedRegion = {
+        name: 'Caribbean',
+        lat: 15.0,
+        lon: -61.0,
+        psh: 5.5,
+        deratingFactor: 0.75,
+        thumbnailUrl: '',
+      };
+
+      expect(region.name).toBe('Caribbean');
+      expect(region.psh).toBe(5.5);
+      expect(region.deratingFactor).toBe(0.75);
+    });
+  });
+
+  describe('PreviousMetrics', () => {
+    it('should create a valid previous metrics object', () => {
+      const metrics: PreviousMetrics = {
+        drainWhPerDay: 3500,
+        chargeWhPerDay: 4000,
+        netBalance: 500,
+        daysAutonomy: 2.5,
+      };
+
+      expect(metrics.drainWhPerDay).toBe(3500);
+      expect(metrics.netBalance).toBe(500);
+      expect(metrics.daysAutonomy).toBe(2.5);
     });
   });
 });
