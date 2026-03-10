@@ -1,217 +1,288 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useSolarStore } from '../solar';
+import { useSolarStore, initialState } from '../solar';
+import type { DrainEquipment, ChargeEquipment, StoreEquipment, EquipmentInstance } from '@/lib/solar/types';
+
+const makeDrain = (overrides = {}): DrainEquipment => ({
+  id: 'drain-1',
+  catalogId: null,
+  name: 'Test Drain',
+  type: 'drain',
+  enabled: true,
+  origin: 'added',
+  notes: '',
+  category: 'lighting',
+  wattsTypical: 10,
+  wattsMin: 5,
+  wattsMax: 15,
+  hoursPerDayAnchor: 8,
+  hoursPerDayPassage: 4,
+  dutyCycle: 1,
+  crewScaling: false,
+  powerType: 'dc',
+  ...overrides,
+});
+
+const makeCharge = (overrides = {}): ChargeEquipment => ({
+  id: 'charge-1',
+  catalogId: null,
+  name: 'Test Charge',
+  type: 'charge',
+  enabled: true,
+  origin: 'added',
+  notes: '',
+  sourceType: 'solar',
+  panelWatts: 200,
+  ...overrides,
+});
+
+const makeStore = (overrides = {}): StoreEquipment => ({
+  id: 'store-1',
+  catalogId: null,
+  name: 'Test Store',
+  type: 'store',
+  enabled: true,
+  origin: 'added',
+  notes: '',
+  chemistry: 'lifepo4',
+  capacityAh: 200,
+  ...overrides,
+});
 
 describe('useSolarStore', () => {
   beforeEach(() => {
     useSolarStore.setState(useSolarStore.getInitialState());
   });
 
-  it('has default crew size of 2', () => {
-    expect(useSolarStore.getState().crewSize).toBe(2);
+  // --- Default values ---
+  describe('defaults', () => {
+    it('has default boatName of empty string', () => {
+      expect(useSolarStore.getState().boatName).toBe('');
+    });
+
+    it('has default templateId of null', () => {
+      expect(useSolarStore.getState().templateId).toBeNull();
+    });
+
+    it('has default systemVoltage of 12', () => {
+      expect(useSolarStore.getState().systemVoltage).toBe(12);
+    });
+
+    it('has default acCircuitVoltage of 220', () => {
+      expect(useSolarStore.getState().acCircuitVoltage).toBe(220);
+    });
+
+    it('has default crewSize of 2', () => {
+      expect(useSolarStore.getState().crewSize).toBe(2);
+    });
+
+    it('has default viewMode of anchor', () => {
+      expect(useSolarStore.getState().viewMode).toBe('anchor');
+    });
+
+    it('has default regionName of Mediterranean', () => {
+      expect(useSolarStore.getState().regionName).toBe('Mediterranean');
+    });
+
+    it('has default empty equipment array', () => {
+      expect(useSolarStore.getState().equipment).toEqual([]);
+    });
   });
 
-  it('has default system voltage of 12', () => {
-    expect(useSolarStore.getState().systemVoltage).toBe(12);
+  // --- New field setters ---
+  describe('setAcCircuitVoltage', () => {
+    it('sets acCircuitVoltage to 110', () => {
+      useSolarStore.getState().setAcCircuitVoltage(110);
+      expect(useSolarStore.getState().acCircuitVoltage).toBe(110);
+    });
+
+    it('sets acCircuitVoltage to 220', () => {
+      useSolarStore.getState().setAcCircuitVoltage(110);
+      useSolarStore.getState().setAcCircuitVoltage(220);
+      expect(useSolarStore.getState().acCircuitVoltage).toBe(220);
+    });
   });
 
-  it('has default battery chemistry of lifepo4', () => {
-    expect(useSolarStore.getState().batteryChemistry).toBe('lifepo4');
+  // --- setBoat ---
+  describe('setBoat', () => {
+    it('sets boatName, templateId, equipment, systemVoltage, and acCircuitVoltage', () => {
+      const eq: EquipmentInstance[] = [makeDrain(), makeCharge()];
+      useSolarStore.getState().setBoat('tmpl-1', 'My Boat', eq, 24, 110);
+
+      const state = useSolarStore.getState();
+      expect(state.templateId).toBe('tmpl-1');
+      expect(state.boatName).toBe('My Boat');
+      expect(state.equipment).toHaveLength(2);
+      expect(state.systemVoltage).toBe(24);
+      expect(state.acCircuitVoltage).toBe(110);
+    });
+
+    it('replaces existing equipment', () => {
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'old-1' }));
+      expect(useSolarStore.getState().equipment).toHaveLength(1);
+
+      useSolarStore.getState().setBoat('tmpl-2', 'New Boat', [makeCharge()], 12, 220);
+      const state = useSolarStore.getState();
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].id).toBe('charge-1');
+    });
   });
 
-  it('sets crew size', () => {
-    useSolarStore.getState().setCrewSize(4);
-    expect(useSolarStore.getState().crewSize).toBe(4);
+  // --- Equipment CRUD ---
+  describe('addEquipment', () => {
+    it('appends an item to equipment array', () => {
+      useSolarStore.getState().addEquipment(makeDrain());
+      expect(useSolarStore.getState().equipment).toHaveLength(1);
+      expect(useSolarStore.getState().equipment[0].name).toBe('Test Drain');
+    });
+
+    it('appends multiple items', () => {
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd1' }));
+      useSolarStore.getState().addEquipment(makeCharge({ id: 'c1' }));
+      useSolarStore.getState().addEquipment(makeStore({ id: 's1' }));
+      expect(useSolarStore.getState().equipment).toHaveLength(3);
+    });
   });
 
-  it('toggles an appliance on/off', () => {
-    const appliance = {
-      id: 'test-1',
-      name: 'Test',
-      category: 'navigation',
-      wattsTypical: 25,
-      wattsMin: 15,
-      wattsMax: 40,
-      hoursPerDayAnchor: 4,
-      hoursPerDayPassage: 8,
-      dutyCycle: 1.0,
-      usageType: 'intermittent' as const,
-      crewScaling: false,
-      enabled: true,
-      origin: 'stock' as const,
-    };
-    useSolarStore.getState().setAppliances([appliance]);
-    useSolarStore.getState().toggleAppliance('test-1');
-    expect(useSolarStore.getState().appliances[0].enabled).toBe(false);
+  describe('removeEquipment', () => {
+    it('removes item by id', () => {
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd1' }));
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd2' }));
+      useSolarStore.getState().removeEquipment('d1');
+
+      const eq = useSolarStore.getState().equipment;
+      expect(eq).toHaveLength(1);
+      expect(eq[0].id).toBe('d2');
+    });
+
+    it('does nothing if id not found', () => {
+      useSolarStore.getState().addEquipment(makeDrain());
+      useSolarStore.getState().removeEquipment('nonexistent');
+      expect(useSolarStore.getState().equipment).toHaveLength(1);
+    });
   });
 
-  it('updates appliance hours', () => {
-    const appliance = {
-      id: 'test-1',
-      name: 'Test',
-      category: 'navigation',
-      wattsTypical: 25,
-      wattsMin: 15,
-      wattsMax: 40,
-      hoursPerDayAnchor: 4,
-      hoursPerDayPassage: 8,
-      dutyCycle: 1.0,
-      usageType: 'intermittent' as const,
-      crewScaling: false,
-      enabled: true,
-      origin: 'stock' as const,
-    };
-    useSolarStore.getState().setAppliances([appliance]);
-    useSolarStore.getState().updateApplianceHours('test-1', 'anchor', 10);
-    expect(useSolarStore.getState().appliances[0].hoursPerDayAnchor).toBe(10);
+  describe('toggleEquipment', () => {
+    it('toggles enabled from true to false', () => {
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd1', enabled: true }));
+      useSolarStore.getState().toggleEquipment('d1');
+      expect(useSolarStore.getState().equipment[0].enabled).toBe(false);
+    });
+
+    it('toggles enabled from false to true', () => {
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd1', enabled: false }));
+      useSolarStore.getState().toggleEquipment('d1');
+      expect(useSolarStore.getState().equipment[0].enabled).toBe(true);
+    });
+
+    it('only toggles the matching item', () => {
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd1', enabled: true }));
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd2', enabled: true }));
+      useSolarStore.getState().toggleEquipment('d1');
+      expect(useSolarStore.getState().equipment[0].enabled).toBe(false);
+      expect(useSolarStore.getState().equipment[1].enabled).toBe(true);
+    });
   });
 
-  it('sets boat model ID', () => {
-    useSolarStore.getState().setBoatModelId('some-uuid');
-    expect(useSolarStore.getState().boatModelId).toBe('some-uuid');
+  describe('updateEquipment', () => {
+    it('merges updates into matching item', () => {
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd1' }));
+      useSolarStore.getState().updateEquipment('d1', { name: 'Updated Drain', wattsTypical: 50 } as Partial<DrainEquipment>);
+
+      const item = useSolarStore.getState().equipment[0] as DrainEquipment;
+      expect(item.name).toBe('Updated Drain');
+      expect(item.wattsTypical).toBe(50);
+      // Other fields unchanged
+      expect(item.wattsMin).toBe(5);
+    });
+
+    it('does not affect other items', () => {
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd1' }));
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'd2', name: 'Second' }));
+      useSolarStore.getState().updateEquipment('d1', { name: 'Changed' });
+      expect(useSolarStore.getState().equipment[1].name).toBe('Second');
+    });
   });
 
-  it('sets location', () => {
-    useSolarStore.getState().setLocation(36.0, 14.5, 'Mediterranean');
-    expect(useSolarStore.getState().latitude).toBe(36.0);
-    expect(useSolarStore.getState().longitude).toBe(14.5);
-    expect(useSolarStore.getState().regionName).toBe('Mediterranean');
+  describe('duplicateEquipment', () => {
+    it('copies item with new id and origin=added', () => {
+      const original = makeDrain({ id: 'orig-1', origin: 'stock', name: 'Nav Light' });
+      useSolarStore.getState().addEquipment(original);
+      useSolarStore.getState().duplicateEquipment('orig-1');
+
+      const eq = useSolarStore.getState().equipment;
+      expect(eq).toHaveLength(2);
+      // Original unchanged
+      expect(eq[0].id).toBe('orig-1');
+      expect(eq[0].origin).toBe('stock');
+      // Copy has new id and origin=added
+      expect(eq[1].id).toMatch(/^orig-1-\d+$/);
+      expect(eq[1].origin).toBe('added');
+      expect(eq[1].name).toBe('Nav Light');
+    });
+
+    it('does nothing if id not found', () => {
+      useSolarStore.getState().addEquipment(makeDrain());
+      useSolarStore.getState().duplicateEquipment('nonexistent');
+      expect(useSolarStore.getState().equipment).toHaveLength(1);
+    });
   });
 
-  it('has default Mediterranean location', () => {
-    const state = useSolarStore.getState();
-    expect(state.latitude).toBe(36.0);
-    expect(state.longitude).toBe(14.5);
-    expect(state.regionName).toBe('Mediterranean');
+  describe('setEquipment', () => {
+    it('replaces entire equipment array', () => {
+      useSolarStore.getState().addEquipment(makeDrain({ id: 'old' }));
+      const newItems: EquipmentInstance[] = [
+        makeCharge({ id: 'new-1' }),
+        makeStore({ id: 'new-2' }),
+      ];
+      useSolarStore.getState().setEquipment(newItems);
+
+      const eq = useSolarStore.getState().equipment;
+      expect(eq).toHaveLength(2);
+      expect(eq[0].id).toBe('new-1');
+      expect(eq[1].id).toBe('new-2');
+    });
+
+    it('can set to empty array', () => {
+      useSolarStore.getState().addEquipment(makeDrain());
+      useSolarStore.getState().setEquipment([]);
+      expect(useSolarStore.getState().equipment).toEqual([]);
+    });
   });
 
-  it('tracks view mode (anchor/passage)', () => {
-    useSolarStore.getState().setViewMode('passage');
-    expect(useSolarStore.getState().viewMode).toBe('passage');
-  });
+  // --- Legacy actions still work ---
+  describe('legacy actions', () => {
+    it('toggleAppliance still works', () => {
+      const appliance = {
+        id: 'test-1',
+        name: 'Test',
+        category: 'navigation',
+        wattsTypical: 25,
+        wattsMin: 15,
+        wattsMax: 40,
+        hoursPerDayAnchor: 4,
+        hoursPerDayPassage: 8,
+        dutyCycle: 1.0,
+        usageType: 'intermittent' as const,
+        crewScaling: false,
+        enabled: true,
+        origin: 'stock' as const,
+      };
+      useSolarStore.getState().setAppliances([appliance]);
+      useSolarStore.getState().toggleAppliance('test-1');
+      expect(useSolarStore.getState().appliances[0].enabled).toBe(false);
+    });
 
-  it('sets battery chemistry', () => {
-    useSolarStore.getState().setBatteryChemistry('agm');
-    expect(useSolarStore.getState().batteryChemistry).toBe('agm');
-  });
+    it('setBoatModelId still works', () => {
+      useSolarStore.getState().setBoatModelId('some-uuid');
+      expect(useSolarStore.getState().boatModelId).toBe('some-uuid');
+    });
 
-  it('sets system voltage', () => {
-    useSolarStore.getState().setSystemVoltage(24);
-    expect(useSolarStore.getState().systemVoltage).toBe(24);
-  });
-
-  it('sets days of autonomy', () => {
-    useSolarStore.getState().setDaysAutonomy(5);
-    expect(useSolarStore.getState().daysAutonomy).toBe(5);
-  });
-
-  it('sets alternator amps', () => {
-    useSolarStore.getState().setAlternatorAmps(100);
-    expect(useSolarStore.getState().alternatorAmps).toBe(100);
-  });
-
-  it('sets motoring hours per day', () => {
-    useSolarStore.getState().setMotoringHoursPerDay(3);
-    expect(useSolarStore.getState().motoringHoursPerDay).toBe(3);
-  });
-
-  it('defaults journeyType to plan', () => {
-    expect(useSolarStore.getState().journeyType).toBe('plan');
-  });
-
-  it('sets journeyType to check', () => {
-    useSolarStore.getState().setJourneyType('check');
-    expect(useSolarStore.getState().journeyType).toBe('check');
-  });
-
-  it('defaults shorePowerHoursPerDay to 0', () => {
-    expect(useSolarStore.getState().shorePowerHoursPerDay).toBe(0);
-  });
-
-  it('sets shorePowerHoursPerDay to 2.5', () => {
-    useSolarStore.getState().setShorePowerHoursPerDay(2.5);
-    expect(useSolarStore.getState().shorePowerHoursPerDay).toBe(2.5);
-  });
-
-  it('defaults shoreChargerAmps to 30', () => {
-    expect(useSolarStore.getState().shoreChargerAmps).toBe(30);
-  });
-
-  it('sets shoreChargerAmps', () => {
-    useSolarStore.getState().setShoreChargerAmps(50);
-    expect(useSolarStore.getState().shoreChargerAmps).toBe(50);
-  });
-
-  it('defaults batteryBankAh to 0', () => {
-    expect(useSolarStore.getState().batteryBankAh).toBe(0);
-  });
-
-  it('sets batteryBankAh to 400', () => {
-    useSolarStore.getState().setBatteryBankAh(400);
-    expect(useSolarStore.getState().batteryBankAh).toBe(400);
-  });
-
-  it('should not have shorepower field', () => {
-    const state = useSolarStore.getState();
-    expect('shorepower' in state).toBe(false);
-  });
-
-  it('sets derating factor', () => {
-    useSolarStore.getState().setDeratingFactor(0.6);
-    expect(useSolarStore.getState().deratingFactor).toBe(0.6);
-  });
-
-  it('should set solarPanelWatts', () => {
-    useSolarStore.getState().setSolarPanelWatts(400);
-    expect(useSolarStore.getState().solarPanelWatts).toBe(400);
-  });
-
-  it('should set panelType', () => {
-    useSolarStore.getState().setPanelType('semi-flexible');
-    expect(useSolarStore.getState().panelType).toBe('semi-flexible');
-  });
-
-  it('should not have cruisingStyle', () => {
-    const state = useSolarStore.getState();
-    expect('cruisingStyle' in state).toBe(false);
-  });
-
-  it('should set appliance origin field', () => {
-    const appliance = {
-      id: '1', name: 'Test', category: 'navigation',
-      wattsTypical: 10, wattsMin: 5, wattsMax: 15,
-      hoursPerDayAnchor: 1, hoursPerDayPassage: 1,
-      dutyCycle: 1, usageType: 'always-on' as const,
-      crewScaling: false, enabled: true, origin: 'stock' as const,
-    };
-    useSolarStore.getState().setAppliances([appliance]);
-    expect(useSolarStore.getState().appliances[0].origin).toBe('stock');
-  });
-
-  it('should remove appliance by id', () => {
-    const a1 = {
-      id: '1', name: 'A', category: 'navigation',
-      wattsTypical: 10, wattsMin: 5, wattsMax: 15,
-      hoursPerDayAnchor: 1, hoursPerDayPassage: 1,
-      dutyCycle: 1, usageType: 'always-on' as const,
-      crewScaling: false, enabled: true, origin: 'catalog' as const,
-    };
-    const a2 = { ...a1, id: '2', name: 'B', origin: 'stock' as const };
-    useSolarStore.getState().setAppliances([a1, a2]);
-    useSolarStore.getState().removeAppliance('1');
-    expect(useSolarStore.getState().appliances).toHaveLength(1);
-    expect(useSolarStore.getState().appliances[0].id).toBe('2');
-  });
-
-  it('should update appliance watts', () => {
-    const appliance = {
-      id: '1', name: 'Test', category: 'navigation',
-      wattsTypical: 10, wattsMin: 5, wattsMax: 15,
-      hoursPerDayAnchor: 1, hoursPerDayPassage: 1,
-      dutyCycle: 1, usageType: 'always-on' as const,
-      crewScaling: false, enabled: true, origin: 'stock' as const,
-    };
-    useSolarStore.getState().setAppliances([appliance]);
-    useSolarStore.getState().updateApplianceWatts('1', 25);
-    expect(useSolarStore.getState().appliances[0].wattsTypical).toBe(25);
+    it('setLocation still works', () => {
+      useSolarStore.getState().setLocation(40.0, -3.7, 'Spain');
+      const state = useSolarStore.getState();
+      expect(state.latitude).toBe(40.0);
+      expect(state.longitude).toBe(-3.7);
+      expect(state.regionName).toBe('Spain');
+    });
   });
 });
