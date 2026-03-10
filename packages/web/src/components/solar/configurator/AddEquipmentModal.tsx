@@ -1,176 +1,22 @@
 import { useState, useMemo } from 'react';
 import {
+  Badge,
   Button,
+  Checkbox,
   Group,
+  Loader,
   Modal,
   Paper,
-  SegmentedControl,
   Stack,
   Tabs,
   Text,
   TextInput,
 } from '@mantine/core';
-import { IconSearch } from '@tabler/icons-react';
+import { IconSearch, IconPlus } from '@tabler/icons-react';
 import { HEADING_FONT } from '@/theme/fonts';
-import type {
-  EquipmentInstance,
-  DrainEquipment,
-  ChargeEquipment,
-  StoreEquipment,
-} from '@/lib/solar/types';
-
-// --- Equipment templates ---
-
-interface DrainTemplate {
-  name: string;
-  category: string;
-  watts: number;
-  hoursAnchor: number;
-  hoursPassage: number;
-  dutyCycle: number;
-  powerType: 'dc' | 'ac';
-}
-
-const DRAIN_CATEGORIES: Record<string, DrainTemplate[]> = {
-  Navigation: [
-    { name: 'Chartplotter', category: 'navigation', watts: 25, hoursAnchor: 2, hoursPassage: 12, dutyCycle: 1, powerType: 'dc' },
-    { name: 'Radar', category: 'navigation', watts: 48, hoursAnchor: 0, hoursPassage: 8, dutyCycle: 1, powerType: 'dc' },
-    { name: 'AIS', category: 'navigation', watts: 5, hoursAnchor: 24, hoursPassage: 24, dutyCycle: 1, powerType: 'dc' },
-    { name: 'Autopilot', category: 'navigation', watts: 60, hoursAnchor: 0, hoursPassage: 10, dutyCycle: 0.5, powerType: 'dc' },
-    { name: 'VHF Radio', category: 'navigation', watts: 25, hoursAnchor: 12, hoursPassage: 24, dutyCycle: 0.1, powerType: 'dc' },
-  ],
-  Refrigeration: [
-    { name: 'Fridge', category: 'refrigeration', watts: 60, hoursAnchor: 24, hoursPassage: 24, dutyCycle: 0.33, powerType: 'dc' },
-    { name: 'Freezer', category: 'refrigeration', watts: 80, hoursAnchor: 24, hoursPassage: 24, dutyCycle: 0.33, powerType: 'dc' },
-  ],
-  Lighting: [
-    { name: 'LED Interior', category: 'lighting', watts: 20, hoursAnchor: 6, hoursPassage: 4, dutyCycle: 1, powerType: 'dc' },
-    { name: 'LED Nav Lights', category: 'lighting', watts: 15, hoursAnchor: 0, hoursPassage: 12, dutyCycle: 1, powerType: 'dc' },
-    { name: 'Anchor Light', category: 'lighting', watts: 10, hoursAnchor: 12, hoursPassage: 0, dutyCycle: 1, powerType: 'dc' },
-  ],
-  'Water Systems': [
-    { name: 'Water Pump', category: 'water', watts: 60, hoursAnchor: 0.5, hoursPassage: 0.5, dutyCycle: 1, powerType: 'dc' },
-    { name: 'Watermaker', category: 'water', watts: 200, hoursAnchor: 2, hoursPassage: 2, dutyCycle: 1, powerType: 'dc' },
-  ],
-  'Comfort/Galley': [
-    { name: 'Fan', category: 'comfort', watts: 15, hoursAnchor: 8, hoursPassage: 8, dutyCycle: 1, powerType: 'dc' },
-    { name: 'Microwave', category: 'comfort', watts: 800, hoursAnchor: 0.1, hoursPassage: 0.1, dutyCycle: 1, powerType: 'ac' },
-    { name: 'Coffee Maker', category: 'comfort', watts: 600, hoursAnchor: 0.2, hoursPassage: 0.2, dutyCycle: 1, powerType: 'ac' },
-  ],
-  Communication: [
-    { name: 'SSB Radio', category: 'communication', watts: 150, hoursAnchor: 1, hoursPassage: 2, dutyCycle: 0.3, powerType: 'dc' },
-    { name: 'Satellite Phone', category: 'communication', watts: 30, hoursAnchor: 0.5, hoursPassage: 1, dutyCycle: 1, powerType: 'dc' },
-    { name: 'WiFi Router', category: 'communication', watts: 12, hoursAnchor: 12, hoursPassage: 12, dutyCycle: 1, powerType: 'dc' },
-  ],
-  'Sailing/Safety': [
-    { name: 'Windlass', category: 'sailing', watts: 500, hoursAnchor: 0.05, hoursPassage: 0.05, dutyCycle: 1, powerType: 'dc' },
-    { name: 'Bilge Pump', category: 'sailing', watts: 25, hoursAnchor: 0.5, hoursPassage: 0.5, dutyCycle: 0.1, powerType: 'dc' },
-    { name: 'Wind Instruments', category: 'sailing', watts: 5, hoursAnchor: 24, hoursPassage: 24, dutyCycle: 1, powerType: 'dc' },
-  ],
-};
-
-interface ChargeTemplate {
-  name: string;
-  sourceType: 'solar' | 'alternator' | 'shore';
-  panelWatts?: number;
-  alternatorAmps?: number;
-  motoringHoursPerDay?: number;
-  shoreChargerAmps?: number;
-  shoreHoursPerDay?: number;
-}
-
-const CHARGE_CATEGORIES: Record<string, ChargeTemplate[]> = {
-  Solar: [
-    { name: '100W Solar Panel', sourceType: 'solar', panelWatts: 100 },
-    { name: '200W Solar Panel', sourceType: 'solar', panelWatts: 200 },
-    { name: '300W Solar Panel', sourceType: 'solar', panelWatts: 300 },
-    { name: '400W Solar Panel', sourceType: 'solar', panelWatts: 400 },
-  ],
-  Alternator: [
-    { name: '50A Alternator', sourceType: 'alternator', alternatorAmps: 50, motoringHoursPerDay: 1.5 },
-    { name: '75A Alternator', sourceType: 'alternator', alternatorAmps: 75, motoringHoursPerDay: 1.5 },
-    { name: '100A Alternator', sourceType: 'alternator', alternatorAmps: 100, motoringHoursPerDay: 1.5 },
-    { name: '120A Alternator', sourceType: 'alternator', alternatorAmps: 120, motoringHoursPerDay: 1.5 },
-  ],
-  'Shore Power': [
-    { name: '15A Shore Charger', sourceType: 'shore', shoreChargerAmps: 15, shoreHoursPerDay: 8 },
-    { name: '30A Shore Charger', sourceType: 'shore', shoreChargerAmps: 30, shoreHoursPerDay: 8 },
-    { name: '50A Shore Charger', sourceType: 'shore', shoreChargerAmps: 50, shoreHoursPerDay: 8 },
-  ],
-};
-
-interface StoreTemplate {
-  name: string;
-  chemistry: 'agm' | 'lifepo4';
-  capacityAh: number;
-}
-
-const STORE_TEMPLATES: StoreTemplate[] = [
-  { name: '100Ah AGM Battery Bank', chemistry: 'agm', capacityAh: 100 },
-  { name: '200Ah AGM Battery Bank', chemistry: 'agm', capacityAh: 200 },
-  { name: '100Ah LiFePO4 Battery Bank', chemistry: 'lifepo4', capacityAh: 100 },
-  { name: '200Ah LiFePO4 Battery Bank', chemistry: 'lifepo4', capacityAh: 200 },
-  { name: '300Ah LiFePO4 Battery Bank', chemistry: 'lifepo4', capacityAh: 300 },
-  { name: '400Ah LiFePO4 Battery Bank', chemistry: 'lifepo4', capacityAh: 400 },
-];
-
-// --- Helpers ---
-
-function createDrainItem(template: DrainTemplate): DrainEquipment {
-  return {
-    id: crypto.randomUUID(),
-    catalogId: null,
-    name: template.name,
-    type: 'drain',
-    enabled: true,
-    origin: 'added',
-    notes: '',
-    category: template.category,
-    wattsTypical: template.watts,
-    wattsMin: Math.round(template.watts * 0.5),
-    wattsMax: Math.round(template.watts * 2),
-    hoursPerDayAnchor: template.hoursAnchor,
-    hoursPerDayPassage: template.hoursPassage,
-    dutyCycle: template.dutyCycle,
-    crewScaling: false,
-    powerType: template.powerType,
-  };
-}
-
-function createChargeItem(template: ChargeTemplate): ChargeEquipment {
-  return {
-    id: crypto.randomUUID(),
-    catalogId: null,
-    name: template.name,
-    type: 'charge',
-    enabled: true,
-    origin: 'added',
-    notes: '',
-    sourceType: template.sourceType,
-    panelWatts: template.panelWatts,
-    panelType: template.sourceType === 'solar' ? 'rigid' : undefined,
-    alternatorAmps: template.alternatorAmps,
-    motoringHoursPerDay: template.motoringHoursPerDay,
-    shoreChargerAmps: template.shoreChargerAmps,
-    shoreHoursPerDay: template.shoreHoursPerDay,
-  };
-}
-
-function createStoreItem(template: StoreTemplate): StoreEquipment {
-  return {
-    id: crypto.randomUUID(),
-    catalogId: null,
-    name: template.name,
-    type: 'store',
-    enabled: true,
-    origin: 'added',
-    notes: '',
-    chemistry: template.chemistry,
-    capacityAh: template.capacityAh,
-  };
-}
-
-// --- Props ---
+import { useEquipmentCatalog, catalogRowToEquipment } from '@/hooks/use-equipment-catalog';
+import type { CatalogRow } from '@/hooks/use-equipment-catalog';
+import type { EquipmentInstance, DrainEquipment, ChargeEquipment, StoreEquipment } from '@/lib/solar/types';
 
 export interface AddEquipmentModalProps {
   opened: boolean;
@@ -179,26 +25,54 @@ export interface AddEquipmentModalProps {
   filterType: 'drain' | 'charge' | 'store';
 }
 
-// --- Template item row ---
+function formatCategory(cat: string): string {
+  return cat
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
 
-function TemplateRow({
-  name,
-  detail,
+function specDetail(row: CatalogRow): string {
+  if (row.type === 'drain') {
+    return `${row.specs.wattsTypical}W · ${(row.specs.powerType as string)?.toUpperCase() ?? 'DC'}`;
+  }
+  if (row.type === 'charge') {
+    const src = row.specs.sourceType as string;
+    if (src === 'solar') return `${row.specs.panelWatts}W`;
+    if (src === 'alternator') return `${row.specs.alternatorAmps}A`;
+    if (src === 'shore') return `${row.specs.shoreChargerAmps}A`;
+    return src;
+  }
+  if (row.type === 'store') {
+    const chem = row.specs.chemistry === 'lifepo4' ? 'LiFePO4' : 'AGM';
+    return `${chem} · ${row.specs.capacityAh}Ah`;
+  }
+  return '';
+}
+
+function CatalogItemRow({
+  row,
   onAdd,
 }: {
-  name: string;
-  detail: string;
+  row: CatalogRow;
   onAdd: () => void;
 }) {
   return (
     <Paper withBorder p="xs">
       <Group justify="space-between" wrap="nowrap">
         <div>
-          <Text size="sm" fw={500}>
-            {name}
-          </Text>
+          <Group gap="xs">
+            <Text size="sm" fw={500}>
+              {row.name}
+            </Text>
+            {!row.make && (
+              <Badge size="xs" variant="light" color="gray">
+                Generic
+              </Badge>
+            )}
+          </Group>
           <Text size="xs" c="dimmed">
-            {detail}
+            {specDetail(row)}
           </Text>
         </div>
         <Button size="xs" variant="light" onClick={onAdd}>
@@ -209,181 +83,130 @@ function TemplateRow({
   );
 }
 
-// --- Sub-panels ---
+function createCustomItem(type: 'drain' | 'charge' | 'store'): EquipmentInstance {
+  const base = {
+    id: crypto.randomUUID(),
+    catalogId: null,
+    name: 'Custom Item',
+    enabled: true,
+    origin: 'custom' as const,
+    notes: '',
+  };
 
-function DrainPanel({
-  onAdd,
-  search,
-}: {
-  onAdd: (item: EquipmentInstance) => void;
-  search: string;
-}) {
-  const categories = Object.keys(DRAIN_CATEGORIES);
-  const [activeTab, setActiveTab] = useState(categories[0]);
-
-  const items = useMemo(() => {
-    const templates = DRAIN_CATEGORIES[activeTab] ?? [];
-    if (!search) return templates;
-    const q = search.toLowerCase();
-    return templates.filter((t) => t.name.toLowerCase().includes(q));
-  }, [activeTab, search]);
-
-  // Also search across all categories
-  const allFiltered = useMemo(() => {
-    if (!search) return null;
-    const q = search.toLowerCase();
-    const results: { category: string; template: DrainTemplate }[] = [];
-    for (const [cat, templates] of Object.entries(DRAIN_CATEGORIES)) {
-      for (const t of templates) {
-        if (t.name.toLowerCase().includes(q)) {
-          results.push({ category: cat, template: t });
-        }
-      }
-    }
-    return results;
-  }, [search]);
-
-  if (search && allFiltered && allFiltered.length > 0) {
-    return (
-      <Stack gap="xs">
-        {allFiltered.map((r) => (
-          <TemplateRow
-            key={r.template.name}
-            name={r.template.name}
-            detail={`${r.template.watts}W · ${r.category}`}
-            onAdd={() => onAdd(createDrainItem(r.template))}
-          />
-        ))}
-      </Stack>
-    );
+  switch (type) {
+    case 'drain':
+      return {
+        ...base,
+        type: 'drain',
+        category: 'custom',
+        wattsTypical: 10,
+        wattsMin: 5,
+        wattsMax: 20,
+        hoursPerDayAnchor: 1,
+        hoursPerDayPassage: 1,
+        dutyCycle: 1,
+        crewScaling: false,
+        powerType: 'dc',
+      } satisfies DrainEquipment;
+    case 'charge':
+      return {
+        ...base,
+        type: 'charge',
+        sourceType: 'solar',
+        panelWatts: 100,
+        panelType: 'rigid',
+      } satisfies ChargeEquipment;
+    case 'store':
+      return {
+        ...base,
+        type: 'store',
+        chemistry: 'lifepo4',
+        capacityAh: 100,
+      } satisfies StoreEquipment;
   }
-
-  return (
-    <Tabs value={activeTab} onChange={(val) => setActiveTab(val ?? categories[0])}>
-      <Tabs.List mb="sm">
-        {categories.map((cat) => (
-          <Tabs.Tab key={cat} value={cat}>
-            {cat}
-          </Tabs.Tab>
-        ))}
-      </Tabs.List>
-
-      {categories.map((cat) => (
-        <Tabs.Panel key={cat} value={cat}>
-          <Stack gap="xs">
-            {(search ? items : (DRAIN_CATEGORIES[cat] ?? [])).map((template) => (
-              <TemplateRow
-                key={template.name}
-                name={template.name}
-                detail={`${template.watts}W · ${template.powerType.toUpperCase()}`}
-                onAdd={() => onAdd(createDrainItem(template))}
-              />
-            ))}
-          </Stack>
-        </Tabs.Panel>
-      ))}
-    </Tabs>
-  );
 }
 
-function ChargePanel({
-  onAdd,
+function CatalogPanel({
+  data,
   search,
-}: {
-  onAdd: (item: EquipmentInstance) => void;
-  search: string;
-}) {
-  const categories = Object.keys(CHARGE_CATEGORIES);
-  const [activeTab, setActiveTab] = useState(categories[0]);
-
-  const allFiltered = useMemo(() => {
-    if (!search) return null;
-    const q = search.toLowerCase();
-    const results: ChargeTemplate[] = [];
-    for (const templates of Object.values(CHARGE_CATEGORIES)) {
-      for (const t of templates) {
-        if (t.name.toLowerCase().includes(q)) {
-          results.push(t);
-        }
-      }
-    }
-    return results;
-  }, [search]);
-
-  if (search && allFiltered && allFiltered.length > 0) {
-    return (
-      <Stack gap="xs">
-        {allFiltered.map((t) => (
-          <TemplateRow
-            key={t.name}
-            name={t.name}
-            detail={t.sourceType}
-            onAdd={() => onAdd(createChargeItem(t))}
-          />
-        ))}
-      </Stack>
-    );
-  }
-
-  return (
-    <Tabs value={activeTab} onChange={(val) => setActiveTab(val ?? categories[0])}>
-      <Tabs.List mb="sm">
-        {categories.map((cat) => (
-          <Tabs.Tab key={cat} value={cat}>
-            {cat}
-          </Tabs.Tab>
-        ))}
-      </Tabs.List>
-
-      {categories.map((cat) => (
-        <Tabs.Panel key={cat} value={cat}>
-          <Stack gap="xs">
-            {(CHARGE_CATEGORIES[cat] ?? []).map((template) => (
-              <TemplateRow
-                key={template.name}
-                name={template.name}
-                detail={template.sourceType}
-                onAdd={() => onAdd(createChargeItem(template))}
-              />
-            ))}
-          </Stack>
-        </Tabs.Panel>
-      ))}
-    </Tabs>
-  );
-}
-
-function StorePanel({
   onAdd,
-  search,
 }: {
-  onAdd: (item: EquipmentInstance) => void;
+  data: CatalogRow[];
   search: string;
+  onAdd: (item: EquipmentInstance) => void;
 }) {
   const filtered = useMemo(() => {
-    if (!search) return STORE_TEMPLATES;
+    if (!search) return data;
     const q = search.toLowerCase();
-    return STORE_TEMPLATES.filter((t) => t.name.toLowerCase().includes(q));
-  }, [search]);
+    return data.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        (r.make && r.make.toLowerCase().includes(q)) ||
+        (r.model && r.model.toLowerCase().includes(q)),
+    );
+  }, [data, search]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, CatalogRow[]>();
+    for (const row of filtered) {
+      const list = map.get(row.category) ?? [];
+      list.push(row);
+      map.set(row.category, list);
+    }
+    return map;
+  }, [filtered]);
+
+  const categories = [...grouped.keys()];
+
+  if (categories.length === 0) {
+    return (
+      <Text size="sm" c="dimmed" ta="center" py="lg">
+        No equipment found
+      </Text>
+    );
+  }
+
+  // When searching, show flat list across categories
+  if (search) {
+    return (
+      <Stack gap="xs">
+        {filtered.map((row) => (
+          <CatalogItemRow
+            key={row.id}
+            row={row}
+            onAdd={() => onAdd(catalogRowToEquipment(row))}
+          />
+        ))}
+      </Stack>
+    );
+  }
 
   return (
-    <Stack gap="xs">
-      <Text size="sm" fw={700} ff={HEADING_FONT}>
-        Battery Bank
-      </Text>
-      {filtered.map((template) => (
-        <TemplateRow
-          key={template.name}
-          name={template.name}
-          detail={`${template.chemistry === 'lifepo4' ? 'LiFePO4' : 'AGM'} · ${template.capacityAh}Ah`}
-          onAdd={() => onAdd(createStoreItem(template))}
-        />
+    <Tabs defaultValue={categories[0]}>
+      <Tabs.List mb="sm">
+        {categories.map((cat) => (
+          <Tabs.Tab key={cat} value={cat}>
+            {formatCategory(cat)}
+          </Tabs.Tab>
+        ))}
+      </Tabs.List>
+
+      {categories.map((cat) => (
+        <Tabs.Panel key={cat} value={cat}>
+          <Stack gap="xs">
+            {(grouped.get(cat) ?? []).map((row) => (
+              <CatalogItemRow
+                key={row.id}
+                row={row}
+                onAdd={() => onAdd(catalogRowToEquipment(row))}
+              />
+            ))}
+          </Stack>
+        </Tabs.Panel>
       ))}
-    </Stack>
+    </Tabs>
   );
 }
-
-// --- Main component ---
 
 const TITLES: Record<string, string> = {
   drain: 'Add Equipment',
@@ -398,6 +221,8 @@ export function AddEquipmentModal({
   filterType,
 }: AddEquipmentModalProps) {
   const [search, setSearch] = useState('');
+  const [showOldModels, setShowOldModels] = useState(false);
+  const { data, isLoading } = useEquipmentCatalog(filterType, showOldModels);
 
   const handleAdd = (item: EquipmentInstance) => {
     onAdd(item);
@@ -424,14 +249,29 @@ export function AddEquipmentModal({
           onChange={(e) => setSearch(e.currentTarget.value)}
         />
 
-        {filterType === 'drain' && (
-          <DrainPanel onAdd={handleAdd} search={search} />
-        )}
-        {filterType === 'charge' && (
-          <ChargePanel onAdd={handleAdd} search={search} />
-        )}
-        {filterType === 'store' && (
-          <StorePanel onAdd={handleAdd} search={search} />
+        <Group justify="space-between" mb="sm">
+          <Checkbox
+            label="Show older models"
+            checked={showOldModels}
+            onChange={(e) => setShowOldModels(e.currentTarget.checked)}
+            size="xs"
+          />
+          <Button
+            size="xs"
+            variant="subtle"
+            leftSection={<IconPlus size={14} />}
+            onClick={() => handleAdd(createCustomItem(filterType))}
+          >
+            Add Custom
+          </Button>
+        </Group>
+
+        {isLoading ? (
+          <Group justify="center" py="xl">
+            <Loader size="sm" />
+          </Group>
+        ) : (
+          <CatalogPanel data={data ?? []} search={search} onAdd={handleAdd} />
         )}
       </div>
     </Modal>

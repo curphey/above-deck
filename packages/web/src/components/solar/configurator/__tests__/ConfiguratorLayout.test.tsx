@@ -1,9 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ConfiguratorLayout } from '../ConfiguratorLayout';
 import { useSolarStore } from '@/stores/solar';
 import type { DrainEquipment, ChargeEquipment, StoreEquipment } from '@/lib/solar/types';
+
+// Mock the catalog hook so it doesn't try to create a Supabase client
+vi.mock('@/hooks/use-equipment-catalog', () => ({
+  useEquipmentCatalog: () => ({ data: [], isLoading: false }),
+  catalogRowToEquipment: vi.fn(),
+}));
 
 function wrap(ui: React.ReactElement) {
   return render(<MantineProvider>{ui}</MantineProvider>);
