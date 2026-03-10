@@ -63,6 +63,7 @@ interface DrainFieldsProps {
   viewMode: 'anchor' | 'passage';
   crewSize: number;
   acCircuitVoltage: number;
+  locked: boolean;
 }
 
 function DrainFields({
@@ -71,6 +72,7 @@ function DrainFields({
   viewMode,
   crewSize,
   acCircuitVoltage,
+  locked,
 }: DrainFieldsProps) {
   const hoursKey =
     viewMode === 'anchor' ? 'hoursPerDayAnchor' : 'hoursPerDayPassage';
@@ -88,6 +90,7 @@ function DrainFields({
         value={item.wattsTypical}
         min={item.wattsMin}
         max={item.wattsMax}
+        readOnly={locked}
         onChange={(val) =>
           onUpdate(item.id, { wattsTypical: Number(val) || 0 })
         }
@@ -102,6 +105,7 @@ function DrainFields({
           min={0}
           max={24}
           step={0.5}
+          disabled={locked}
           marks={[
             { value: 0, label: '0' },
             { value: 12, label: '12' },
@@ -118,6 +122,7 @@ function DrainFields({
         max={1}
         step={0.05}
         decimalScale={2}
+        readOnly={locked}
         onChange={(val) => onUpdate(item.id, { dutyCycle: Number(val) || 0 })}
       />
 
@@ -125,6 +130,7 @@ function DrainFields({
         <Switch
           label="Crew scaling"
           checked={item.crewScaling}
+          disabled={locked}
           onChange={(e) =>
             onUpdate(item.id, { crewScaling: e.currentTarget.checked })
           }
@@ -156,6 +162,7 @@ interface ChargeFieldsProps {
   systemVoltage: number;
   peakSunHours: number;
   deratingFactor: number;
+  locked: boolean;
 }
 
 function ChargeFields({
@@ -164,6 +171,7 @@ function ChargeFields({
   systemVoltage,
   peakSunHours,
   deratingFactor,
+  locked,
 }: ChargeFieldsProps) {
   let whPerDay = 0;
 
@@ -191,6 +199,7 @@ function ChargeFields({
             label="Panel wattage"
             value={item.panelWatts || 0}
             min={0}
+            readOnly={locked}
             onChange={(val) =>
               onUpdate(item.id, { panelWatts: Number(val) || 0 })
             }
@@ -201,6 +210,7 @@ function ChargeFields({
             </Text>
             <SegmentedControl
               value={item.panelType || 'rigid'}
+              disabled={locked}
               data={[
                 { value: 'rigid', label: 'Rigid' },
                 { value: 'semi-flexible', label: 'Semi-flex' },
@@ -221,6 +231,7 @@ function ChargeFields({
             label="Alternator amps"
             value={item.alternatorAmps || 0}
             min={0}
+            readOnly={locked}
             onChange={(val) =>
               onUpdate(item.id, { alternatorAmps: Number(val) || 0 })
             }
@@ -231,6 +242,7 @@ function ChargeFields({
             min={0}
             max={24}
             step={0.5}
+            readOnly={locked}
             onChange={(val) =>
               onUpdate(item.id, { motoringHoursPerDay: Number(val) || 0 })
             }
@@ -246,6 +258,7 @@ function ChargeFields({
             min={0}
             max={24}
             step={0.5}
+            readOnly={locked}
             onChange={(val) =>
               onUpdate(item.id, { shoreHoursPerDay: Number(val) || 0 })
             }
@@ -254,6 +267,7 @@ function ChargeFields({
             label="Charger amps"
             value={item.shoreChargerAmps || 0}
             min={0}
+            readOnly={locked}
             onChange={(val) =>
               onUpdate(item.id, { shoreChargerAmps: Number(val) || 0 })
             }
@@ -272,9 +286,10 @@ interface StoreFieldsProps {
   item: StoreEquipment;
   onUpdate: (id: string, updates: Partial<StoreEquipment>) => void;
   systemVoltage: number;
+  locked: boolean;
 }
 
-function StoreFields({ item, onUpdate, systemVoltage }: StoreFieldsProps) {
+function StoreFields({ item, onUpdate, systemVoltage, locked }: StoreFieldsProps) {
   const dod = DOD[item.chemistry];
   const usableWh = Math.round(item.capacityAh * systemVoltage * dod);
 
@@ -286,6 +301,7 @@ function StoreFields({ item, onUpdate, systemVoltage }: StoreFieldsProps) {
         </Text>
         <SegmentedControl
           value={item.chemistry}
+          disabled={locked}
           data={[
             { value: 'agm', label: 'AGM' },
             { value: 'lifepo4', label: 'LiFePO4' },
@@ -302,6 +318,7 @@ function StoreFields({ item, onUpdate, systemVoltage }: StoreFieldsProps) {
         label="Capacity (Ah)"
         value={item.capacityAh}
         min={0}
+        readOnly={locked}
         onChange={(val) =>
           onUpdate(item.id, { capacityAh: Number(val) || 0 })
         }
@@ -333,6 +350,7 @@ export function EquipmentDrawer({
   if (!item) return null;
 
   const isStock = item.origin === 'stock';
+  const isLocked = item.origin === 'catalog';
 
   return (
     <Drawer
@@ -360,6 +378,12 @@ export function EquipmentDrawer({
           }
         />
 
+        {isLocked && (
+          <Text size="xs" c="dimmed" fs="italic">
+            Specs from manufacturer catalog
+          </Text>
+        )}
+
         {item.type === 'drain' && (
           <DrainFields
             item={item}
@@ -367,6 +391,7 @@ export function EquipmentDrawer({
             viewMode={viewMode}
             crewSize={crewSize}
             acCircuitVoltage={acCircuitVoltage}
+            locked={isLocked}
           />
         )}
 
@@ -377,6 +402,7 @@ export function EquipmentDrawer({
             systemVoltage={systemVoltage}
             peakSunHours={peakSunHours}
             deratingFactor={deratingFactor}
+            locked={isLocked}
           />
         )}
 
@@ -385,6 +411,7 @@ export function EquipmentDrawer({
             item={item}
             onUpdate={onUpdate}
             systemVoltage={systemVoltage}
+            locked={isLocked}
           />
         )}
 
