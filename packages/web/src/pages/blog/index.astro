@@ -1,0 +1,170 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('blog'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+function categoryLabel(cat: string): string {
+  const labels: Record<string, string> = {
+    builder: "Builder's Journal",
+    sailing: 'Sailing',
+    electrical: 'Electrical',
+    destinations: 'Destinations',
+  };
+  return labels[cat] ?? cat;
+}
+---
+<BaseLayout title="Blog — Above Deck" description="Practical guides and stories from the cruising community.">
+  <main class="blog-index">
+    <header class="blog-header">
+      <h1>Blog</h1>
+      <p class="subtitle">Practical guides, build logs, and stories from the cruising community.</p>
+    </header>
+
+    <div class="post-list">
+      {posts.map((post) => (
+        <a href={`/blog/${post.id}`} class="post-card">
+          <div class="post-meta">
+            <span class="category">{categoryLabel(post.data.category)}</span>
+            <span class="date">{formatDate(post.data.pubDate)}</span>
+          </div>
+          <h2>{post.data.title}</h2>
+          <p class="description">{post.data.description}</p>
+          <div class="post-footer">
+            {post.data.estimatedReadTime && (
+              <span class="read-time">{post.data.estimatedReadTime} min read</span>
+            )}
+            {post.data.tags.length > 0 && (
+              <div class="tags">
+                {post.data.tags.slice(0, 3).map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </a>
+      ))}
+    </div>
+
+    {posts.length === 0 && (
+      <p class="empty">No posts yet. Check back soon.</p>
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  .blog-index {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .blog-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .blog-header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.75rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .subtitle {
+    color: #8b8b9e;
+    margin: 0;
+  }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .post-card {
+    display: block;
+    padding: 1.25rem;
+    border: 1px solid #2d2d4a;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s;
+  }
+
+  .post-card:hover {
+    border-color: #60a5fa;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .category {
+    color: #4ade80;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .date {
+    color: #8b8b9e;
+  }
+
+  .post-card h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.15rem;
+    margin: 0 0 0.5rem;
+    line-height: 1.4;
+  }
+
+  .description {
+    color: #8b8b9e;
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+  }
+
+  .post-footer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.8rem;
+  }
+
+  .read-time {
+    color: #8b8b9e;
+  }
+
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    color: #60a5fa;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid #2d2d4a;
+    border-radius: 4px;
+  }
+
+  .empty {
+    color: #8b8b9e;
+    text-align: center;
+    padding: 3rem 0;
+  }
+</style>
