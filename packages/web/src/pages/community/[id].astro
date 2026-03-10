@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { DiscussionThread } from '../../components/community/DiscussionThread';
+export const prerender = false;
+
+const { id } = Astro.params;
+---
+<BaseLayout title="Discussion — Above Deck">
+  <DiscussionThread client:only="react" id={id!} />
+</BaseLayout>

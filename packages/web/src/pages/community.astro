@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CommunityPage } from '../components/community/CommunityPage';
+export const prerender = false;
+---
+<BaseLayout title="Community — Above Deck">
+  <CommunityPage client:only="react" />
+</BaseLayout>
