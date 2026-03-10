@@ -69,7 +69,7 @@ export interface EquipmentBase {
   name: string;
   type: 'drain' | 'charge' | 'store';
   enabled: boolean;
-  origin: 'stock' | 'added';
+  origin: 'stock' | 'added' | 'catalog' | 'custom';
   notes: string;
 }
 
