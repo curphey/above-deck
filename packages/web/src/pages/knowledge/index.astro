@@ -1,0 +1,270 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('knowledge', ({ data }) => !data.draft);
+
+const categoryMeta: Record<string, { label: string; description: string }> = {
+  'electrical': {
+    label: 'Electrical Systems',
+    description: '12V/24V systems, solar, batteries, alternators, and wiring.',
+  },
+  'engine-mechanical': {
+    label: 'Engine & Mechanical',
+    description: 'Diesel maintenance, rigging, steering, and mechanical systems.',
+  },
+  'plumbing-water': {
+    label: 'Plumbing & Water',
+    description: 'Watermakers, tanks, pumps, heads, and freshwater management.',
+  },
+  'safety-emergency': {
+    label: 'Safety & Emergency',
+    description: 'Safety gear, MOB procedures, first aid, and emergency protocols.',
+  },
+  'provisioning-living': {
+    label: 'Provisioning & Living',
+    description: 'Food storage, meal planning, liveaboard tips, and passage prep.',
+  },
+  'destinations-cruising': {
+    label: 'Destinations & Cruising',
+    description: 'Cruising routes, weather windows, anchorages, and regional guides.',
+  },
+};
+
+const categoryOrder = [
+  'electrical',
+  'engine-mechanical',
+  'plumbing-water',
+  'safety-emergency',
+  'provisioning-living',
+  'destinations-cruising',
+];
+
+// Group articles by category
+const grouped: Record<string, typeof allArticles> = {};
+for (const article of allArticles) {
+  const cat = article.data.category;
+  if (!grouped[cat]) grouped[cat] = [];
+  grouped[cat].push(article);
+}
+
+// Sort each group by sortOrder
+for (const cat of Object.keys(grouped)) {
+  grouped[cat].sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+}
+
+// Estimate read time from body length (~200 words/min, ~5 chars/word)
+function estimateReadTime(body: string): number {
+  const words = body.split(/\s+/).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
+const difficultyColors: Record<string, string> = {
+  beginner: 'var(--accent-green)',
+  intermediate: 'var(--accent-blue)',
+  advanced: 'var(--accent-coral)',
+};
+---
+<BaseLayout title="Knowledge Base — Above Deck" description="Practical guides for cruising sailors. Electrical systems, engine maintenance, watermakers, safety, provisioning, and destinations.">
+  <main class="knowledge-index">
+
+    <header class="page-header">
+      <h1 class="page-title">Knowledge Base</h1>
+      <p class="page-subtitle">
+        Practical guides written by experienced cruisers. No fluff, no filler — just
+        what you need to know to maintain, operate, and enjoy your boat.
+      </p>
+    </header>
+
+    {categoryOrder.map((catKey) => {
+      const articles = grouped[catKey];
+      const meta = categoryMeta[catKey];
+      if (!articles || articles.length === 0) return null;
+      return (
+        <section class="category-section">
+          <div class="category-header">
+            <h2 class="category-title">{meta.label}</h2>
+            <p class="category-desc">{meta.description}</p>
+          </div>
+          <div class="articles-grid">
+            {articles.map((article) => (
+              <a href={`/knowledge/${article.id}`} class="article-card">
+                <div class="article-meta">
+                  <span
+                    class="difficulty-badge"
+                    style={`color: ${difficultyColors[article.data.difficulty]};
+                            border-color: ${difficultyColors[article.data.difficulty]};`}
+                  >
+                    {article.data.difficulty}
+                  </span>
+                  <span class="read-time">{estimateReadTime(article.body ?? '')} min read</span>
+                </div>
+                <h3 class="article-title">{article.data.title}</h3>
+                <p class="article-summary">{article.data.summary}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+      );
+    })}
+
+  </main>
+</BaseLayout>
+
+<style>
+  :root {
+    --bg-dark: #1a1a2e;
+    --surface: #16213e;
+    --bg-light: #f5f5f0;
+    --text-dark: #e0e0e0;
+    --text-light: #2d2d3a;
+    --text-secondary: #8b8b9e;
+    --accent-green: #4ade80;
+    --accent-coral: #f87171;
+    --accent-blue: #60a5fa;
+    --grid: #2d2d4a;
+  }
+
+  .knowledge-index {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+  }
+
+  /* Page Header */
+  .page-header {
+    padding: 3rem 0 2.5rem;
+    border-bottom: 1px solid var(--grid);
+    margin-bottom: 2.5rem;
+  }
+
+  .page-title {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.75rem;
+  }
+
+  .page-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0;
+  }
+
+  /* Category Sections */
+  .category-section {
+    margin-bottom: 3rem;
+  }
+
+  .category-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .category-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.375rem;
+  }
+
+  .category-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  /* Articles Grid */
+  .articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .article-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--grid);
+    padding: 1.25rem;
+    transition: border-color 0.15s;
+  }
+
+  .article-card:hover {
+    border-color: var(--accent-blue);
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .difficulty-badge {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid;
+    line-height: 1;
+  }
+
+  .read-time {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .article-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.5rem;
+    line-height: 1.4;
+  }
+
+  .article-summary {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  /* Light mode */
+  [data-mantine-color-scheme="light"] .page-title,
+  [data-mantine-color-scheme="light"] .category-title,
+  [data-mantine-color-scheme="light"] .article-title {
+    color: var(--text-light);
+  }
+
+  [data-mantine-color-scheme="light"] .page-header {
+    border-bottom-color: #d4d4d4;
+  }
+
+  [data-mantine-color-scheme="light"] .article-card {
+    border-color: #d4d4d4;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .articles-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .knowledge-index {
+      padding: 0 1rem 3rem;
+    }
+  }
+</style>

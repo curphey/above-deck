@@ -1,0 +1,385 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('knowledge', ({ data }) => !data.draft);
+  return articles.map((article) => ({
+    params: { slug: article.id },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+
+// Get sibling articles in same category for prev/next
+const allArticles = await getCollection('knowledge', ({ data }) => !data.draft);
+const siblings = allArticles
+  .filter((a) => a.data.category === article.data.category)
+  .sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+
+const currentIndex = siblings.findIndex((a) => a.id === article.id);
+const prev = currentIndex > 0 ? siblings[currentIndex - 1] : null;
+const next = currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
+
+const categoryLabels: Record<string, string> = {
+  'electrical': 'Electrical Systems',
+  'engine-mechanical': 'Engine & Mechanical',
+  'plumbing-water': 'Plumbing & Water',
+  'safety-emergency': 'Safety & Emergency',
+  'provisioning-living': 'Provisioning & Living',
+  'destinations-cruising': 'Destinations & Cruising',
+};
+
+const difficultyColors: Record<string, string> = {
+  beginner: 'var(--accent-green)',
+  intermediate: 'var(--accent-blue)',
+  advanced: 'var(--accent-coral)',
+};
+
+function estimateReadTime(body: string): number {
+  const words = body.split(/\s+/).length;
+  return Math.max(1, Math.round(words / 200));
+}
+---
+<BaseLayout title={`${article.data.title} — Above Deck`} description={article.data.summary}>
+  <main class="article-page">
+
+    <nav class="breadcrumb">
+      <a href="/knowledge">Knowledge Base</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>{categoryLabels[article.data.category]}</span>
+    </nav>
+
+    <header class="article-header">
+      <div class="article-meta">
+        <span
+          class="category-badge"
+        >
+          {categoryLabels[article.data.category]}
+        </span>
+        <span
+          class="difficulty-badge"
+          style={`color: ${difficultyColors[article.data.difficulty]};
+                  border-color: ${difficultyColors[article.data.difficulty]};`}
+        >
+          {article.data.difficulty}
+        </span>
+        <span class="read-time">{estimateReadTime(article.body ?? '')} min read</span>
+      </div>
+      <h1 class="article-title">{article.data.title}</h1>
+      <p class="article-summary">{article.data.summary}</p>
+    </header>
+
+    <article class="article-content">
+      <Content />
+    </article>
+
+    <nav class="article-nav">
+      {prev ? (
+        <a href={`/knowledge/${prev.id}`} class="nav-link nav-prev">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">{prev.data.title}</span>
+        </a>
+      ) : <div />}
+      {next ? (
+        <a href={`/knowledge/${next.id}`} class="nav-link nav-next">
+          <span class="nav-label">Next</span>
+          <span class="nav-title">{next.data.title}</span>
+        </a>
+      ) : <div />}
+    </nav>
+
+    <div class="back-link-wrapper">
+      <a href="/knowledge" class="back-link">Back to Knowledge Base</a>
+    </div>
+
+  </main>
+</BaseLayout>
+
+<style>
+  :root {
+    --bg-dark: #1a1a2e;
+    --surface: #16213e;
+    --bg-light: #f5f5f0;
+    --text-dark: #e0e0e0;
+    --text-light: #2d2d3a;
+    --text-secondary: #8b8b9e;
+    --accent-green: #4ade80;
+    --accent-coral: #f87171;
+    --accent-blue: #60a5fa;
+    --grid: #2d2d4a;
+  }
+
+  .article-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    padding: 1.5rem 0 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .breadcrumb a {
+    color: var(--accent-blue);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .breadcrumb-sep {
+    margin: 0 0.5rem;
+    opacity: 0.5;
+  }
+
+  /* Header */
+  .article-header {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--grid);
+    margin-bottom: 2rem;
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .category-badge {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--accent-blue);
+    color: var(--accent-blue);
+    line-height: 1;
+  }
+
+  .difficulty-badge {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid;
+    line-height: 1;
+  }
+
+  .read-time {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .article-title {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.75rem;
+    line-height: 1.3;
+  }
+
+  .article-summary {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  /* Article Content — style the rendered MDX */
+  .article-content {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text-dark);
+  }
+
+  .article-content :global(h2) {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--grid);
+  }
+
+  .article-content :global(h3) {
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 2rem 0 0.75rem;
+  }
+
+  .article-content :global(p) {
+    margin: 0 0 1.25rem;
+  }
+
+  .article-content :global(ul),
+  .article-content :global(ol) {
+    margin: 0 0 1.25rem;
+    padding-left: 1.5rem;
+  }
+
+  .article-content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .article-content :global(strong) {
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+
+  .article-content :global(code) {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85em;
+    background: var(--surface);
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--grid);
+  }
+
+  .article-content :global(blockquote) {
+    margin: 1.5rem 0;
+    padding: 0.75rem 1.25rem;
+    border-left: 3px solid var(--accent-blue);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  .article-content :global(blockquote p) {
+    margin: 0;
+  }
+
+  /* Prev/Next Navigation */
+  .article-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--grid);
+  }
+
+  .nav-link {
+    display: block;
+    text-decoration: none;
+    padding: 1rem;
+    border: 1px solid var(--grid);
+    transition: border-color 0.15s;
+  }
+
+  .nav-link:hover {
+    border-color: var(--accent-blue);
+  }
+
+  .nav-prev {
+    text-align: left;
+  }
+
+  .nav-next {
+    text-align: right;
+  }
+
+  .nav-label {
+    display: block;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 0.375rem;
+  }
+
+  .nav-title {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    line-height: 1.3;
+  }
+
+  /* Back Link */
+  .back-link-wrapper {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .back-link {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: var(--accent-blue);
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Light mode */
+  [data-mantine-color-scheme="light"] .article-title,
+  [data-mantine-color-scheme="light"] .article-content :global(h2),
+  [data-mantine-color-scheme="light"] .article-content :global(h3),
+  [data-mantine-color-scheme="light"] .article-content :global(strong) {
+    color: var(--text-light);
+  }
+
+  [data-mantine-color-scheme="light"] .article-content {
+    color: var(--text-light);
+  }
+
+  [data-mantine-color-scheme="light"] .article-header {
+    border-bottom-color: #d4d4d4;
+  }
+
+  [data-mantine-color-scheme="light"] .article-nav {
+    border-top-color: #d4d4d4;
+  }
+
+  [data-mantine-color-scheme="light"] .nav-link {
+    border-color: #d4d4d4;
+  }
+
+  [data-mantine-color-scheme="light"] .article-content :global(h2) {
+    border-bottom-color: #d4d4d4;
+  }
+
+  [data-mantine-color-scheme="light"] .article-content :global(code) {
+    background: #eaeae5;
+    border-color: #d4d4d4;
+  }
+
+  [data-mantine-color-scheme="light"] .article-content :global(blockquote) {
+    background: #eaeae5;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .article-nav {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .article-page {
+      padding: 0 1rem 3rem;
+    }
+  }
+</style>
