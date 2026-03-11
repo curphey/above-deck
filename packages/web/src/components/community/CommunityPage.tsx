@@ -16,12 +16,13 @@ import {
   Textarea,
   Select,
 } from '@mantine/core';
-import { IconPlus, IconSearch, IconPin, IconMessage } from '@tabler/icons-react';
+import { IconPlus, IconSearch, IconPin, IconMessage, IconFlag } from '@tabler/icons-react';
 import { QueryClient, QueryClientProvider, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MantineProvider } from '../MantineProvider';
 import { createSupabaseClient } from '@/lib/supabase';
 import { timeAgo } from './timeAgo';
 import { CATEGORIES, categoryLabel, categoryColor } from './categories';
+import { FlagModal } from './FlagModal';
 
 // --- Discussion list item ---
 
@@ -37,51 +38,77 @@ interface Discussion {
   author_id: string;
 }
 
-function DiscussionRow({ discussion }: { discussion: Discussion }) {
+function DiscussionRow({ discussion, userId }: { discussion: Discussion; userId?: string }) {
+  const [flagOpen, setFlagOpen] = useState(false);
+
   return (
-    <Paper
-      component="a"
-      href={`/community/${discussion.id}`}
-      p="md"
-      withBorder
-      style={{
-        display: 'block',
-        textDecoration: 'none',
-        cursor: 'pointer',
-        borderColor: 'var(--mantine-color-dark-4)',
-      }}
-    >
-      <Group justify="space-between" wrap="nowrap">
-        <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-          <Group gap="xs">
-            {discussion.is_pinned && (
-              <IconPin size={14} style={{ color: '#60a5fa', flexShrink: 0 }} />
+    <>
+      <Paper
+        component="a"
+        href={`/community/${discussion.id}`}
+        p="md"
+        withBorder
+        style={{
+          display: 'block',
+          textDecoration: 'none',
+          cursor: 'pointer',
+          borderColor: 'var(--mantine-color-dark-4)',
+        }}
+      >
+        <Group justify="space-between" wrap="nowrap">
+          <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+            <Group gap="xs">
+              {discussion.is_pinned && (
+                <IconPin size={14} style={{ color: '#60a5fa', flexShrink: 0 }} />
+              )}
+              <Text fw={500} truncate="end" style={{ color: '#e0e0e0' }}>
+                {discussion.title}
+              </Text>
+            </Group>
+            <Group gap="xs">
+              <Badge
+                size="xs"
+                variant="light"
+                color={categoryColor(discussion.category)}
+              >
+                {categoryLabel(discussion.category)}
+              </Badge>
+              <Text size="xs" c="dimmed">
+                {timeAgo(discussion.created_at)}
+              </Text>
+            </Group>
+          </Stack>
+          <Group gap="xs" style={{ flexShrink: 0 }}>
+            <Group gap={4}>
+              <IconMessage size={14} style={{ color: '#8b8b9e' }} />
+              <Text size="xs" c="dimmed">
+                {discussion.reply_count}
+              </Text>
+            </Group>
+            {userId && (
+              <IconFlag
+                size={14}
+                style={{ color: '#8b8b9e', cursor: 'pointer' }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setFlagOpen(true);
+                }}
+              />
             )}
-            <Text fw={500} truncate="end" style={{ color: '#e0e0e0' }}>
-              {discussion.title}
-            </Text>
           </Group>
-          <Group gap="xs">
-            <Badge
-              size="xs"
-              variant="light"
-              color={categoryColor(discussion.category)}
-            >
-              {categoryLabel(discussion.category)}
-            </Badge>
-            <Text size="xs" c="dimmed">
-              {timeAgo(discussion.created_at)}
-            </Text>
-          </Group>
-        </Stack>
-        <Group gap={4} style={{ flexShrink: 0 }}>
-          <IconMessage size={14} style={{ color: '#8b8b9e' }} />
-          <Text size="xs" c="dimmed">
-            {discussion.reply_count}
-          </Text>
         </Group>
-      </Group>
-    </Paper>
+      </Paper>
+      {userId && (
+        <FlagModal
+          opened={flagOpen}
+          contentType="discussion"
+          contentId={discussion.id}
+          reporterId={userId}
+          onClose={() => setFlagOpen(false)}
+        />
+      )}
+    </>
   );
 }
 
@@ -272,7 +299,7 @@ function CommunityInner() {
         ) : (
           <Stack gap="xs">
             {filtered.map((d) => (
-              <DiscussionRow key={d.id} discussion={d} />
+              <DiscussionRow key={d.id} discussion={d} userId={user?.id} />
             ))}
           </Stack>
         )}

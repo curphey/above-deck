@@ -14,12 +14,13 @@ import {
   Anchor,
   Divider,
 } from '@mantine/core';
-import { IconArrowLeft, IconSend } from '@tabler/icons-react';
+import { IconArrowLeft, IconSend, IconFlag } from '@tabler/icons-react';
 import { QueryClient, QueryClientProvider, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MantineProvider } from '../MantineProvider';
 import { createSupabaseClient } from '@/lib/supabase';
 import { timeAgo } from './timeAgo';
 import { categoryLabel, categoryColor } from './categories';
+import { FlagModal } from './FlagModal';
 
 interface Discussion {
   id: string;
@@ -43,17 +44,37 @@ interface Reply {
 
 // --- Reply card ---
 
-function ReplyCard({ reply }: { reply: Reply }) {
+function ReplyCard({ reply, userId }: { reply: Reply; userId?: string }) {
+  const [flagOpen, setFlagOpen] = useState(false);
+
   return (
     <Paper p="md" withBorder style={{ borderColor: 'var(--mantine-color-dark-4)' }}>
       <Stack gap="xs">
-        <Text size="xs" c="dimmed">
-          {timeAgo(reply.created_at)}
-        </Text>
+        <Group justify="space-between">
+          <Text size="xs" c="dimmed">
+            {timeAgo(reply.created_at)}
+          </Text>
+          {userId && (
+            <IconFlag
+              size={14}
+              style={{ color: '#8b8b9e', cursor: 'pointer' }}
+              onClick={() => setFlagOpen(true)}
+            />
+          )}
+        </Group>
         <Text size="sm" style={{ whiteSpace: 'pre-wrap', color: '#e0e0e0' }}>
           {reply.body}
         </Text>
       </Stack>
+      {userId && (
+        <FlagModal
+          opened={flagOpen}
+          contentType="reply"
+          contentId={reply.id}
+          reporterId={userId}
+          onClose={() => setFlagOpen(false)}
+        />
+      )}
     </Paper>
   );
 }
@@ -116,6 +137,8 @@ function ReplyForm({ discussionId, disabled }: { discussionId: string; disabled:
 // --- Thread inner ---
 
 function ThreadInner({ id }: { id: string }) {
+  const [flagDiscussionOpen, setFlagDiscussionOpen] = useState(false);
+
   // Auth check
   const { data: user } = useQuery({
     queryKey: ['auth-user'],
@@ -197,17 +220,26 @@ function ThreadInner({ id }: { id: string }) {
         {/* Discussion header */}
         <Paper p="lg" withBorder style={{ borderColor: 'var(--mantine-color-dark-4)' }}>
           <Stack gap="md">
-            <Group gap="xs">
-              <Badge
-                size="sm"
-                variant="light"
-                color={categoryColor(discussion.category)}
-              >
-                {categoryLabel(discussion.category)}
-              </Badge>
-              <Text size="xs" c="dimmed">
-                {timeAgo(discussion.created_at)}
-              </Text>
+            <Group justify="space-between">
+              <Group gap="xs">
+                <Badge
+                  size="sm"
+                  variant="light"
+                  color={categoryColor(discussion.category)}
+                >
+                  {categoryLabel(discussion.category)}
+                </Badge>
+                <Text size="xs" c="dimmed">
+                  {timeAgo(discussion.created_at)}
+                </Text>
+              </Group>
+              {user && (
+                <IconFlag
+                  size={16}
+                  style={{ color: '#8b8b9e', cursor: 'pointer' }}
+                  onClick={() => setFlagDiscussionOpen(true)}
+                />
+              )}
             </Group>
             <Title order={2} ff="'Space Mono', monospace">
               {discussion.title}
@@ -217,6 +249,15 @@ function ThreadInner({ id }: { id: string }) {
             </Text>
           </Stack>
         </Paper>
+        {user && (
+          <FlagModal
+            opened={flagDiscussionOpen}
+            contentType="discussion"
+            contentId={discussion.id}
+            reporterId={user.id}
+            onClose={() => setFlagDiscussionOpen(false)}
+          />
+        )}
 
         {/* Replies */}
         <Divider
@@ -235,7 +276,7 @@ function ThreadInner({ id }: { id: string }) {
         ) : (
           <Stack gap="xs">
             {(replies ?? []).map((r) => (
-              <ReplyCard key={r.id} reply={r} />
+              <ReplyCard key={r.id} reply={r} userId={user?.id} />
             ))}
           </Stack>
         )}
