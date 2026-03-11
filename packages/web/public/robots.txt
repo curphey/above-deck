@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abovedeck.io/sitemap.xml
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+Disallow: /admin/
+Disallow: /api/

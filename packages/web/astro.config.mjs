@@ -1,7 +1,6 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
-import sitemap from '@astrojs/sitemap';
 import node from '@astrojs/node';
 import AstroPWA from '@vite-pwa/astro';
 
@@ -12,7 +11,6 @@ export default defineConfig({
   integrations: [
     react(),
     mdx(),
-    sitemap(),
     AstroPWA({
       registerType: 'autoUpdate',
       manifest: {
