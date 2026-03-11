@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
 import { getCollection, render } from 'astro:content';
 
 export const prerender = true;
@@ -44,8 +45,57 @@ function estimateReadTime(body: string): number {
   const words = body.split(/\s+/).length;
   return Math.max(1, Math.round(words / 200));
 }
+
+const siteUrl = 'https://abovedeck.io';
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: article.data.title,
+  description: article.data.summary,
+  author: {
+    '@type': 'Organization',
+    name: 'Above Deck',
+    url: siteUrl,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Above Deck',
+    url: siteUrl,
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': `${siteUrl}/knowledge/${article.id}`,
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: siteUrl,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Knowledge',
+      item: `${siteUrl}/knowledge`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: article.data.title,
+      item: `${siteUrl}/knowledge/${article.id}`,
+    },
+  ],
+};
 ---
 <BaseLayout title={`${article.data.title} — Above Deck`} description={article.data.summary}>
+  <JsonLd schema={articleSchema} />
+  <JsonLd schema={breadcrumbSchema} />
   <main class="article-page">
 
     <nav class="breadcrumb">

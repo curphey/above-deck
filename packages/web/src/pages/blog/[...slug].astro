@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
 import { createSupabaseServerClient } from '../../lib/supabase-server';
 export const prerender = false;
 
@@ -13,6 +14,30 @@ const { data: post } = await supabase
   .single();
 
 if (!post) return Astro.redirect('/blog');
+
+const siteUrl = 'https://abovedeck.io';
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.title,
+  description: post.description,
+  datePublished: post.published_at,
+  dateModified: post.updated_at ?? post.published_at,
+  ...(post.hero_image ? { image: post.hero_image } : {}),
+  author: {
+    '@type': 'Person',
+    name: post.author_name ?? 'Above Deck',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Above Deck',
+    url: siteUrl,
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': `${siteUrl}/blog/${slug}`,
+  },
+};
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-GB', {
@@ -38,6 +63,7 @@ function categoryLabel(cat: string): string {
   image={post.hero_image}
   type="article"
 >
+  <JsonLd schema={articleSchema} />
   <article class="blog-post">
     <header>
       <div class="meta">

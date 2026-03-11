@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
 import { DiscussionThread } from '../../components/community/DiscussionThread';
+import { createSupabaseServerClient } from '../../lib/supabase-server';
 export const prerender = false;
 
 const { id } = Astro.params;
@@ -8,7 +10,32 @@ const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
 if (!id || !uuidPattern.test(id)) {
   return Astro.redirect('/community');
 }
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+const { data: discussion } = await supabase
+  .from('discussions')
+  .select('title, body, created_at, reply_count, profiles(display_name)')
+  .eq('id', id)
+  .single();
+
+const siteUrl = 'https://abovedeck.io';
+const authorName = (discussion?.profiles as any)?.display_name ?? 'Community Member';
+const bodyText = discussion?.body ?? '';
+const discussionSchema = discussion ? {
+  '@context': 'https://schema.org',
+  '@type': 'DiscussionForumPosting',
+  headline: discussion.title,
+  text: bodyText.slice(0, 200),
+  dateCreated: discussion.created_at,
+  author: {
+    '@type': 'Person',
+    name: authorName,
+  },
+  commentCount: discussion.reply_count ?? 0,
+  url: `${siteUrl}/community/${id}`,
+} : null;
 ---
 <BaseLayout title="Discussion — Above Deck">
+  {discussionSchema && <JsonLd schema={discussionSchema} />}
   <DiscussionThread client:only="react" id={id} />
 </BaseLayout>

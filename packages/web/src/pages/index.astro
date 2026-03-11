@@ -1,7 +1,26 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+
+const siteUrl = 'https://abovedeck.io';
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Above Deck',
+  url: siteUrl,
+  description: 'The sailing platform for modern cruisers',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${siteUrl}/knowledge?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
+};
 ---
 <BaseLayout title="Above Deck — The Sailing Platform for Modern Cruisers">
+  <JsonLd schema={websiteSchema} />
   <main class="landing">
 
     <!-- Hero -->
