@@ -1,22 +1,27 @@
 import rss from '@astrojs/rss';
-import { getCollection } from 'astro:content';
 import type { APIContext } from 'astro';
+import { createSupabaseServerClient } from '../lib/supabase-server';
+
+export const prerender = false;
 
 export async function GET(context: APIContext) {
-  const posts = (await getCollection('blog'))
-    .filter((post) => !post.data.draft)
-    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  const supabase = createSupabaseServerClient(context.cookies);
+  const { data: posts } = await supabase
+    .from('blog_posts')
+    .select('slug, title, description, category, tags, published_at')
+    .eq('published', true)
+    .order('published_at', { ascending: false });
 
   return rss({
     title: 'Above Deck',
     description: 'Practical guides and stories from the cruising community.',
     site: context.site!,
-    items: posts.map((post) => ({
-      title: post.data.title,
-      pubDate: post.data.pubDate,
-      description: post.data.description,
-      link: `/blog/${post.id}`,
-      categories: [post.data.category, ...post.data.tags],
+    items: (posts ?? []).map((post) => ({
+      title: post.title,
+      pubDate: new Date(post.published_at),
+      description: post.description,
+      link: `/blog/${post.slug}`,
+      categories: [post.category, ...(post.tags ?? [])],
     })),
   });
 }

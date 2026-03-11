@@ -1,19 +1,21 @@
 ---
-import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { createSupabaseServerClient } from '../../lib/supabase-server';
+export const prerender = false;
 
-export const prerender = true;
+const { slug } = Astro.params;
+const supabase = createSupabaseServerClient(Astro.cookies);
+const { data: post } = await supabase
+  .from('blog_posts')
+  .select('*')
+  .eq('slug', slug)
+  .eq('published', true)
+  .single();
 
-export async function getStaticPaths() {
-  const posts = (await getCollection('blog')).filter((post) => !post.data.draft);
-  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
-}
+if (!post) return Astro.redirect('/blog');
 
-const { post } = Astro.props;
-const { Content } = await render(post);
-
-function formatDate(date: Date): string {
-  return date.toLocaleDateString('en-GB', {
+function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -30,23 +32,30 @@ function categoryLabel(cat: string): string {
   return labels[cat] ?? cat;
 }
 ---
-<BaseLayout title={`${post.data.title} — Above Deck`} description={post.data.description}>
+<BaseLayout
+  title={`${post.title} — Above Deck`}
+  description={post.description}
+  image={post.hero_image}
+  type="article"
+>
   <article class="blog-post">
     <header>
       <div class="meta">
-        <span class="category">{categoryLabel(post.data.category)}</span>
-        <span class="date">{formatDate(post.data.pubDate)}</span>
-        {post.data.estimatedReadTime && (
-          <span class="read-time">{post.data.estimatedReadTime} min read</span>
-        )}
+        <span class="category">{categoryLabel(post.category)}</span>
+        <span class="date">{formatDate(post.published_at)}</span>
       </div>
-      <h1>{post.data.title}</h1>
-      <p class="description">{post.data.description}</p>
+      <h1>{post.title}</h1>
+      <p class="description">{post.description}</p>
+      {post.tags && post.tags.length > 0 && (
+        <div class="tags">
+          {post.tags.map((tag: string) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      )}
     </header>
 
-    <div class="content">
-      <Content />
-    </div>
+    <div class="content" set:html={post.body} />
 
     <footer>
       <a href="/blog" class="back-link">&larr; All posts</a>
@@ -83,7 +92,7 @@ function categoryLabel(cat: string): string {
     letter-spacing: 0.05em;
   }
 
-  .date, .read-time {
+  .date {
     color: #8b8b9e;
   }
 
@@ -99,6 +108,20 @@ function categoryLabel(cat: string): string {
     font-size: 1rem;
     line-height: 1.5;
     margin: 0;
+  }
+
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .tag {
+    color: #60a5fa;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid #2d2d4a;
+    border-radius: 4px;
   }
 
   .content {
