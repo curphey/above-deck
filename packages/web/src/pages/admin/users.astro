@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { AdminUsers } from '../../components/admin/AdminUsers';
+export const prerender = false;
+---
+<BaseLayout title="Users — Admin — Above Deck">
+  <AdminUsers client:only="react" />
+</BaseLayout>
