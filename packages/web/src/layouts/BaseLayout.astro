@@ -41,6 +41,7 @@ const ogImage = image ?? new URL('/og-default.png', Astro.site).toString();
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImage} />
   <ColorSchemeScript defaultColorScheme="dark" />
+  <slot name="head" />
 </head>
 <body>
   <AppShellWrapper client:load>

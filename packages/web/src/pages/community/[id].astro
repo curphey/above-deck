@@ -34,8 +34,17 @@ const discussionSchema = discussion ? {
   commentCount: discussion.reply_count ?? 0,
   url: `${siteUrl}/community/${id}`,
 } : null;
+
+const pageTitle = discussion
+  ? `${discussion.title} — Above Deck Community`
+  : 'Discussion — Above Deck';
+const metaDescription = discussion
+  ? bodyText.slice(0, 160)
+  : 'Community discussion on Above Deck';
+const noIndex = !discussion || (discussion.reply_count ?? 0) === 0;
 ---
-<BaseLayout title="Discussion — Above Deck">
+<BaseLayout title={pageTitle} description={metaDescription}>
+  {noIndex && <meta slot="head" name="robots" content="noindex" />}
   {discussionSchema && <JsonLd schema={discussionSchema} />}
   <DiscussionThread client:only="react" id={id} />
 </BaseLayout>
