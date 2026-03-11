@@ -1,19 +1,50 @@
-import { Button, Avatar, Menu } from '@mantine/core';
-import { IconBrandGoogle, IconLogout } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import { Anchor, Avatar, Menu } from '@mantine/core';
+import { IconLogout } from '@tabler/icons-react';
+import { createSupabaseClient } from '@/lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
-interface AuthButtonProps {
-  user: { name: string; avatar: string } | null;
-}
+export function AuthButton() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export function AuthButton({ user }: AuthButtonProps) {
+  useEffect(() => {
+    const supabase = createSupabaseClient();
+
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+      setLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) return null;
+
   if (user) {
+    const name =
+      user.user_metadata?.full_name ?? user.email ?? 'User';
+    const avatar = user.user_metadata?.avatar_url ?? '';
+
     return (
       <Menu shadow="md" width={200}>
         <Menu.Target>
-          <Avatar src={user.avatar} alt={user.name} radius="xl" size="sm" style={{ cursor: 'pointer' }} />
+          <Avatar
+            src={avatar}
+            alt={name}
+            radius="xl"
+            size="sm"
+            style={{ cursor: 'pointer' }}
+          />
         </Menu.Target>
         <Menu.Dropdown>
-          <Menu.Label>{user.name}</Menu.Label>
+          <Menu.Label>{name}</Menu.Label>
           <Menu.Item
             leftSection={<IconLogout size={14} />}
             component="form"
@@ -27,12 +58,16 @@ export function AuthButton({ user }: AuthButtonProps) {
     );
   }
 
+  const redirectTo = encodeURIComponent(window.location.pathname);
+
   return (
-    <form action="/api/auth/signin" method="post">
-      <input type="hidden" name="provider" value="google" />
-      <Button type="submit" variant="subtle" leftSection={<IconBrandGoogle size={16} />} size="sm">
-        Sign in
-      </Button>
-    </form>
+    <Anchor
+      href={`/api/auth/signin?redirectTo=${redirectTo}`}
+      c="dimmed"
+      underline="never"
+      size="sm"
+    >
+      Sign In
+    </Anchor>
   );
 }

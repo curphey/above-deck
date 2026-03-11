@@ -3,19 +3,18 @@ import { createSupabaseClient } from '../../../lib/supabase';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, redirect }) => {
+export const GET: APIRoute = async ({ request, redirect }) => {
   const supabase = createSupabaseClient();
-  const formData = await request.formData();
-  const provider = formData.get('provider')?.toString();
+  const url = new URL(request.url);
+  const redirectTo = url.searchParams.get('redirectTo') || '/';
 
-  if (provider !== 'google') {
-    return new Response('Only Google sign-in is supported', { status: 400 });
-  }
+  const callbackUrl = new URL('/api/auth/callback', url.origin);
+  callbackUrl.searchParams.set('redirectTo', redirectTo);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${new URL(request.url).origin}/api/auth/callback`,
+      redirectTo: callbackUrl.toString(),
     },
   });
 

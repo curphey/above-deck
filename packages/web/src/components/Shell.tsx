@@ -1,6 +1,7 @@
 import { AppShell, Group, Text, ActionIcon, Anchor } from '@mantine/core';
 import { IconSun, IconMoon } from '@tabler/icons-react';
 import { useMantineColorScheme } from '@mantine/core';
+import { AuthButton } from './AuthButton';
 
 const NAV_LINKS = [
   { label: 'Tools', href: '/tools/solar' },
@@ -32,6 +33,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             >
               {colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
             </ActionIcon>
+            <AuthButton />
           </Group>
         </Group>
       </AppShell.Header>
