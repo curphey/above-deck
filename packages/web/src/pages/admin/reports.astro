@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { AdminReports } from '../../components/admin/AdminReports';
+export const prerender = false;
+---
+<BaseLayout title="Reports — Admin — Above Deck">
+  <AdminReports client:only="react" />
+</BaseLayout>
