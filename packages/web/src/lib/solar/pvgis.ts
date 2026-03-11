@@ -16,7 +16,7 @@ export async function fetchMonthlyIrradiance(
   const data = await response.json();
   const months = data.outputs.monthly;
 
-  return months.map((m: any) => ({
+  return months.map((m: { month: number; H_h: number; H_opt: number; T2m: number }) => ({
     month: m.month,
     horizontalIrradiance: m.H_h / 1000,
     optimalIrradiance: m.H_opt / 1000,

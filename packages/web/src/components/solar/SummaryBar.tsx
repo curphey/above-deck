@@ -1,6 +1,5 @@
 import { Group, Paper, Text } from '@mantine/core';
-
-const HEADING_FONT = "'Space Mono', monospace";
+import { HEADING_FONT } from '@/theme/fonts';
 
 export interface SummaryBarProps {
   drainWh: number;

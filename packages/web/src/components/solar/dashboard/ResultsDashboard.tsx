@@ -11,7 +11,7 @@ import type {
   ChargeEquipment,
   StoreEquipment,
 } from '@/lib/solar/types';
-import { REGIONS } from '../RegionPicker';
+import { CURATED_REGIONS } from '@/lib/solar/regions';
 import { DashboardHeader } from './DashboardHeader';
 import { EnergyFlowChart } from './EnergyFlowChart';
 import { MonthlyGenerationChart } from './MonthlyGenerationChart';
@@ -35,7 +35,7 @@ export function ResultsDashboard() {
 
   // Derive peak sun hours from region
   const peakSunHours = useMemo(() => {
-    const region = REGIONS.find((r) => r.label === regionName);
+    const region = CURATED_REGIONS.find((r) => r.name === regionName);
     return region?.psh ?? 4.5;
   }, [regionName]);
 

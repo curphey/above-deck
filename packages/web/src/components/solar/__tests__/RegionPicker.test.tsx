@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
-import { RegionPicker, REGIONS } from '../RegionPicker';
+import { RegionPicker } from '../RegionPicker';
+import { CURATED_REGIONS } from '@/lib/solar/regions';
 import { theme } from '@/theme/theme';
 import { useSolarStore, initialState } from '@/stores/solar';
 
@@ -24,16 +25,16 @@ describe('RegionPicker', () => {
     expect(container.querySelector('#region-picker')).toBeTruthy();
   });
 
-  it('exports REGIONS array with 9 regions', () => {
-    expect(REGIONS).toHaveLength(9);
+  it('CURATED_REGIONS has all expected regions', () => {
+    expect(CURATED_REGIONS.length).toBeGreaterThanOrEqual(9);
   });
 
   it('each region has lat, lon, and psh properties', () => {
-    for (const region of REGIONS) {
+    for (const region of CURATED_REGIONS) {
       expect(region).toHaveProperty('lat');
       expect(region).toHaveProperty('lon');
       expect(region).toHaveProperty('psh');
-      expect(region).toHaveProperty('label');
+      expect(region).toHaveProperty('name');
     }
   });
 

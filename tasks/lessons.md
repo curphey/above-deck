@@ -30,6 +30,13 @@
 - Variable dependency arrays in `useEffect` cause it to fire every render. Serialize deps with `JSON.stringify` for a stable comparison key.
 - Create Supabase client as a singleton (module-level cache) to avoid re-instantiation on every render.
 
+## Code Quality
+
+- Always import `HEADING_FONT` from `@/theme/fonts` — never declare local copies. Local constants drift from the source of truth.
+- Region data must have a single source of truth: `@/lib/solar/regions.ts`. The old `REGIONS` array in `RegionPicker.tsx` had diverging PSH values.
+- PVGIS API response types should be explicit — avoid `any` in `.map()` callbacks. Type the response shape inline or in `types.ts`.
+- Dead components (superseded by newer versions) should be deleted along with their tests. Check for imports before removing.
+
 ## PostgREST / Supabase Queries
 
 - `.or()` filter strings are not sanitized. Escape `%`, `_`, `,`, `.` in user search input before interpolating into `ilike` patterns.

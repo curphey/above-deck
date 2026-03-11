@@ -30,14 +30,25 @@
 - Always use GitHub issues as the source of truth for all work
 - It is your responsibility to maintain issues (create, update, close)
 
+## Tech Stack
+
+- **Frontend:** Astro 5 (SSR via `@astrojs/node`), React 19 islands, Mantine v7
+- **State:** Zustand 5 (persisted), TanStack Query 5
+- **Backend:** Supabase (auth, DB, RLS), Google OAuth only (PKCE flow)
+- **Charts:** Recharts 2
+- **PWA:** `@vite-pwa/astro` with Workbox
+- **Testing:** Vitest (unit), Playwright (e2e)
+- **Monorepo:** pnpm workspaces — `packages/web/` is the main app
+
 ## Project Structure
 
 ```
 .claude/rules/       # Architecture patterns (glob-matched, loaded when touching relevant files)
+packages/web/        # Main Astro app
 research/            # Research documents
 docs/plans/          # Implementation plans
 wireframes/html/     # Wireframes
-tasks/todo.md        # Work tracking
+tasks/todo.md        # Work tracking (GitHub Issues is source of truth)
 tasks/lessons.md     # Lessons learned from past mistakes
 tmp/screenshots/     # Screenshots (gitignored)
 ```

@@ -21,6 +21,8 @@ import type {
   PanelType,
 } from '@/lib/solar/types';
 
+import { HEADING_FONT } from '@/theme/fonts';
+
 // --- Constants ---
 const INVERTER_EFFICIENCY = 0.85;
 const PANEL_FACTOR: Record<PanelType, number> = {
@@ -30,7 +32,6 @@ const PANEL_FACTOR: Record<PanelType, number> = {
 };
 const ALTERNATOR_EFFICIENCY = 0.7;
 const DOD: Record<'agm' | 'lifepo4', number> = { agm: 0.5, lifepo4: 0.8 };
-const HEADING_FONT = "'Space Mono', monospace";
 
 // --- Props ---
 export interface EquipmentDrawerProps {
