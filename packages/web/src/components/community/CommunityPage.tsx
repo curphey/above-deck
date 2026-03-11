@@ -187,15 +187,12 @@ function CommunityInner() {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
-  const [user, setUser] = useState<{ id: string } | null>(null);
-
   // Check auth state
-  const {} = useQuery({
+  const { data: user } = useQuery({
     queryKey: ['auth-user'],
     queryFn: async () => {
       const supabase = createSupabaseClient();
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
       return user;
     },
     staleTime: 60_000,

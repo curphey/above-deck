@@ -11,7 +11,8 @@ export function useBoatTemplates(search: string) {
         .select('*')
         .order('make');
       if (search.length >= 2) {
-        query = query.or(`make.ilike.%${search}%,model.ilike.%${search}%`);
+        const safe = search.replace(/[%_,.()]/g, '\\$&');
+        query = query.or(`make.ilike.%${safe}%,model.ilike.%${safe}%`);
       }
       const { data, error } = await query.limit(20);
       if (error) throw error;

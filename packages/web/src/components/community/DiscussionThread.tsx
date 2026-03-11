@@ -76,12 +76,7 @@ function ReplyForm({ discussionId, disabled }: { discussionId: string; disabled:
         body,
       });
       if (error) throw error;
-
-      // Bump updated_at on the discussion so it surfaces in "recent" sort
-      await supabase
-        .from('discussions')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', discussionId);
+      // updated_at is bumped automatically by the update_reply_count trigger
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['replies', discussionId] });
@@ -121,15 +116,12 @@ function ReplyForm({ discussionId, disabled }: { discussionId: string; disabled:
 // --- Thread inner ---
 
 function ThreadInner({ id }: { id: string }) {
-  const [user, setUser] = useState<{ id: string } | null>(null);
-
   // Auth check
-  useQuery({
+  const { data: user } = useQuery({
     queryKey: ['auth-user'],
     queryFn: async () => {
       const supabase = createSupabaseClient();
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
       return user;
     },
     staleTime: 60_000,

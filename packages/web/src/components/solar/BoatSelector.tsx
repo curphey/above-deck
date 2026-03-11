@@ -16,7 +16,7 @@ export function BoatSelector() {
   const setSystemVoltage = useSolarStore((s) => s.setSystemVoltage);
   const setBoat = useSolarStore((s) => s.setBoat);
 
-  const options = (templates ?? []).map((t: any) => ({
+  const options = (templates ?? []).map((t) => ({
     value: `${t.make} ${t.model}`,
     ...t,
   }));
@@ -27,9 +27,9 @@ export function BoatSelector() {
       placeholder="Search by make or model..."
       value={search}
       onChange={setSearch}
-      data={options.map((o: any) => o.value)}
+      data={options.map((o) => o.value)}
       onOptionSubmit={(value) => {
-        const match = options.find((o: any) => o.value === value);
+        const match = options.find((o) => o.value === value);
         if (match) {
           // Legacy store updates (kept for backward compatibility)
           setBoatModelId(match.id);
@@ -46,7 +46,11 @@ export function BoatSelector() {
               .select('*')
               .in('id', ids)
               .order('sort_order')
-              .then(({ data: rows }) => {
+              .then(({ data: rows, error }) => {
+                if (error) {
+                  console.error('Failed to fetch appliances', error);
+                  return;
+                }
                 const equipment = transformToEquipmentInstances(rows ?? [], {
                   alternator_amps: match.alternator_amps,
                   battery_capacity_ah: match.battery_capacity_ah,

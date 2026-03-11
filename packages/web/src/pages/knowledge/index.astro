@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+export const prerender = true;
 
 const allArticles = await getCollection('knowledge', ({ data }) => !data.draft);
 

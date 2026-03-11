@@ -1,7 +1,7 @@
 # ── Stage 1: Build ──────────────────────────────
 FROM node:20-slim AS build
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 WORKDIR /workspace
 
@@ -26,7 +26,7 @@ RUN pnpm --filter @above-deck/web build
 # ── Stage 2: Production ────────────────────────
 FROM node:20-slim AS runtime
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 # Keep the same workspace layout so node_modules resolve correctly
 WORKDIR /workspace

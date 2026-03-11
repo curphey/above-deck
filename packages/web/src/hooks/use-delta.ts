@@ -35,12 +35,13 @@ export function formatDelta(delta: number): string {
 
 export function useDeltaVisibility(deps: unknown[]): boolean {
   const [visible, setVisible] = useState(false);
+  const serialized = JSON.stringify(deps);
 
   useEffect(() => {
     setVisible(true);
     const timer = setTimeout(() => setVisible(false), 3000);
     return () => clearTimeout(timer);
-  }, deps);
+  }, [serialized]);
 
   return visible;
 }

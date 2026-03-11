@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Button,
   CopyButton,
@@ -85,13 +85,17 @@ function buildTextSummary(): string {
 
 export function ShareModal({ opened, onClose }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
   const handleCopyLink = async () => {
     const url = buildShareUrl();
     try {
       await navigator.clipboard.writeText(url);
+      if (timerRef.current) clearTimeout(timerRef.current);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      timerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback: the CopyButton approach handles this
     }

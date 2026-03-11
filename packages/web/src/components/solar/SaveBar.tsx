@@ -1,6 +1,6 @@
 import { Affix, Button, Group, Paper, Text } from '@mantine/core';
 import { IconDeviceFloppy, IconLogin, IconShare } from '@tabler/icons-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface SaveBarProps {
   isAuthenticated: boolean;
@@ -8,12 +8,14 @@ interface SaveBarProps {
 
 export function SaveBar({ isAuthenticated }: SaveBarProps) {
   const [saved, setSaved] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
   const handleSave = useCallback(() => {
-    // Zustand persist middleware already saves to localStorage automatically.
-    // This button provides visual confirmation to the user.
+    if (timerRef.current) clearTimeout(timerRef.current);
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    timerRef.current = setTimeout(() => setSaved(false), 2000);
   }, []);
 
   return (

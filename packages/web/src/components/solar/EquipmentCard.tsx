@@ -77,11 +77,8 @@ export function EquipmentCard({
         </Group>
         <Switch
           checked={item.enabled}
-          onChange={() => {}}
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggle();
-          }}
+          onChange={() => onToggle()}
+          onClick={(e) => e.stopPropagation()}
           size="xs"
         />
       </Group>

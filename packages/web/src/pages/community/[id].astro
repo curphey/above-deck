@@ -4,7 +4,11 @@ import { DiscussionThread } from '../../components/community/DiscussionThread';
 export const prerender = false;
 
 const { id } = Astro.params;
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+if (!id || !uuidPattern.test(id)) {
+  return Astro.redirect('/community');
+}
 ---
 <BaseLayout title="Discussion — Above Deck">
-  <DiscussionThread client:only="react" id={id!} />
+  <DiscussionThread client:only="react" id={id} />
 </BaseLayout>

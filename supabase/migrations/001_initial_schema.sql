@@ -109,6 +109,8 @@ CREATE TABLE discussions (
     'introductions', 'feature-requests'
   )),
   reply_count INTEGER DEFAULT 0,
+  is_pinned BOOLEAN DEFAULT false,
+  is_locked BOOLEAN DEFAULT false,
   is_hidden BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
@@ -164,7 +166,7 @@ BEGIN
   );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, auth;
 
 CREATE TRIGGER on_auth_user_created
 AFTER INSERT ON auth.users

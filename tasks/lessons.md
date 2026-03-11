@@ -10,6 +10,30 @@
 - Docker `--no-cache` is needed when build args change — cached layers won't re-evaluate ARG values.
 - `source .env` doesn't export vars. Use `export $(grep '^PUBLIC_' .env | xargs)` for Docker build args.
 
+## Supabase SSR Auth
+
+- Astro's `AstroCookies` does NOT have a `.headers()` method. Use `cookies.getAll()` directly in the `@supabase/ssr` cookie adapter.
+- Signout must call `supabase.auth.signOut()` via the server client, not manually delete cookie names. Cookie names are project-specific (`sb-<project-ref>-auth-token`), not generic.
+- `SECURITY DEFINER` functions need `SET search_path = public, auth` to prevent schema injection.
+
+## Astro SSR + Static Pages
+
+- In `output: 'server'` mode, pages using `getStaticPaths()` MUST also export `prerender = true`, otherwise the build fails.
+- Content collection pages (blog, knowledge base) should use `prerender = true` since they're static content.
+- Pass `props: { post }` from `getStaticPaths` instead of re-fetching the collection at runtime.
+
+## React Patterns
+
+- `setTimeout` in event handlers must be tracked with `useRef` and cleared on unmount to prevent memory leaks.
+- Don't use `setUser()` side-effects inside TanStack Query `queryFn` — derive state from the query's `data` field instead.
+- Mantine `Switch` `onChange` fires from keyboard (Space bar), but `onClick` only fires from mouse. Use `onChange` for the toggle logic and `onClick` only for `stopPropagation`.
+- Variable dependency arrays in `useEffect` cause it to fire every render. Serialize deps with `JSON.stringify` for a stable comparison key.
+- Create Supabase client as a singleton (module-level cache) to avoid re-instantiation on every render.
+
+## PostgREST / Supabase Queries
+
+- `.or()` filter strings are not sanitized. Escape `%`, `_`, `,`, `.` in user search input before interpolating into `ilike` patterns.
+
 ## User's Editor
 
 - User uses **Zed** (zed.dev), not VS Code. The sidebar shows the main repo root, not worktrees.
