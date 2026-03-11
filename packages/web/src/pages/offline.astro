@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+export const prerender = true;
+---
+<BaseLayout title="Offline — Above Deck" description="You're currently offline.">
+  <main style="max-width: 480px; margin: 0 auto; padding: 4rem 1.5rem; text-align: center;">
+    <h1 style="font-family: 'Space Mono', monospace; font-size: 1.5rem; margin-bottom: 1rem; color: #e0e0e0;">
+      You're offline
+    </h1>
+    <p style="color: #8b8b9e; line-height: 1.6; margin-bottom: 2rem;">
+      It looks like you've lost your internet connection. Any pages you've visited before should still be available from the cache.
+    </p>
+    <div style="border: 1px solid #2d2d4a; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+      <p style="color: #8b8b9e; font-size: 0.9rem; margin: 0 0 0.75rem;">
+        Try these cached pages:
+      </p>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+        <li style="margin-bottom: 0.5rem;">
+          <a href="/knowledge" style="color: #60a5fa; text-decoration: none;">Knowledge Base</a>
+        </li>
+        <li style="margin-bottom: 0.5rem;">
+          <a href="/tools/solar" style="color: #60a5fa; text-decoration: none;">Energy Planner</a>
+        </li>
+        <li>
+          <a href="/blog" style="color: #60a5fa; text-decoration: none;">Blog</a>
+        </li>
+      </ul>
+    </div>
+    <p style="color: #8b8b9e; font-size: 0.85rem;">
+      Your data will sync automatically when you're back online.
+    </p>
+  </main>
+</BaseLayout>
