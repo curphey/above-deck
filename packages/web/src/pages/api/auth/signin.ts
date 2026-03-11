@@ -6,7 +6,9 @@ export const prerender = false;
 export const GET: APIRoute = async ({ request, redirect }) => {
   const supabase = createSupabaseClient();
   const url = new URL(request.url);
-  const redirectTo = url.searchParams.get('redirectTo') || '/';
+  const rawRedirect = url.searchParams.get('redirectTo') || '/';
+  // Prevent open redirect — only allow relative paths
+  const redirectTo = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
 
   const callbackUrl = new URL('/api/auth/callback', url.origin);
   callbackUrl.searchParams.set('redirectTo', redirectTo);

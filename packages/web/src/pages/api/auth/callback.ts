@@ -17,6 +17,8 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
     return redirect('/?error=auth_failed');
   }
 
-  const redirectTo = url.searchParams.get('redirectTo') || '/';
+  const rawRedirect = url.searchParams.get('redirectTo') || '/';
+  // Prevent open redirect — only allow relative paths
+  const redirectTo = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
   return redirect(redirectTo);
 };
