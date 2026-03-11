@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { AdminDiscussions } from '../../components/admin/AdminDiscussions';
+export const prerender = false;
+---
+<BaseLayout title="Discussions — Admin — Above Deck">
+  <AdminDiscussions client:only="react" />
+</BaseLayout>
