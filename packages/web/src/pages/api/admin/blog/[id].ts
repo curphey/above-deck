@@ -12,15 +12,15 @@ function getAdminClient() {
   );
 }
 
-async function verifyAdmin(cookies: Parameters<APIRoute>[0]['cookies']) {
-  const supabase = createSupabaseServerClient(cookies);
+async function verifyAdmin(cookies: Parameters<APIRoute>[0]['cookies'], request: Request) {
+  const supabase = createSupabaseServerClient(cookies, request);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || !isAdmin(user.id)) return null;
   return user;
 }
 
-export const GET: APIRoute = async ({ params, cookies }) => {
-  const user = await verifyAdmin(cookies);
+export const GET: APIRoute = async ({ params, cookies, request }) => {
+  const user = await verifyAdmin(cookies, request);
   if (!user) return new Response('Forbidden', { status: 403 });
 
   const adminClient = getAdminClient();
@@ -43,7 +43,7 @@ export const GET: APIRoute = async ({ params, cookies }) => {
 };
 
 export const PUT: APIRoute = async ({ params, cookies, request }) => {
-  const user = await verifyAdmin(cookies);
+  const user = await verifyAdmin(cookies, request);
   if (!user) return new Response('Forbidden', { status: 403 });
 
   const adminClient = getAdminClient();
@@ -74,8 +74,8 @@ export const PUT: APIRoute = async ({ params, cookies, request }) => {
   });
 };
 
-export const DELETE: APIRoute = async ({ params, cookies }) => {
-  const user = await verifyAdmin(cookies);
+export const DELETE: APIRoute = async ({ params, cookies, request }) => {
+  const user = await verifyAdmin(cookies, request);
   if (!user) return new Response('Forbidden', { status: 403 });
 
   const adminClient = getAdminClient();

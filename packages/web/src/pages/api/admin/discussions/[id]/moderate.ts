@@ -10,7 +10,7 @@ type ModAction = 'pin' | 'unpin' | 'lock' | 'unlock' | 'hide' | 'unhide' | 'dele
 const VALID_ACTIONS: ModAction[] = ['pin', 'unpin', 'lock', 'unlock', 'hide', 'unhide', 'delete'];
 
 export const POST: APIRoute = async ({ params, request, cookies }) => {
-  const supabase = createSupabaseServerClient(cookies);
+  const supabase = createSupabaseServerClient(cookies, request);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || !isAdmin(user.id)) {
     return new Response('Forbidden', { status: 403 });

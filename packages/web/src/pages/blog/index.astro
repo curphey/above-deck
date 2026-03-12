@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { createSupabaseServerClient } from '../../lib/supabase-server';
 export const prerender = false;
 
-const supabase = createSupabaseServerClient(Astro.cookies);
+const supabase = createSupabaseServerClient(Astro.cookies, Astro.request);
 const { data: posts } = await supabase
   .from('blog_posts')
   .select('slug, title, description, category, tags, published_at, hero_image')

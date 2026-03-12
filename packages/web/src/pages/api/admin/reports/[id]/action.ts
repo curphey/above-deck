@@ -6,7 +6,7 @@ import { isAdmin } from '../../../../../lib/admin';
 export const prerender = false;
 
 export const POST: APIRoute = async ({ params, request, cookies }) => {
-  const supabase = createSupabaseServerClient(cookies);
+  const supabase = createSupabaseServerClient(cookies, request);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || !isAdmin(user.id)) {
     return new Response('Forbidden', { status: 403 });

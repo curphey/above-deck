@@ -3,13 +3,13 @@ import { createSupabaseServerClient } from '../../../lib/supabase-server';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ url, cookies, redirect }) => {
+export const GET: APIRoute = async ({ url, cookies, request, redirect }) => {
   const code = url.searchParams.get('code');
   if (!code) {
     return redirect('/?error=no_code');
   }
 
-  const supabase = createSupabaseServerClient(cookies);
+  const supabase = createSupabaseServerClient(cookies, request);
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
