@@ -1,6 +1,6 @@
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Config, Strategy } from './types.js';
+import type { Config, Strategy, DomainResult } from './types.js';
 import { generateAndScore } from './generate-names.js';
 import { checkDomains } from './check-domains.js';
 
@@ -8,15 +8,26 @@ const ALL_STRATEGIES: Strategy[] = [
   'nautical', 'compound', 'coinage', 'metaphoric', 'abstract', 'foreign',
 ];
 
-function parseArgs(): Config {
+const OUT_DIR = join(import.meta.dirname || process.cwd(), '..', '..', 'tmp', 'brand-names');
+const RESULTS_PATH = join(OUT_DIR, 'results.json');
+const PROGRESS_PATH = join(OUT_DIR, 'progress.json');
+
+interface BatchConfig extends Config {
+  offset: number;
+  batchSize: number;
+}
+
+function parseArgs(): BatchConfig {
   const args = process.argv.slice(2);
-  const config: Config = {
+  const config: BatchConfig = {
     strategies: ALL_STRATEGIES,
     minScore: 50,
     limit: 50,
     dryRun: false,
-    usdToGbp: 0.82, // Conservative rate with margin built in
+    usdToGbp: 0.82,
     gbpBudget: 50,
+    offset: 0,
+    batchSize: 100,
   };
 
   for (const arg of args) {
@@ -30,6 +41,13 @@ function parseArgs(): Config {
       config.dryRun = true;
     } else if (arg.startsWith('--budget=')) {
       config.gbpBudget = parseInt(arg.split('=')[1], 10);
+    } else if (arg.startsWith('--offset=')) {
+      config.offset = parseInt(arg.split('=')[1], 10);
+    } else if (arg.startsWith('--batch-size=')) {
+      config.batchSize = parseInt(arg.split('=')[1], 10);
+    } else if (arg === '--auto') {
+      // Auto-resume from last progress
+      config.offset = -1; // sentinel: load from progress file
     } else if (arg === '--help') {
       console.log(`
 Brand Name Generator & Domain Checker
@@ -41,6 +59,9 @@ Options:
   --min-score=60                Minimum quality score (0-100, default: 50)
   --limit=50                    Max results to display (default: 50)
   --budget=50                   Max domain price in GBP (default: 50)
+  --offset=300                  Start checking from candidate #N (default: 0)
+  --batch-size=100              How many to check per run (default: 100)
+  --auto                        Auto-resume from last progress
   --dry-run                     Generate and score without checking domains
   --help                        Show this help
 `);
@@ -52,7 +73,6 @@ Options:
 }
 
 function printTable(rows: Array<Record<string, unknown>>, columns: string[]) {
-  // Calculate column widths
   const widths: Record<string, number> = {};
   for (const col of columns) {
     widths[col] = col.length;
@@ -61,35 +81,71 @@ function printTable(rows: Array<Record<string, unknown>>, columns: string[]) {
       widths[col] = Math.max(widths[col], val.length);
     }
   }
-
-  // Header
   const header = columns.map(c => c.padEnd(widths[c])).join(' | ');
   const separator = columns.map(c => '-'.repeat(widths[c])).join('-+-');
   console.log(header);
   console.log(separator);
-
-  // Rows
   for (const row of rows) {
     const line = columns.map(c => String(row[c] ?? '').padEnd(widths[c])).join(' | ');
     console.log(line);
   }
 }
 
+/** Load accumulated results from previous runs */
+function loadExistingResults(): DomainResult[] {
+  if (existsSync(RESULTS_PATH)) {
+    try {
+      return JSON.parse(readFileSync(RESULTS_PATH, 'utf-8'));
+    } catch { return []; }
+  }
+  return [];
+}
+
+/** Load progress (which offset we've checked up to) */
+function loadProgress(): { checkedUpTo: number } {
+  if (existsSync(PROGRESS_PATH)) {
+    try {
+      return JSON.parse(readFileSync(PROGRESS_PATH, 'utf-8'));
+    } catch { return { checkedUpTo: 0 }; }
+  }
+  return { checkedUpTo: 0 };
+}
+
+/** Save progress */
+function saveProgress(checkedUpTo: number) {
+  mkdirSync(OUT_DIR, { recursive: true });
+  writeFileSync(PROGRESS_PATH, JSON.stringify({ checkedUpTo }, null, 2));
+}
+
+/** Save accumulated results */
+function saveResults(results: DomainResult[]) {
+  mkdirSync(OUT_DIR, { recursive: true });
+  writeFileSync(RESULTS_PATH, JSON.stringify(results, null, 2));
+}
+
 async function main() {
   const config = parseArgs();
+
+  // Auto-resume: load offset from progress file
+  if (config.offset === -1) {
+    const progress = loadProgress();
+    config.offset = progress.checkedUpTo;
+    console.log(`Auto-resuming from offset ${config.offset}`);
+  }
 
   console.log('=== Brand Name Generator & Domain Checker ===\n');
   console.log(`Strategies: ${config.strategies.join(', ')}`);
   console.log(`Min score: ${config.minScore}`);
   console.log(`Budget: £${config.gbpBudget}`);
-  console.log(`Mode: ${config.dryRun ? 'DRY RUN (no domain checks)' : 'LIVE (checking domains)'}\n`);
+  console.log(`Batch: offset=${config.offset}, size=${config.batchSize}`);
+  console.log(`Mode: ${config.dryRun ? 'DRY RUN' : 'LIVE'}\n`);
 
-  // Step 1: Generate and score
+  // Step 1: Generate and score all candidates
   console.log('Generating names...');
   const candidates = generateAndScore(config);
-  console.log(`Generated ${candidates.length} candidates above score threshold\n`);
+  console.log(`Generated ${candidates.length} total candidates above score threshold\n`);
 
-  // Step 2: Show strategy breakdown
+  // Strategy breakdown
   const byCat = new Map<string, number>();
   for (const c of candidates) {
     byCat.set(c.strategy, (byCat.get(c.strategy) || 0) + 1);
@@ -101,66 +157,87 @@ async function main() {
   console.log('');
 
   if (config.dryRun) {
-    // Show top candidates without domain check
-    console.log(`Top ${Math.min(config.limit, candidates.length)} candidates (dry run):\n`);
     const top = candidates.slice(0, config.limit);
     printTable(
-      top.map(c => ({
-        '#': top.indexOf(c) + 1,
+      top.map((c, i) => ({
+        '#': i + 1,
         Name: c.name,
         Domain: `${c.name.toLowerCase()}.com`,
         Score: c.score,
         Len: c.length,
         Strategy: c.strategy,
-        'Len/Pro/Spl/Unq': `${c.scores.length}/${c.scores.pronounceability}/${c.scores.spellingClarity}/${c.scores.uniqueness}`,
       })),
-      ['#', 'Name', 'Domain', 'Score', 'Len', 'Strategy', 'Len/Pro/Spl/Unq'],
+      ['#', 'Name', 'Domain', 'Score', 'Len', 'Strategy'],
     );
-
-    // Save to file
-    const outDir = join(process.cwd(), '..', '..', 'tmp', 'brand-names');
-    mkdirSync(outDir, { recursive: true });
-    const outPath = join(outDir, 'dry-run-results.json');
-    writeFileSync(outPath, JSON.stringify(top, null, 2));
-    console.log(`\nResults saved to ${outPath}`);
+    mkdirSync(OUT_DIR, { recursive: true });
+    writeFileSync(join(OUT_DIR, 'dry-run-results.json'), JSON.stringify(top, null, 2));
+    console.log(`\nResults saved to ${join(OUT_DIR, 'dry-run-results.json')}`);
     return;
   }
 
-  // Step 3: Check domains
-  const topCandidates = candidates.slice(0, 300); // Check top 300 max
-  const results = await checkDomains(topCandidates, config.usdToGbp, config.gbpBudget);
-
-  console.log(`\n=== RESULTS: ${results.length} available domains under £${config.gbpBudget} ===\n`);
-
-  if (results.length === 0) {
-    console.log('No available domains found within budget. Try:');
-    console.log('  - Lowering --min-score to get more candidates');
-    console.log('  - Increasing --budget');
-    console.log('  - Running specific strategies: --strategy=abstract,coinage');
+  // Step 2: Slice the batch
+  if (config.offset >= candidates.length) {
+    console.log(`\n✅ ALL DONE! Offset ${config.offset} >= ${candidates.length} total candidates.`);
+    console.log('All candidates have been checked.\n');
+    const existing = loadExistingResults();
+    console.log(`Total available domains found: ${existing.length}`);
+    if (existing.length > 0) {
+      console.log('\nAll available domains:\n');
+      printTable(
+        existing.sort((a, b) => b.score - a.score).map((r, i) => ({
+          '#': i + 1,
+          Name: r.name,
+          Domain: r.domain,
+          Score: r.score,
+          Len: r.length,
+          Strategy: r.strategy,
+        })),
+        ['#', 'Name', 'Domain', 'Score', 'Len', 'Strategy'],
+      );
+    }
     return;
   }
 
-  const display = results.slice(0, config.limit);
-  printTable(
-    display.map((r, i) => ({
-      '#': i + 1,
-      Name: r.name,
-      Domain: r.domain,
-      'Price (GBP)': `£${r.priceGBP?.toFixed(2)}`,
-      'Price (USD)': `$${r.priceUSD?.toFixed(2)}`,
-      Score: r.score,
-      Len: r.length,
-      Strategy: r.strategy,
-    })),
-    ['#', 'Name', 'Domain', 'Price (GBP)', 'Price (USD)', 'Score', 'Len', 'Strategy'],
-  );
+  const end = Math.min(config.offset + config.batchSize, candidates.length);
+  const batch = candidates.slice(config.offset, end);
+  console.log(`Checking batch: candidates ${config.offset + 1} to ${end} of ${candidates.length}\n`);
 
-  // Save full results
-  const outDir = join(process.cwd(), '..', '..', 'tmp', 'brand-names');
-  mkdirSync(outDir, { recursive: true });
-  const outPath = join(outDir, 'results.json');
-  writeFileSync(outPath, JSON.stringify(results, null, 2));
-  console.log(`\nFull results saved to ${outPath}`);
+  // Step 3: Check domains for this batch
+  const batchResults = await checkDomains(batch, config.usdToGbp, config.gbpBudget);
+
+  // Step 4: Accumulate with previous results
+  const existing = loadExistingResults();
+  const allResults = [...existing, ...batchResults];
+  // Dedup by domain name
+  const deduped = [...new Map(allResults.map(r => [r.domain, r])).values()];
+  const sorted = deduped.sort((a, b) => b.score - a.score);
+
+  // Save
+  saveResults(sorted);
+  saveProgress(end);
+
+  // Summary
+  console.log(`\n=== BATCH COMPLETE ===`);
+  console.log(`Checked: ${config.offset + 1} to ${end} of ${candidates.length}`);
+  console.log(`This batch: ${batchResults.length} available`);
+  console.log(`Total accumulated: ${sorted.length} available domains`);
+  console.log(`Remaining: ${candidates.length - end} candidates`);
+  console.log(`Next run: --offset=${end} (or use --auto)\n`);
+
+  if (batchResults.length > 0) {
+    console.log('New finds this batch:\n');
+    printTable(
+      batchResults.map((r, i) => ({
+        '#': i + 1,
+        Name: r.name,
+        Domain: r.domain,
+        Score: r.score,
+        Len: r.length,
+        Strategy: r.strategy,
+      })),
+      ['#', 'Name', 'Domain', 'Score', 'Len', 'Strategy'],
+    );
+  }
 }
 
 main().catch(err => {
