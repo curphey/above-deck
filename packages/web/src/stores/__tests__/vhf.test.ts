@@ -39,4 +39,9 @@ describe('VHF Store', () => {
     useVHFStore.getState().clearTranscript();
     expect(useVHFStore.getState().transcript).toHaveLength(0);
   });
+
+  it('has a valid default MMSI', () => {
+    const mmsi = useVHFStore.getState().mmsi;
+    expect(mmsi).toMatch(/^235\d{6}$/);
+  });
 });

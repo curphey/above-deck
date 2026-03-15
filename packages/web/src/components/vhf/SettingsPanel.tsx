@@ -44,6 +44,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
     region, setRegion,
     vesselName, setVesselName,
     vesselType, setVesselType,
+    mmsi, setMmsi,
     ttsVoice, setTtsVoice,
     ttsRate, setTtsRate,
     audioEffects, setAudioEffects,
@@ -135,6 +136,26 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
           style={inputStyle}
           placeholder="SV Artemis"
         />
+      </div>
+
+      {/* MMSI Number */}
+      <div style={fieldStyle}>
+        <label style={labelStyle} htmlFor="settings-mmsi">MMSI Number</label>
+        <input
+          id="settings-mmsi"
+          type="text"
+          value={mmsi}
+          onChange={(e) => {
+            const val = e.target.value.replace(/\D/g, '').slice(0, 9);
+            setMmsi(val);
+          }}
+          style={inputStyle}
+          placeholder="235000000"
+          maxLength={9}
+        />
+        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: '#8b8b9e', display: 'block', marginTop: '4px' }}>
+          9-digit Maritime Mobile Service Identity
+        </span>
       </div>
 
       {/* Vessel Type */}

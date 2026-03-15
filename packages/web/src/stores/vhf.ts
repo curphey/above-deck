@@ -19,6 +19,7 @@ interface VHFState {
   ttsRate: number;
   audioEffects: boolean;
   audioIntensity: number;
+  mmsi: string;
 
   setChannel: (ch: number) => void;
   setSquelch: (sq: number) => void;
@@ -37,6 +38,7 @@ interface VHFState {
   setTtsRate: (rate: number) => void;
   setAudioEffects: (on: boolean) => void;
   setAudioIntensity: (intensity: number) => void;
+  setMmsi: (mmsi: string) => void;
 }
 
 export const useVHFStore = create<VHFState>()(
@@ -58,6 +60,7 @@ export const useVHFStore = create<VHFState>()(
       ttsRate: 1.0,
       audioEffects: true,
       audioIntensity: 0.5,
+      mmsi: '235' + Math.random().toString().slice(2, 8).padEnd(6, '0'),
 
       setChannel: (ch) => set({ channel: Math.max(1, Math.min(88, ch)) }),
       setSquelch: (sq) => set({ squelch: Math.max(0, Math.min(9, sq)) }),
@@ -76,6 +79,7 @@ export const useVHFStore = create<VHFState>()(
       setTtsRate: (rate) => set({ ttsRate: rate }),
       setAudioEffects: (on) => set({ audioEffects: on }),
       setAudioIntensity: (intensity) => set({ audioIntensity: intensity }),
+      setMmsi: (mmsi) => set({ mmsi }),
     }),
     {
       name: 'above-deck-vhf',
@@ -92,6 +96,7 @@ export const useVHFStore = create<VHFState>()(
         channel: state.channel,
         squelch: state.squelch,
         power: state.power,
+        mmsi: state.mmsi,
       }),
     }
   )
