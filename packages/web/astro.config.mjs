@@ -2,12 +2,15 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
 import node from '@astrojs/node';
+import netlify from '@astrojs/netlify';
 import AstroPWA from '@vite-pwa/astro';
+
+const isNetlify = process.env.NETLIFY === 'true';
 
 export default defineConfig({
   site: 'https://abovedeck.io',
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  adapter: isNetlify ? netlify() : node({ mode: 'standalone' }),
   integrations: [
     react(),
     mdx(),

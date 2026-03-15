@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from '../lib/supabase-server';
 export const prerender = false;
 
 export async function GET(context: APIContext) {
-  const supabase = createSupabaseServerClient(context.cookies);
+  const supabase = createSupabaseServerClient(context.cookies, context.request);
   const { data: posts } = await supabase
     .from('blog_posts')
     .select('slug, title, description, category, tags, published_at')

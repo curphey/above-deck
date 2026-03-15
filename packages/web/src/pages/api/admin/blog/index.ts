@@ -5,8 +5,8 @@ import { isAdmin } from '../../../../lib/admin';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ cookies }) => {
-  const supabase = createSupabaseServerClient(cookies);
+export const GET: APIRoute = async ({ cookies, request }) => {
+  const supabase = createSupabaseServerClient(cookies, request);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || !isAdmin(user.id)) {
     return new Response('Forbidden', { status: 403 });
@@ -35,7 +35,7 @@ export const GET: APIRoute = async ({ cookies }) => {
 };
 
 export const POST: APIRoute = async ({ cookies, request }) => {
-  const supabase = createSupabaseServerClient(cookies);
+  const supabase = createSupabaseServerClient(cookies, request);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || !isAdmin(user.id)) {
     return new Response('Forbidden', { status: 403 });

@@ -1,0 +1,132 @@
+---
+// ScreenSolar.astro — Solar schematic screen with energy system diagram
+---
+<div class="screen solar-screen" id="screen-solar">
+  <div class="schematic-header">
+    <div>
+      <div class="schematic-title">Energy System</div>
+      <div class="schematic-subtitle">Live schematic — tap components for details</div>
+    </div>
+    <button class="back-btn" onclick="window.showScreen('home')">← Home</button>
+  </div>
+
+  <div class="schematic-body">
+    <div class="schematic-main">
+      <!-- Catamaran outline (simplified cross-section) -->
+      <div class="cat-schematic">
+        <svg viewBox="0 0 800 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Hull outline -->
+          <path d="M100 200 C120 160, 200 120, 400 110 C600 120, 680 160, 700 200 L720 240 C720 260, 680 270, 640 270 L160 270 C120 270, 80 260, 80 240 Z"
+            stroke="rgba(0,0,0,0.15)" stroke-width="1.5" fill="none"/>
+          <!-- Deck line -->
+          <path d="M140 200 L660 200" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+          <!-- Cabin -->
+          <path d="M280 130 L520 130 C540 130, 550 140, 550 150 L550 200 L250 200 L250 150 C250 140, 260 130, 280 130 Z"
+            stroke="rgba(0,0,0,0.12)" stroke-width="1" fill="rgba(0,0,0,0.02)"/>
+          <!-- Solar panels on roof -->
+          <rect x="270" y="118" width="80" height="12" rx="2" stroke="#2d8a4e" stroke-width="1" fill="rgba(45,138,78,0.08)" opacity="0.8"/>
+          <rect x="360" y="118" width="80" height="12" rx="2" stroke="#2d8a4e" stroke-width="1" fill="rgba(45,138,78,0.08)" opacity="0.8"/>
+          <rect x="450" y="118" width="80" height="12" rx="2" stroke="#2d8a4e" stroke-width="1" fill="rgba(45,138,78,0.08)" opacity="0.8"/>
+          <!-- Battery bank -->
+          <rect x="330" y="210" width="60" height="30" rx="4" stroke="rgba(0,0,0,0.3)" stroke-width="1" fill="rgba(0,0,0,0.04)"/>
+          <rect x="400" y="210" width="60" height="30" rx="4" stroke="rgba(0,0,0,0.3)" stroke-width="1" fill="rgba(0,0,0,0.04)"/>
+          <!-- Energy flow lines -->
+          <path d="M400 130 L400 210" stroke="#2d8a4e" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>
+          <path d="M460 240 L580 240 L580 200" stroke="#b43c32" stroke-width="1" stroke-dasharray="4,4" opacity="0.3"/>
+          <!-- Load points -->
+          <circle cx="580" cy="190" r="6" stroke="#b43c32" stroke-width="1" fill="rgba(180,60,50,0.06)"/>
+          <circle cx="220" cy="190" r="6" stroke="#b43c32" stroke-width="1" fill="rgba(180,60,50,0.06)"/>
+        </svg>
+
+        <!-- Annotation: Solar -->
+        <div class="energy-node" style="top: 2%; left: 43%; transform: translateX(-50%);">
+          <div class="energy-icon solar">☀</div>
+          <div class="energy-val green">342W</div>
+          <div class="energy-label">Solar panels</div>
+        </div>
+
+        <!-- Annotation: Batteries -->
+        <div class="energy-node" style="bottom: 2%; left: 50%; transform: translateX(-50%);">
+          <div class="energy-icon battery">⚡</div>
+          <div class="energy-val blue">87%</div>
+          <div class="energy-label">Battery bank</div>
+        </div>
+
+        <!-- Annotation: Load -->
+        <div class="energy-node" style="top: 35%; right: 8%;">
+          <div class="energy-icon load">▽</div>
+          <div class="energy-val red">198W</div>
+          <div class="energy-label">Loads</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="schematic-sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Power Balance</div>
+        <div class="power-balance">
+          <div class="power-bar-track">
+            <div class="power-bar-fill" style="width: 72%;"></div>
+          </div>
+          <div class="power-pct">+144W</div>
+        </div>
+        <div class="sidebar-stat" style="margin-top: 12px;">
+          <span class="k">Generation</span>
+          <span class="v green">342W</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="k">Consumption</span>
+          <span class="v">198W</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="k">Net surplus</span>
+          <span class="v green">+144W</span>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Battery</div>
+        <div class="sidebar-stat">
+          <span class="k">State of charge</span>
+          <span class="v blue">87%</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="k">Voltage</span>
+          <span class="v">12.8V</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="k">Capacity</span>
+          <span class="v">400Ah</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="k">Time to full</span>
+          <span class="v">2.1 hrs</span>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Today</div>
+        <div class="sidebar-stat">
+          <span class="k">Generated</span>
+          <span class="v green">2.4 kWh</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="k">Consumed</span>
+          <span class="v">1.8 kWh</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="k">Peak output</span>
+          <span class="v">412W</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="k">Sunrise</span>
+          <span class="v">06:42</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="k">Sunset</span>
+          <span class="v">18:23</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

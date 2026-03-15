@@ -6,7 +6,7 @@ export const prerender = false;
 
 export async function GET(context: APIContext) {
   const siteUrl = 'https://abovedeck.io';
-  const supabase = createSupabaseServerClient(context.cookies);
+  const supabase = createSupabaseServerClient(context.cookies, context.request);
 
   // Published blog posts
   const { data: blogPosts } = await supabase

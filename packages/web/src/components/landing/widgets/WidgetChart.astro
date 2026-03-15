@@ -1,0 +1,31 @@
+---
+import Compass from '../chart/Compass.astro';
+import BoatMarker from '../chart/BoatMarker.astro';
+import ChartDetails from '../chart/ChartDetails.astro';
+---
+<div class="widget widget-hero">
+  <div class="chart-canvas">
+    <div class="chart-grid-lines"></div>
+
+    <ChartDetails />
+    <BoatMarker />
+    <Compass />
+
+    <div class="chart-center-content">
+      <div class="chart-headline">
+        Open-source tools<br /><em>for catamaran sailors</em>
+      </div>
+      <div class="chart-desc">
+        Solar planning, passage weather, energy management — all the instruments your cat deserves. Built by sailors, free forever.
+      </div>
+      <div>
+        <a href="/tools/solar" class="chart-btn">Join the crew</a>
+        <a href="/tools/solar" class="chart-btn chart-btn-secondary">Explore tools</a>
+      </div>
+    </div>
+
+    <div class="chart-location">
+      50°09.234'N &nbsp; 005°04.112'W
+    </div>
+  </div>
+</div>

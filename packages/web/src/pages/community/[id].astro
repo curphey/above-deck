@@ -11,7 +11,7 @@ if (!id || !uuidPattern.test(id)) {
   return Astro.redirect('/community');
 }
 
-const supabase = createSupabaseServerClient(Astro.cookies);
+const supabase = createSupabaseServerClient(Astro.cookies, Astro.request);
 const { data: discussion } = await supabase
   .from('discussions')
   .select('title, body, created_at, reply_count, profiles(display_name)')

@@ -1,0 +1,36 @@
+---
+// WidgetSolar.astro — Solar & energy summary widget
+---
+<div class="widget" data-screen-link="solar">
+  <div class="widget-head">
+    <span class="widget-label">Solar & Energy</span>
+    <span class="widget-badge">Live</span>
+  </div>
+  <div class="widget-body">
+    <div class="solar-value">342<span class="unit">W</span></div>
+    <div class="solar-sub">Current generation</div>
+
+    <div class="solar-curve">
+      <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="solar-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1a1a1a" stop-opacity="0.1" />
+            <stop offset="100%" stop-color="#1a1a1a" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <path d="M0 55 Q20 50, 40 42 T80 25 T120 12 T160 18 T200 35" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.4" />
+        <path d="M0 55 Q20 50, 40 42 T80 25 T120 12 T160 18 T200 35 V60 H0 Z" fill="url(#solar-grad)" />
+        <circle cx="130" cy="14" r="3" fill="#1a1a1a" opacity="0.6" />
+        <line x1="130" y1="14" x2="130" y2="60" stroke="#1a1a1a" stroke-width="0.5" opacity="0.15" stroke-dasharray="2,2" />
+      </svg>
+    </div>
+
+    <div class="solar-row">
+      <div class="solar-stat"><div class="num">2.4 kWh</div><div class="lbl">Today</div></div>
+      <div class="solar-stat"><div class="num">87%</div><div class="lbl">Battery</div></div>
+      <div class="solar-stat"><div class="num">+1.2</div><div class="lbl">Surplus</div></div>
+    </div>
+
+    <div class="solar-desc">Model your panel setup and track generation vs consumption.</div>
+  </div>
+</div>
