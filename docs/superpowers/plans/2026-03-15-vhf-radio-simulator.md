@@ -2666,7 +2666,7 @@ create policy "Users can access messages in own sessions" on vhf_messages
 
 ### Task 19: AIS Client (aisstream.io)
 
-**GitHub Issue:** TBD
+**GitHub Issue:** #174
 
 **Files:**
 - Create: `packages/api/internal/ais/types.go`
@@ -2894,7 +2894,7 @@ Used to inject realistic vessel data into LLM system prompts."
 
 ### Task 20: DSC Panel Component
 
-**GitHub Issue:** TBD
+**GitHub Issue:** #175
 
 **Files:**
 - Create: `components/vhf/DSCPanel.tsx`
@@ -3094,7 +3094,7 @@ Renders as overlay triggered by CALL button."
 
 ### Task 21: Add MMSI to Settings and Store
 
-**GitHub Issue:** TBD
+**GitHub Issue:** #176
 
 **Files:**
 - Modify: `stores/vhf.ts` — add `mmsi` field to settings
