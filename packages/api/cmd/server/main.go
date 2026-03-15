@@ -6,7 +6,9 @@ import (
 	"os"
 
 	"github.com/curphey/above-deck/api/internal/handler"
+	"github.com/curphey/above-deck/api/internal/llm"
 	"github.com/curphey/above-deck/api/internal/middleware"
+	"github.com/curphey/above-deck/api/internal/session"
 )
 
 func main() {
@@ -20,8 +22,17 @@ func main() {
 		allowedOrigin = "http://localhost:4321"
 	}
 
+	sessionMgr := session.NewManager()
+	llmClient := llm.NewClient("")
+	sessionHandler := handler.NewSessionHandler(sessionMgr)
+	transmitHandler := handler.NewTransmitHandler(sessionMgr, llmClient)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", handler.Health)
+	mux.HandleFunc("POST /api/vhf/sessions", sessionHandler.Create)
+	mux.HandleFunc("GET /api/vhf/sessions/{id}", sessionHandler.Get)
+	mux.Handle("POST /api/vhf/transmit", transmitHandler)
+	mux.HandleFunc("GET /api/vhf/scenarios", handler.Scenarios)
 
 	wrapped := middleware.CORS(allowedOrigin)(mux)
 
