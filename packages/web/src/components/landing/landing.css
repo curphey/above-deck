@@ -384,7 +384,15 @@ body {
   z-index: 100;
   position: relative;
   flex-shrink: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+
+.nav-bar::-webkit-scrollbar { display: none; }
+
+.nav-btn { scroll-snap-align: center; }
 
 .nav-btn {
   width: 52px; height: 52px; flex-shrink: 0;
