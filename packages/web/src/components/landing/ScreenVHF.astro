@@ -20,10 +20,11 @@
           <path d="M12 12a8 8 0 0 0 -8 -8" /><path d="M12 12a8 8 0 0 1 8 -8" />
         </svg>
       </div>
-      <div class="vhf-title">Coming Soon</div>
+      <div class="vhf-title">VHF Radio Simulator</div>
       <div class="vhf-desc">
         Practice VHF radio calls with an AI-powered simulator. Push-to-talk voice interaction, realistic audio effects, and guided scenarios for Mayday, Pan-Pan, Securité, and routine calls.
       </div>
+      <a href="/tools/vhf" class="vhf-launch-btn">Launch Simulator →</a>
       <div class="vhf-features">
         <div class="vhf-feature">
           <div class="vhf-feature-label">Voice-first</div>
@@ -114,4 +115,19 @@
     color: rgba(0,0,0,0.4);
     text-align: right;
   }
+
+  .vhf-launch-btn {
+    display: inline-block;
+    margin-bottom: 24px;
+    padding: 10px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent-green, #4ade80);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .vhf-launch-btn:hover { opacity: 0.85; }
 </style>
