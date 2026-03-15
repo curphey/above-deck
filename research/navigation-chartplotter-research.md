@@ -918,6 +918,226 @@ This is not a small project. But the pieces fit together, the community need is 
 
 ---
 
+## 11. Marine Communications & Hardware Connectivity Standards
+
+### NMEA 0183
+
+**Wire:** RS-422 differential serial, 4800 baud (38400 for AIS). One talker, multiple listeners per circuit.
+**Format:** ASCII sentences: `$TTXXX,field1,field2,...*HH\r\n` (max 82 chars, XOR checksum)
+
+| Sentence | Data |
+|----------|------|
+| GGA | GPS fix: time, lat, lon, quality, satellites, HDOP, altitude |
+| RMC | Recommended minimum: time, lat, lon, SOG, COG, date, magnetic variation |
+| DBT/DPT | Depth below transducer / depth with offset |
+| MWV | Wind speed and angle (relative or true) |
+| HDG/HDT | Heading magnetic (with deviation/variation) / heading true |
+| VHW | Water speed and heading |
+| MTW | Water temperature |
+| XDR | Generic transducer measurement (extensible) |
+| VDM/VDO | AIS data (see AIS section) |
+
+**Limitations:** Unidirectional, slow (480 bytes/sec), no bus topology, no device discovery, verbose ASCII overhead.
+
+**Go integration:** Serial port at 4800/38400 baud, parse ASCII lines. Libraries: `adrianmo/go-nmea` (parser), `go.bug.st/serial` (serial port).
+
+### NMEA 2000
+
+**Wire:** CAN bus (ISO 11783-3 / SAE J1939), 250 kbit/s, DeviceNet Micro-C or Mini connectors.
+**Format:** Binary CAN frames with Parameter Group Numbers (PGNs). 29-bit identifiers encoding priority, PDU format, source address.
+**Topology:** Backbone + drop cables via T-connectors, 120Ω termination at each end. Power on bus (12V DC).
+
+| PGN | Name | Data |
+|-----|------|------|
+| 127250 | Vessel Heading | Heading true/magnetic, deviation, variation |
+| 127488/127489 | Engine Rapid/Dynamic | RPM, temp, oil pressure, fuel rate, hours |
+| 127505 | Fluid Level | Tank type, level %, capacity |
+| 127508 | Battery Status | Voltage, current, temperature |
+| 128267 | Water Depth | Depth, offset |
+| 129025/129026 | Position/COG-SOG Rapid | Lat/lon, COG, SOG |
+| 129029 | GNSS Position | Detailed position, altitude, satellites |
+| 129038-129041 | AIS Reports | Class A/B position, static data |
+| 130306 | Wind Data | Speed, angle, reference |
+| 130310/130311 | Environmental | Water temp, air temp, humidity, pressure |
+
+**vs NMEA 0183:** Bus (many-to-many), binary (faster), device discovery, powered bus, standardised connectors. More expensive.
+
+**Go integration:** Linux SocketCAN via `golang.org/x/sys/unix`. USB gateways (Actisense NGT1) via serial. Libraries: `aldas/go-nmea-client` (SocketCAN + Actisense, PGN decoding via canboat DB), `boatkit-io/n2k` (typed Go structs).
+
+### Signal K Specification
+
+Signal K is a **data model and API spec**, not a wire protocol. It sits above NMEA, providing unified JSON representation.
+
+**Data model paths** (under `vessels.{mmsi-or-uuid}`):
+
+| Branch | Example Paths | Data |
+|--------|---------------|------|
+| `navigation` | `position`, `courseOverGroundTrue`, `speedOverGround`, `headingTrue` | GPS, heading, SOG/COG, waypoints |
+| `environment` | `wind.speedApparent`, `depth.belowTransducer`, `water.temperature` | Wind, depth, temp, pressure |
+| `electrical` | `batteries.{id}.voltage`, `solar.{id}.panelPower` | Batteries, solar, chargers |
+| `propulsion` | `{id}.revolutions`, `{id}.temperature`, `{id}.oilPressure` | Engine data |
+| `tanks` | `fuel.{id}.currentLevel`, `freshWater.{id}.currentLevel` | Tank levels |
+| `steering` | `rudderAngle`, `autopilot.state` | Rudder, autopilot |
+| `notifications` | `mob`, `fire`, `flooding` | Alerts and alarms |
+
+All values SI units (meters, Kelvin, radians, Pascals, m/s).
+
+**Delta protocol** (real-time updates over WebSocket):
+```json
+{
+  "context": "vessels.urn:mrn:imo:mmsi:234567890",
+  "updates": [{
+    "source": { "label": "N2K", "type": "NMEA2000", "pgn": 127250, "src": "3" },
+    "timestamp": "2024-01-15T10:30:00.000Z",
+    "values": [{ "path": "navigation.headingTrue", "value": 3.1415 }]
+  }]
+}
+```
+
+**REST API:** `GET /signalk/v1/api/vessels/self/navigation/position` — traverse any path.
+**WebSocket:** `ws://host/signalk/v1/stream` — subscribe to delta updates with path filters.
+
+**Go implementation:** HTTP + WebSocket server, NMEA→SignalK path mapping. The spec and mapping tables are fully documented.
+
+### Victron Energy Protocols
+
+Victron uses three physical protocols plus three network APIs:
+
+**VE.Direct** — Serial (19200 baud, 3.3V/5V TTL, 4-pin connector)
+- **Text mode:** periodic broadcast of key-value pairs (`V\t12850\r\n` = 12.85V). Simple to parse.
+- **HEX mode:** command/response for reading/writing device registers. Little-endian, product-specific register maps.
+- **Devices:** BMV battery monitors, SmartShunt, MPPT solar controllers, Phoenix inverters, Orion DC-DC.
+
+**VE.Bus** — RS-485, proprietary binary, RJ45 connectors. Used for Multi/Quattro inverters. Not publicly documented — access via GX devices.
+
+**VE.Can** — CAN bus at 250 kbit/s, RJ45 connectors. Electrically compatible with NMEA 2000. Used by larger MPPT controllers, Lynx products.
+
+**Venus OS / GX Devices (Cerbo GX)** — Open-source Linux (GitHub: `victronenergy`). Exposes all connected device data via three APIs:
+
+| API | Transport | Format | Notes |
+|-----|-----------|--------|-------|
+| **D-Bus** | Local IPC | Typed values | Central bus: `com.victronenergy.battery`, `.solarcharger`, `.vebus` etc. Paths like `/Dc/0/Voltage`, `/Soc` |
+| **MQTT** | TCP 1883 | JSON `{"value": 12.85}` | Topics: `N/{portalId}/{service}/{path}`. Read (`N/`), write (`W/`), keepalive (`R/`) |
+| **Modbus TCP** | TCP 502 | 16-bit registers | Unit IDs map to devices. Register map published on GitHub. Covers battery, solar, AC, tanks, GPS |
+
+**NMEA 2000 bridge:** Cerbo GX can transmit Victron data as N2K PGNs on the boat's NMEA 2000 network.
+
+**Go integration:** VE.Direct text mode = serial port + line parser. MQTT = `paho.mqtt.golang`. Modbus TCP = `goburrow/modbus`. All three are straightforward.
+
+### SeaTalk / SeaTalkNG (Raymarine)
+
+**SeaTalk 1:** Single-wire bus, 9-bit serial at 4800 baud, 12V signaling. Proprietary but thoroughly reverse-engineered. Provides wind, depth, speed, heading, autopilot data. Tricky to interface (9-bit UART) — pragmatic approach is a SeaTalk→NMEA 0183 converter.
+
+**SeaTalkNG:** Raymarine's physical implementation of NMEA 2000 with proprietary connectors. Protocol is standard N2K — only needs adapter cables to DeviceNet connectors. No protocol conversion required.
+
+### Simrad / B&G / Navico
+
+Standard NMEA 2000 with some proprietary PGN extensions. **SimNet** was the older proprietary physical layer (adapter cables to N2K available). **GoFree** developer toolkit provides WiFi access: NMEA 0183 over TCP (Tier 1), CAN bus data over WebSocket (Tier 2), plus video and radar streams.
+
+### Garmin
+
+Standard NMEA 2000 with proprietary PGN extensions (PGN 126720 fast-packet with Garmin manufacturer code). **ANT+** wireless bridges N2K data to quatix watches via GNT 10 transceiver. Proprietary PGNs partially documented in canboat project.
+
+### MQTT for Boats
+
+Increasingly central as the glue protocol:
+- Victron Venus OS exposes all data via MQTT
+- Signal K has MQTT gateway plugins
+- ESP32/DIY sensors publish to MQTT
+- Node-RED routes MQTT between systems
+- Remote monitoring over cellular via MQTT
+- Home Assistant integration for alerting
+
+**Go integration:** `paho.mqtt.golang` client, or `mochi-mqtt/server` for a pure Go broker.
+
+### Modbus TCP/RTU
+
+**RTU:** RS-485 serial. **TCP:** Ethernet port 502. Binary register-based protocol.
+- Victron GX devices (see above)
+- BMS systems (Seplos, Daly, JK, PACE) — cell voltages, temperatures, SOC, balancing
+- Solar inverters (SMA, Fronius, Schneider, Studer)
+- Shore power monitors, generator controllers
+
+**Go integration:** `goburrow/modbus` for both TCP and RTU.
+
+### AIS (Automatic Identification System)
+
+**Broadcast:** VHF radio (161.975 + 162.025 MHz). **Output:** NMEA 0183 sentences at 38400 baud.
+**Format:** `!AIVDM` sentences with 6-bit ASCII-encoded binary payload.
+
+| Type | Description | Update Rate |
+|------|-------------|-------------|
+| 1-3 | Class A position report | 2-10s underway, 3min anchored |
+| 5 | Class A static/voyage data | Every 6min |
+| 18 | Class B position report | 30s at >2kt, 3min stationary |
+| 19 | Class B extended position | Every 6min |
+| 21 | Aid-to-Navigation | Every 3min |
+| 24 | Class B static data | Every 6min |
+
+**Class A:** Required SOLAS vessels (>300GT international). 12.5W. Full message set.
+**Class B:** Voluntary, mostly recreational. 2W (5W for B+). Limited messages.
+
+**Data:** MMSI, position, SOG, COG, heading, rate of turn, nav status, ship name, callsign, type, dimensions, destination, ETA, draught.
+
+**Go integration:** Parse NMEA 0183 `!AIVDM` sentences, decode 6-bit payload. Library: `SvenDowideit/aislib`. Also available as NMEA 2000 PGNs 129038-129041.
+
+### CZone / Mastervolt Digital Switching
+
+CAN bus (NMEA 2000 certified) digital switching and monitoring system. Replaces traditional fuse panels with networked modules:
+- **Contact 6:** 6-channel digital outputs (switching, dimming, PWM)
+- **Meter Interface:** Reads analog sensors (tanks, temp, pressure)
+- **Motor Output Interface:** Reversible motors (wipers, windlass, thrusters)
+- **MasterBus Bridge:** Connects legacy Mastervolt devices to CZone/N2K
+
+Data: switch states, circuit current draw, faults, tank levels, temperatures. Uses standard N2K transport with proprietary PGNs (partially documented in canboat).
+
+### WiFi/BLE Marine Sensors
+
+**Commercial:**
+- **B&G WS320:** BLE wind sensor → base station → NMEA 2000 output (5Hz updates)
+- **Garmin GNT 10:** ANT+ bridge, N2K → quatix watches (~55ft range)
+- **Digital Yacht iKommunicate:** Hardware gateway, 3× NMEA 0183 + 1× N2K → Signal K JSON over Ethernet
+- **Yacht Devices YDWG-02:** WiFi gateway for N2K, outputs NMEA 0183 over TCP/UDP
+- **Siren Marine:** Proprietary hub + wireless sensors (temp, bilge, entry) + cellular monitoring
+- **Glomex ZigBoat:** ZigBee mesh sensors (battery, bilge, intrusion, temp) + SMS alerts
+
+**DIY / Open:**
+- **ESP32:** Custom BLE/WiFi sensors (DS18B20 temp, BME280 environment, ultrasonic tank level, float switches). Publish via MQTT/HTTP.
+- **Ruuvi Tags:** BLE environmental sensors (temp, humidity, pressure, acceleration). 2+ year battery life.
+- **Zigbee:** Home automation sensors (Aqara, Sonoff) repurposed via Zigbee2MQTT → SignalK.
+
+**Go integration:** BLE via `tinygo-org/bluetooth`. WiFi gateways via TCP + NMEA parsing. MQTT sensors via `paho.mqtt.golang`. Most wireless instruments are accessed through their N2K or MQTT output, not directly via RF.
+
+### Raspberry Pi / ESP32 as Marine Gateways
+
+| Project | Platform | Function |
+|---------|----------|----------|
+| **OpenPlotter** | Raspberry Pi | Full marine OS: Signal K + OpenCPN + Node-RED + MQTT |
+| **Hat Labs SH-RPi** | Raspberry Pi HAT | Isolated N2K CAN interface + protected 12/24V power + safe shutdown |
+| **Hat Labs SH-ESP32** | ESP32 | Wireless sensor node: 1-Wire, analog, I2C, CAN → WiFi → SignalK |
+| **MacArthur HAT** | Raspberry Pi HAT | Open-source NMEA 0183 + N2K interfaces for OpenPlotter |
+| **iKommunicate** | Dedicated (Atmel) | Hardware Signal K gateway (not Pi-based) |
+| **Bareboat Necessities** | Raspberry Pi | Complete marine OS: SignalK + OpenCPN + Grafana + InfluxDB + PyPilot |
+
+A Go-based SignalK server on a Pi with an SH-RPi HAT could replace the Node.js stack entirely — reading from serial (NMEA 0183, VE.Direct) and CAN socket (N2K), serving the SignalK API.
+
+### Go Server Interface Priority
+
+| Priority | Interface | Transport | Go Library |
+|----------|-----------|-----------|------------|
+| 1 | NMEA 0183 | Serial 4800/38400 | `go.bug.st/serial` + `adrianmo/go-nmea` |
+| 2 | NMEA 2000 | SocketCAN / Actisense USB | `aldas/go-nmea-client` or `boatkit-io/n2k` |
+| 3 | SignalK API output | HTTP + WebSocket | `net/http` + `nhooyr.io/websocket` |
+| 4 | Victron VE.Direct | Serial 19200 | Custom text parser |
+| 5 | Victron MQTT | TCP 1883 | `paho.mqtt.golang` |
+| 6 | Victron Modbus TCP | TCP 502 | `goburrow/modbus` |
+| 7 | AIS | NMEA 0183 38400 or N2K | `SvenDowideit/aislib` |
+| 8 | MQTT sensors | TCP 1883 | `paho.mqtt.golang` |
+| 9 | Modbus RTU (BMS) | RS-485 | `goburrow/modbus` |
+| 10 | WiFi gateways | TCP NMEA 0183 | `net.Dial` + NMEA parser |
+
+---
+
 ## Sources
 
 ### Commercial Tools
@@ -993,6 +1213,26 @@ This is not a small project. But the pieces fit together, the community need is 
 - [KnowWake](https://www.knowwake.com/)
 - [Savvy Navvy YBW Forum Complaints](https://forums.ybw.com/threads/savvy-navvy-on-android-waste-of-money-imho.598702/)
 - [Navionics Price Complaints — Sailboat Owners Forums](https://forums.sailboatowners.com/threads/navionics-price-increasing.1249938013/)
+
+### Marine Communications & Hardware Standards
+- [NMEA 0183 — go-nmea library](https://github.com/adrianmo/go-nmea)
+- [NMEA 2000 — aldas/go-nmea-client](https://github.com/aldas/go-nmea-client)
+- [NMEA 2000 — boatkit-io/n2k](https://github.com/boatkit-io/n2k)
+- [canboat PGN database](https://github.com/canboat/canboat)
+- [Signal K Specification](https://signalk.org/specification/)
+- [Victron Venus OS — GitHub](https://github.com/victronenergy)
+- [Victron VE.Direct Protocol](https://www.victronenergy.com/support-and-downloads/technical-information)
+- [Victron Modbus TCP Register Map](https://github.com/victronenergy/dbus_modbustcp)
+- [SeaTalk Technical Reference (Thomas Knauf)](http://www.thomasknauf.de/rap/seatalk2.php)
+- [Hat Labs SH-RPi](https://hatlabs.fi/sh-rpi/)
+- [Hat Labs SH-ESP32](https://hatlabs.fi/sh-esp32/)
+- [Bareboat Necessities](https://bareboat-necessities.github.io/)
+- [Digital Yacht iKommunicate](https://digitalyacht.co.uk/product/ikommunicate/)
+- [CZone Digital Switching](https://www.mastervolt.com/czone/)
+- [AIS — aislib Go library](https://github.com/SvenDowideit/aislib)
+- [Ruuvi Tags](https://ruuvi.com/)
+- [MQTT — Eclipse Paho Go](https://github.com/eclipse/paho.mqtt.golang)
+- [Modbus — goburrow/modbus](https://github.com/goburrow/modbus)
 
 ### Research & Technical Papers
 - [AI-Based Autonomous Sailboat Navigation Review (2025)](https://onlinelibrary.wiley.com/doi/full/10.1002/rob.70004)
