@@ -4,7 +4,7 @@
 
 A virtual VHF marine radio for practicing radio procedures, targeting RYA Yacht Master exam prep. Users interact with a realistic radio UI using voice (push-to-talk), and an LLM (Claude) plays the radio environment — coastguard, other vessels, marinas, port control — responding with correct VHF protocol.
 
-This is **sub-project 1** of a larger VHF training tool. It covers the core radio UI and LLM conversation engine. Future sub-projects will add structured scenario scoring and additional provider support.
+The implementation will be broken into phases for manageability, but this spec covers the complete feature.
 
 ## Goals
 
@@ -13,7 +13,7 @@ This is **sub-project 1** of a larger VHF training tool. It covers the core radi
 - Support both free practice (open conversation) and guided scenarios (structured exercises)
 - Work as a web page and PWA (feels like a real handheld device on mobile)
 
-## Non-Goals (Sub-Project 1)
+## Non-Goals
 
 - Multi-user / multiplayer radio simulation
 - DSC (Digital Selective Calling) simulation
@@ -43,7 +43,7 @@ User holds PTT
 
 ### Key Architectural Decisions
 
-- **All client-side** — no server involvement, no Supabase for sub-project 1
+- **All client-side** — no server involvement, no Supabase for v1
 - **User's own API key** — stored in localStorage, never leaves the browser
 - **Anthropic API only** — called directly from browser using user's key. Note: if Anthropic's API does not allow browser-origin requests (CORS), we will need a thin Supabase Edge Function proxy. This should be verified early in implementation.
 - **Browser Speech APIs** — Web Speech API for STT, SpeechSynthesis for TTS
@@ -96,7 +96,7 @@ Scrollable log of all transmissions in the session:
 - **PTT button** — hold to transmit. Mouse hold on desktop, touch hold on mobile. Large touch target on handheld.
 - **CH16 button** — instant jump to Channel 16 (distress/calling). Red accent.
 - **H/L button** — toggle high (25W) / low (1W) power.
-- **CALL button** — rendered disabled in sub-project 1 (DSC in later sub-project).
+- **CALL button** — rendered disabled in v1 (DSC in later sub-project).
 - **WX button** — shortcut to weather channel (same as dialling to the weather channel manually).
 
 ---
@@ -238,7 +238,7 @@ The radio environment changes based on selected region. Each region provides:
 | Pacific | Fiji, Tonga, New Zealand. Long-passage vessels, radio nets |
 | Canaries / Atlantic | Las Palmas, ARC rally, mid-ocean comms |
 
-**Ship with 2 regions for sub-project 1** (UK South Coast + Caribbean). Add remaining regions incrementally — the data authoring (accurate callsigns, working channels, local knowledge) needs to be credible.
+**Ship with 2 regions for v1** (UK South Coast + Caribbean). Add remaining regions incrementally — the data authoring (accurate callsigns, working channels, local knowledge) needs to be credible.
 
 Region data lives in `lib/vhf/regions.ts` as typed objects.
 
@@ -310,13 +310,13 @@ packages/web/src/
 - **Unit tests (Vitest):** Pure functions in `lib/vhf/` — channel lookups, prompt building, scenario definitions, region data validation
 - **Component tests (Vitest + Testing Library):** RadioScreen renders channel, TranscriptPanel shows messages, SettingsPanel validates API key
 - **Integration:** Manual testing with real API key — speech flow, audio effects, scenario completion
-- **No e2e for sub-project 1** — the LLM responses are non-deterministic, making automated e2e unreliable
+- **No e2e for v1** — the LLM responses are non-deterministic, making automated e2e unreliable
 
 ---
 
-## Future Sub-Projects
+## Future Enhancements
 
-2. **Scenario scoring & progress** — persistent scores, exercise history, completion tracking (may use Supabase)
-3. **Additional LLM providers** — OpenAI, Groq, open gateway for OpenAI-compatible endpoints
-4. **DSC simulation** — Digital Selective Calling procedures
-5. **Community scenarios** — user-contributed exercises shared via the platform
+- **Scenario scoring & progress** — persistent scores, exercise history, completion tracking (may use Supabase)
+- **Additional LLM providers** — OpenAI, Groq, open gateway for OpenAI-compatible endpoints
+- **DSC simulation** — Digital Selective Calling procedures
+- **Community scenarios** — user-contributed exercises shared via the platform
