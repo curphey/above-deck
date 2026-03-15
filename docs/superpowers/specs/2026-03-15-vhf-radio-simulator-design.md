@@ -18,37 +18,48 @@ The implementation will be broken into phases for manageability, but this spec c
 - Multi-user / multiplayer radio simulation
 - DSC (Digital Selective Calling) simulation
 - AIS integration
-- Server-side processing or storage
 - Multiple LLM provider support (Claude only for now)
 
 ---
 
 ## Architecture
 
-### Single React Island
+### Frontend: Astro + React Island
 
-The VHF simulator is a single React island (`client:only="react"`) on `pages/tools/vhf.astro`, following the same pattern as the solar EnergyPlanner. All logic runs client-side.
+The VHF simulator is a single React island (`client:only="react"`) on `pages/tools/vhf.astro`, following the same pattern as the solar EnergyPlanner.
+
+### Backend: Go API Service
+
+A Go HTTP service (`packages/api/`) handles LLM orchestration, conversation state, and scenario logic. Deployed as a Docker container (Fly.io / Railway / Cloud Run).
+
+### Data: Supabase (PostgreSQL)
+
+Conversation history persisted in Supabase. Logged-in users can review past practice sessions. Anonymous users get in-memory sessions (expire after 30 min idle).
 
 ### Data Flow
 
 ```
 User holds PTT
   → Browser SpeechRecognition captures speech
-  → Text sent to Anthropic API (user's key, from browser)
+  → Text sent to Go API (POST /api/vhf/transmit)
+  → Go service builds prompt, calls Anthropic API with user's key
   → Claude returns structured JSON (dialogue + feedback)
-  → Response text spoken via SpeechSynthesis + Web Audio effects
+  → Go service persists conversation to Supabase, returns response
+  → Browser: response spoken via SpeechSynthesis + Web Audio effects
   → Radio screen shows last message
   → Transcript panel logs full exchange with feedback annotations
 ```
 
 ### Key Architectural Decisions
 
-- **All client-side** — no server involvement, no Supabase for v1
-- **User's own API key** — stored in localStorage, never leaves the browser
-- **Anthropic API only** — called directly from browser using user's key. Note: if Anthropic's API does not allow browser-origin requests (CORS), we will need a thin Supabase Edge Function proxy. This should be verified early in implementation.
-- **Browser Speech APIs** — Web Speech API for STT, SpeechSynthesis for TTS
-- **Web Audio API** — band-pass filter, static/crackle effects for radio realism
-- **Zustand store** — persists radio state, conversation history, settings to localStorage
+- **Go backend** — handles LLM calls (no CORS issues), conversation state, scenario management
+- **User's own API key** — passed to Go service per-request via auth header. Key stored in localStorage on client, transmitted over HTTPS, never persisted server-side.
+- **Anthropic API only** — Go service calls Claude on behalf of the user
+- **Supabase for persistence** — conversation history, session management. Ties into existing auth (Google OAuth).
+- **Browser Speech APIs** — Web Speech API for STT, SpeechSynthesis for TTS (client-side)
+- **Web Audio API** — band-pass filter, static/crackle effects for radio realism (client-side)
+- **Zustand store** — persists radio settings and UI state to localStorage
+- **Docker deployment** — Go compiles to single binary, tiny container image
 
 ---
 
@@ -259,11 +270,48 @@ Accessible from gear icon on radio or transcript panel. All stored in localStora
 | Audio Effects | Toggle static/crackle, adjust intensity |
 | Mic Input | Select microphone |
 
-**No account needed.** No Supabase. Fully client-side.
+**No account needed for basic use.** API key stored in localStorage. Logged-in users (Google OAuth via Supabase) get conversation history persistence and session review.
 
 ---
 
 ## File Structure
+
+### Go API (`packages/api/`)
+
+```
+packages/api/
+├── cmd/server/
+│   └── main.go                        # Entry point, HTTP server setup
+├── internal/
+│   ├── handler/
+│   │   ├── transmit.go                # POST /api/vhf/transmit
+│   │   ├── session.go                 # Session CRUD endpoints
+│   │   ├── scenarios.go               # GET /api/vhf/scenarios
+│   │   └── health.go                  # GET /health
+│   ├── llm/
+│   │   ├── client.go                  # Anthropic API client
+│   │   ├── prompt.go                  # System prompt builder
+│   │   └── client_test.go
+│   ├── radio/
+│   │   ├── channels.go                # ITU channel↔frequency map
+│   │   ├── regions.go                 # Cruising regions + world state
+│   │   ├── scenarios.go               # Scenario definitions
+│   │   ├── channels_test.go
+│   │   ├── regions_test.go
+│   │   └── scenarios_test.go
+│   ├── session/
+│   │   ├── manager.go                 # Session lifecycle, conversation state
+│   │   ├── store.go                   # Supabase persistence
+│   │   └── manager_test.go
+│   └── middleware/
+│       ├── auth.go                    # Extract user from Supabase JWT
+│       └── cors.go                    # CORS for frontend
+├── Dockerfile
+├── go.mod
+└── go.sum
+```
+
+### Frontend (`packages/web/src/`)
 
 ```
 packages/web/src/
@@ -281,24 +329,17 @@ packages/web/src/
 │   ├── ScenarioPicker.tsx             # Exercise selector
 │   ├── SettingsPanel.tsx              # API key, region, voice
 │   └── RegionPicker.tsx               # Cruising region selector
-├── stores/vhf.ts                      # Zustand store
+├── stores/vhf.ts                      # Zustand store (UI state, settings)
 ├── hooks/
-│   └── use-vhf-radio.ts              # Orchestrates speech + LLM + audio
+│   └── use-vhf-radio.ts              # Orchestrates speech + Go API + audio
 ├── lib/vhf/
-│   ├── types.ts                       # Interfaces
-│   ├── channels.ts                    # ITU channel↔frequency map
-│   ├── regions.ts                     # Cruising regions + world state
-│   ├── scenarios.ts                   # Guided exercise definitions
-│   ├── prompts.ts                     # System prompt builder
-│   ├── llm-client.ts                  # Anthropic API (browser)
+│   ├── types.ts                       # Shared interfaces
+│   ├── api-client.ts                  # Go API client (fetch wrapper)
 │   ├── speech.ts                      # STT/TTS wrappers
 │   ├── audio-fx.ts                    # Web Audio effects
 │   └── __tests__/
-│       ├── channels.test.ts
-│       ├── regions.test.ts
-│       ├── scenarios.test.ts
-│       ├── prompts.test.ts
-│       └── llm-client.test.ts
+│       ├── api-client.test.ts
+│       └── speech.test.ts
 └── test/vhf/
     └── vhf.test.ts                    # Smoke tests
 ```
@@ -307,10 +348,15 @@ packages/web/src/
 
 ## Testing Strategy
 
-- **Unit tests (Vitest):** Pure functions in `lib/vhf/` — channel lookups, prompt building, scenario definitions, region data validation
+### Go (packages/api/)
+- **Unit tests (`go test`):** Channel lookups, prompt building, scenario definitions, region data, session management
+- **Handler tests:** HTTP handler tests with `httptest` — request/response validation, auth middleware, error cases
+- **Integration:** Tests against real Anthropic API (gated behind env var, not run in CI by default)
+
+### Frontend (packages/web/)
+- **Unit tests (Vitest):** API client, speech wrappers, audio effects
 - **Component tests (Vitest + Testing Library):** RadioScreen renders channel, TranscriptPanel shows messages, SettingsPanel validates API key
-- **Integration:** Manual testing with real API key — speech flow, audio effects, scenario completion
-- **No e2e for v1** — the LLM responses are non-deterministic, making automated e2e unreliable
+- **No e2e** — LLM responses are non-deterministic, making automated e2e unreliable
 
 ---
 
