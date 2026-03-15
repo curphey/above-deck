@@ -77,10 +77,9 @@ func BuildSystemPrompt(region radio.Region, scenario *radio.Scenario, vesselName
 
 	// 6. Response format
 	sb.WriteString("## Response Format\n\n")
-	sb.WriteString("Always respond with valid JSON in this exact format:\n")
-	sb.WriteString("```json\n")
+	sb.WriteString("Always respond with valid JSON only — no markdown fences, no explanation, just the JSON object:\n")
 	sb.WriteString(`{"response":{"station":"who is speaking","message":"the radio dialogue","channel":16},"feedback":{"correct":["things user did right"],"errors":["protocol mistakes"],"protocol_note":"what should happen next"},"scenario":{"state":"current step","next_expected":"what user should do","complete":false,"score":null}}`)
-	sb.WriteString("\n```\n")
+	sb.WriteString("\n")
 
 	return sb.String()
 }

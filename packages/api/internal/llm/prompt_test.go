@@ -9,7 +9,10 @@ import (
 )
 
 func TestBuildSystemPrompt_FreePractice(t *testing.T) {
-	region, _ := radio.GetRegion("uk-south")
+	region, ok := radio.GetRegion("uk-south")
+	if !ok {
+		t.Fatal("test fixture 'uk-south' region not found")
+	}
 	prompt := llm.BuildSystemPrompt(region, nil, "SV Artemis", "Sailing yacht")
 
 	if !strings.Contains(prompt, "VHF radio environment simulator") {
@@ -27,8 +30,14 @@ func TestBuildSystemPrompt_FreePractice(t *testing.T) {
 }
 
 func TestBuildSystemPrompt_WithScenario(t *testing.T) {
-	region, _ := radio.GetRegion("uk-south")
-	scenario, _ := radio.GetScenario("mayday")
+	region, ok := radio.GetRegion("uk-south")
+	if !ok {
+		t.Fatal("test fixture 'uk-south' region not found")
+	}
+	scenario, ok := radio.GetScenario("mayday")
+	if !ok {
+		t.Fatal("test fixture 'mayday' scenario not found")
+	}
 	prompt := llm.BuildSystemPrompt(region, &scenario, "SV Artemis", "Sailing yacht")
 
 	if !strings.Contains(prompt, scenario.LLMInstructions) {
@@ -37,7 +46,10 @@ func TestBuildSystemPrompt_WithScenario(t *testing.T) {
 }
 
 func TestBuildSystemPrompt_ResponseFormat(t *testing.T) {
-	region, _ := radio.GetRegion("uk-south")
+	region, ok := radio.GetRegion("uk-south")
+	if !ok {
+		t.Fatal("test fixture 'uk-south' region not found")
+	}
 	prompt := llm.BuildSystemPrompt(region, nil, "SV Artemis", "Sailing yacht")
 
 	if !strings.Contains(prompt, "\"response\"") {

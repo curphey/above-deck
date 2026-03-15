@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
+	"time"
 )
 
 const defaultBaseURL = "https://api.anthropic.com"
@@ -47,7 +49,7 @@ func NewClient(baseURL string) *Client {
 	}
 	return &Client{
 		baseURL:    baseURL,
-		httpClient: &http.Client{},
+		httpClient: &http.Client{Timeout: 60 * time.Second},
 	}
 }
 
@@ -97,13 +99,18 @@ func (c *Client) SendMessage(ctx context.Context, apiKey, systemPrompt string, m
 	}
 	defer resp.Body.Close()
 
-	respBody, err := io.ReadAll(resp.Body)
+	const maxResponseBytes = 1 << 20 // 1 MiB
+	respBody, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseBytes))
 	if err != nil {
 		return nil, fmt.Errorf("read response: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API error (status %d): %s", resp.StatusCode, string(respBody))
+		errSnippet := string(respBody)
+		if len(errSnippet) > 512 {
+			errSnippet = errSnippet[:512] + "...[truncated]"
+		}
+		return nil, fmt.Errorf("API error (status %d): %s", resp.StatusCode, errSnippet)
 	}
 
 	var apiResp apiResponse
@@ -115,8 +122,14 @@ func (c *Client) SendMessage(ctx context.Context, apiKey, systemPrompt string, m
 		return nil, errors.New("empty response from API")
 	}
 
+	text := strings.TrimSpace(apiResp.Content[0].Text)
+	text = strings.TrimPrefix(text, "```json")
+	text = strings.TrimPrefix(text, "```")
+	text = strings.TrimSuffix(text, "```")
+	text = strings.TrimSpace(text)
+
 	var vhfResp VHFResponse
-	if err := json.Unmarshal([]byte(apiResp.Content[0].Text), &vhfResp); err != nil {
+	if err := json.Unmarshal([]byte(text), &vhfResp); err != nil {
 		return nil, fmt.Errorf("unmarshal VHF response: %w", err)
 	}
 
