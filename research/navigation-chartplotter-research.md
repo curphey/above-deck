@@ -1138,6 +1138,96 @@ A Go-based SignalK server on a Pi with an SH-RPi HAT could replace the Node.js s
 
 ---
 
+## 12. Radar & Sonar Integration
+
+### Radar — Achievable
+
+Radar is the highest-value sensor integration after basic instruments. Critical for collision avoidance, weather detection, and navigation in poor visibility.
+
+**Navico (B&G / Simrad / Lowrance)**
+- Halo and Broadband radar domes output sweep data over Ethernet
+- GoFree SDK provides documented access (Tier 5: radar data)
+- Standard Ethernet devices with known IP addresses
+- OpenCPN has a working radar plugin (`opencpn-radar-pi`) that renders Navico radar — proven open-source reference
+- Protocol: proprietary binary frames over UDP, but well reverse-engineered
+- **Best path for Above Deck** — most documented, most open-source reference code
+
+**Furuno**
+- DRS series (DRS4DL+, DRS6AX, DRS12ANXT, DRS25ANXT) output over Ethernet
+- Proprietary protocol, partially reverse-engineered
+- OpenCPN has a Furuno radar plugin
+- Professional standard — most commercial vessels use Furuno
+- Higher-end, more complex protocol than Navico
+
+**Raymarine Quantum**
+- WiFi radar — connects directly over WiFi, no Ethernet cable needed
+- Protocol is proprietary, partially decoded by the community
+- Most interesting for portable/iPad setups since it's already wireless
+- Would pair naturally with a Pi-based Above Deck server
+
+**Garmin**
+- GMR Fantom and xHD series output over Garmin Marine Network (Ethernet)
+- Proprietary and largely undocumented
+- No known open-source radar implementations for Garmin
+- Lowest priority for integration
+
+**Integration approach:**
+- Receive radar sweep data (bearing, range, intensity) over Ethernet/WiFi
+- Render as an overlay on the MapLibre chartplotter
+- Standard radar features: range rings, guard zones, MARPA target tracking
+- Dual-mode: standalone radar screen or chart overlay
+
+### Sonar — Harder, Lower Priority
+
+Full sonar/fishfinder imagery is tightly coupled to vendor hardware:
+- Transducers connect to sonar modules via proprietary connectors and protocols
+- Raw sonar data is massive (high-frequency acoustic returns at high sample rates)
+- Processing requires specialised DSP (digital signal processing)
+- Every vendor's transducer-to-module protocol is different
+
+**What's available now:**
+- **Airmar TDT1000** — interface box that connects to Airmar CHIRP transducers and outputs depth, temperature, and speed on NMEA 2000. Processed data only, not raw sonar imagery. ~$500.
+- **Standard NMEA 2000 depth** (PGN 128267) — any N2K depth transducer provides depth data. Already covered by NMEA 2000 integration.
+- **Echopilot** — independent forward-looking sonar with NMEA 0183/2000 output. Navigation safety, not fishfinding.
+
+**What's not available:**
+- Full waterfall/sonar imagery from third-party transducers without vendor sonar modules
+- Open protocols for raw sonar data from Garmin, Navico, Furuno, or Raymarine modules
+- The OpenCPN community has partially decoded Navico sonar Ethernet output but it's incomplete
+
+**Recommendation:** Depth data via NMEA 2000 is already in scope. Radar overlay (Navico first) is achievable and high value. Full sonar imagery is a future goal — wait for the open hardware/SDR community to mature, or for a vendor to open their protocol. Most cruising sailors prioritise radar over fishfinding.
+
+### iPad as MFD — Deployment Model
+
+A Go server on a Raspberry Pi (or any Docker host) with a CAN bus interface replaces a traditional MFD:
+
+```
+NMEA 2000 backbone ──── Pi + SH-RPi HAT ──── WiFi ──── iPad (PWA)
+                        (Go server, Docker)              │
+Victron (VE.Direct) ────┘                                Waterproof case
+Radar (Ethernet) ───────┘                                Cockpit mount
+```
+
+**Cost comparison:**
+
+| | Garmin GPSMAP 8616 | Above Deck + iPad |
+|---|---|---|
+| Display | ~$3,500 | iPad ~$350 (or existing) |
+| Processing | Built into MFD | Raspberry Pi + SH-RPi ~$100 |
+| Charts | $130-500/region | Free (NOAA + OpenSeaMap) |
+| Annual cost | ~$100/yr (chart updates) | $0 |
+| Total | ~$4,000+ | ~$450 |
+
+**Trade-offs vs dedicated MFD:**
+- iPad screen is excellent but not transflective (harder in direct sunlight — mitigated by cockpit shade, screen brightness, anti-glare film)
+- Needs waterproof case for cockpit use (~$50)
+- Touch only (no physical buttons — but most modern MFDs are touch-primary anyway)
+- No built-in sonar/radar processing (separate modules needed)
+- Not type-approved for SOLAS (irrelevant for recreational)
+- Better screen resolution, more processing power, and cheaper than any marine MFD
+
+---
+
 ## Sources
 
 ### Commercial Tools

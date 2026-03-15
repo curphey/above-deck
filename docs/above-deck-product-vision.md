@@ -67,6 +67,9 @@ Direct protocol support (no middleware dependencies):
 | AIS | NMEA 0183 (AIVDM/AIVDO) | Vessel tracking, Class A/B transponders |
 | MQTT sensors | TCP 1883 | ESP32/DIY sensors, temperature, bilge, tanks |
 | Bluetooth Low Energy | BLE GATT | Wireless sensors (Ruuvi tags, B&G wind, DIY ESP32) |
+| Radar (Navico) | Ethernet | B&G/Simrad/Lowrance Halo and Broadband radar domes |
+| Radar (Furuno) | Ethernet | DRS series radar scanners |
+| Radar (Raymarine) | WiFi | Quantum series wireless radar |
 
 ### Plugin Architecture
 
@@ -150,6 +153,8 @@ Intelligence built into the platform from day one. MCP server bridges AI to ever
 - **Anchor Watch** — GPS drag alarm, depth monitoring
 - **Instrument Dashboard** — depth, wind, speed, heading displays (live from boat data)
 - **Logbook** — digital ship's log, auto-populated from instruments, legal-grade
+- **Radar Overlay** — render Navico/Furuno/Raymarine radar data on the chartplotter (Navico over Ethernet is most accessible, working open-source reference code exists)
+- **Sonar** — future, pending open protocol access. Depth/temperature via NMEA 2000 transducers (Airmar TDT1000) available now; full waterfall imagery requires vendor-specific reverse engineering
 
 ### Learning & Utility Tools (Layer 3)
 - **VHF Radio Simulator** — AI-powered radio practice for RYA/ASA exam prep (built)
