@@ -36,7 +36,7 @@ export function VHFSimulator() {
   const transcript = <TranscriptPanel />;
 
   return (
-    <div style={{ width: '100%', height: '100vh', background: '#1a1a2e', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
 
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>

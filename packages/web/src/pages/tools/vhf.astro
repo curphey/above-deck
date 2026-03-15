@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import MFDLayout from '../../layouts/MFDLayout.astro';
 import { VHFSimulator } from '../../components/vhf/VHFSimulator';
 export const prerender = false;
 ---
-<BaseLayout title="VHF Radio Simulator — Above Deck">
+<MFDLayout title="VHF Radio Simulator — Above Deck" screenId="vhf">
   <VHFSimulator client:only="react" />
-</BaseLayout>
+</MFDLayout>

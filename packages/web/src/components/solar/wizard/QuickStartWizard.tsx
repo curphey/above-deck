@@ -48,7 +48,7 @@ export function QuickStartWizard({ onComplete }: QuickStartWizardProps) {
       gap="xl"
       align="center"
       justify="center"
-      style={{ minHeight: '100vh' }}
+      style={{ minHeight: '100%' }}
       p="xl"
     >
       <Group gap={8} justify="center">
