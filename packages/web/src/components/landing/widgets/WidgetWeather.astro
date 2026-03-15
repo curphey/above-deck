@@ -1,0 +1,36 @@
+---
+// WidgetWeather.astro — Weather conditions and forecast widget
+---
+<div class="widget">
+  <div class="widget-head">
+    <span class="widget-label">Weather</span>
+    <span class="widget-badge">Live</span>
+  </div>
+  <div class="widget-body">
+    <div class="weather-now">
+      <div class="weather-temp">18<span class="deg">°</span></div>
+      <div class="weather-cond">Partly cloudy<br />1018 mb</div>
+    </div>
+
+    <div class="wind-row">
+      <div class="wind-circle">
+        <div class="wind-arrow"></div>
+      </div>
+      <div class="wind-text">
+        <div class="speed">14<span class="u"> kts</span></div>
+        <div class="dir">SW 225° — Gusts 19</div>
+      </div>
+    </div>
+
+    <div class="forecast-row">
+      <div class="forecast-cell"><div class="d">Sat</div><div class="t">19°</div><div class="lo">12°</div></div>
+      <div class="forecast-cell"><div class="d">Sun</div><div class="t">21°</div><div class="lo">14°</div></div>
+      <div class="forecast-cell"><div class="d">Mon</div><div class="t">15°</div><div class="lo">11°</div></div>
+      <div class="forecast-cell"><div class="d">Tue</div><div class="t">17°</div><div class="lo">10°</div></div>
+    </div>
+
+    <div class="weather-desc">
+      GRIB overlays, wind forecasts, and real-time conditions.
+    </div>
+  </div>
+</div>

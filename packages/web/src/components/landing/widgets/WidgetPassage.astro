@@ -1,0 +1,30 @@
+---
+// WidgetPassage.astro — Passage planning summary widget
+---
+<div class="widget">
+  <div class="widget-head">
+    <span class="widget-label">Passage</span>
+  </div>
+  <div class="widget-body">
+    <div class="route-visual">
+      <div class="route-dot from"></div>
+      <div class="route-line-vis"></div>
+      <div class="route-dot to"></div>
+    </div>
+    <div class="route-places">
+      <div class="route-place">Falmouth<div class="sub">Departure</div></div>
+      <div class="route-place" style="text-align:right;">Roscoff<div class="sub">Arrival</div></div>
+    </div>
+
+    <div class="passage-grid">
+      <div class="p-stat"><div class="num">98<span class="u"> nm</span></div><div class="lbl">Distance</div></div>
+      <div class="p-stat"><div class="num">14:20<span class="u"> hrs</span></div><div class="lbl">Duration</div></div>
+      <div class="p-stat"><div class="num">185<span class="u">°</span></div><div class="lbl">Heading</div></div>
+      <div class="p-stat"><div class="num">6.8<span class="u"> kts</span></div><div class="lbl">Avg speed</div></div>
+    </div>
+
+    <div class="passage-desc">
+      Tidal gates, weather windows, fuel calculations for multihulls.
+    </div>
+  </div>
+</div>
