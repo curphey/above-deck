@@ -33,8 +33,11 @@
 | `internal/radio/regions_test.go` | Region data validation tests |
 | `internal/radio/scenarios.go` | Scenario definitions for guided exercises |
 | `internal/radio/scenarios_test.go` | Scenario data tests |
+| `internal/ais/client.go` | aisstream.io WebSocket client — queries live vessel data by bounding box |
+| `internal/ais/types.go` | AIS message types, vessel data structs |
+| `internal/ais/client_test.go` | AIS client tests (mock WebSocket) |
 | `internal/llm/client.go` | Anthropic API client (Messages API) |
-| `internal/llm/prompt.go` | System prompt builder (VHF regs + region + scenario) |
+| `internal/llm/prompt.go` | System prompt builder (VHF regs + region + scenario + DSC + GMDSS) |
 | `internal/llm/client_test.go` | Prompt builder unit tests |
 | `internal/session/manager.go` | Session lifecycle, conversation sliding window |
 | `internal/session/store.go` | Supabase persistence adapter |
@@ -61,7 +64,8 @@
 | `components/vhf/HandheldRadio.tsx` | Mobile handheld layout (Cortex H1P style) |
 | `components/vhf/TranscriptPanel.tsx` | Scrollable log with feedback annotations |
 | `components/vhf/ScenarioPicker.tsx` | Exercise selector |
-| `components/vhf/SettingsPanel.tsx` | API key, region, vessel, voice, audio settings |
+| `components/vhf/SettingsPanel.tsx` | API key, region, vessel, MMSI, voice, audio settings |
+| `components/vhf/DSCPanel.tsx` | DSC alert overlay (distress, urgency, routine, false alert cancellation) |
 | `components/vhf/VHFSimulator.tsx` | Top-level island (layout selection, provider wiring) |
 | `hooks/use-vhf-radio.ts` | Orchestration hook (PTT → STT → API → TTS + effects) |
 | `components/landing/ScreenVHF.astro` | Modify: replace placeholder with React island |
@@ -613,8 +617,8 @@ func TestGetScenario(t *testing.T) {
 
 func TestAllScenariosComplete(t *testing.T) {
 	scenarios := radio.AllScenarios()
-	if len(scenarios) < 6 {
-		t.Errorf("expected at least 6 scenarios, got %d", len(scenarios))
+	if len(scenarios) < 10 {
+		t.Errorf("expected at least 10 scenarios, got %d", len(scenarios))
 	}
 	for _, s := range scenarios {
 		if s.ID == "" || s.Name == "" || s.Briefing == "" {
@@ -690,16 +694,16 @@ var scenarios = map[string]Scenario{
 		Briefing:    "You are aboard SV Artemis, position 50°10'N 005°15'W, approximately 5 nautical miles southwest of the Lizard. Your vessel has struck a submerged object and is taking on water rapidly. The bilge pump cannot keep up. You have 4 persons on board. Issue a Mayday distress call on Channel 16.",
 		ExpectedProcedure: []string{
 			"Switch to Channel 16",
-			"Press PTT: 'MAYDAY, MAYDAY, MAYDAY, this is Sailing Vessel Artemis, Sailing Vessel Artemis, Sailing Vessel Artemis'",
-			"Continue: 'MAYDAY, Sailing Vessel Artemis'",
+			"Press PTT: 'MAYDAY, MAYDAY, MAYDAY, this is Sailing Vessel Artemis, Sailing Vessel Artemis, Sailing Vessel Artemis, call sign MART, MMSI 235 099 000'",
+			"Continue: 'MAYDAY, Sailing Vessel Artemis, call sign MART'",
 			"Continue: 'My position is 50 degrees 10 minutes North, 005 degrees 15 minutes West'",
-			"Continue: 'Struck submerged object, taking on water, require immediate assistance'",
+			"Continue: 'I require immediate assistance — struck submerged object, taking on water'",
 			"Continue: '4 persons on board, sailing yacht, 12 metres, white hull, over'",
 			"Wait for coastguard acknowledgement",
 			"Respond to coastguard instructions",
 		},
 		LLMInstructions: "You are Falmouth Coastguard. The user is issuing a Mayday distress call. Acknowledge with the correct Mayday acknowledgement format: 'MAYDAY, Sailing Vessel Artemis, this is Falmouth Coastguard, received Mayday. All stations, all stations, all stations, MAYDAY, Falmouth Coastguard. Distress relay follows...' Then coordinate the response — ask about rate of water ingress, whether crew are wearing lifejackets, and whether they have a liferaft. Provide reassurance and instructions.",
-		CompletionCriteria: "User correctly issues Mayday with proper format (MAYDAY x3, vessel name x3, MAYDAY + vessel, position, nature of distress, assistance required, persons, vessel description, OVER) AND responds to coastguard instructions.",
+		CompletionCriteria: "User correctly issues Mayday with proper format (MAYDAY x3, vessel name x3 + call sign + MMSI stated once, MAYDAY + vessel + call sign, position in degrees and decimal minutes, nature of distress, 'I require immediate assistance', persons, vessel description, OVER) AND responds to coastguard instructions.",
 	},
 	"mayday-relay": {
 		ID:          "mayday-relay",
@@ -747,6 +751,70 @@ var scenarios = map[string]Scenario{
 		LLMInstructions: "You are Falmouth Marina. When the user calls on Channel 16, respond: 'Sailing Vessel Artemis, this is Falmouth Marina, go ahead, over.' When they request Channel 80, agree: 'Sailing Vessel Artemis, Falmouth Marina, channel 80, over.' On Channel 80, ask about vessel size, draught, arrival time, and number of nights. Assign them berth D-14 on the visitors' pontoon.",
 		CompletionCriteria: "User correctly initiates contact on Channel 16, agrees working channel, switches to Channel 80, and conducts the berthing conversation with proper radio etiquette throughout.",
 	},
+	"responding-to-mayday": {
+		ID:          "responding-to-mayday",
+		Name:        "Responding to a Mayday",
+		Description: "Hear a Mayday from another vessel and acknowledge correctly",
+		Briefing:    "You are aboard SV Artemis, position 50°08'N 005°10'W. You hear a Mayday from Motor Vessel Blue Horizon, position 50°09'N 005°12'W, reporting a fire on board with 6 persons. The coastguard has not yet responded. Acknowledge the Mayday and offer assistance.",
+		ExpectedProcedure: []string{
+			"Listen to the Mayday on Channel 16",
+			"Wait briefly for coastguard to acknowledge (they don't)",
+			"Press PTT: 'MAYDAY, Motor Vessel Blue Horizon, this is Sailing Vessel Artemis, received MAYDAY'",
+			"Provide your position and ETA to their location",
+			"Offer assistance and stand by for instructions",
+		},
+		LLMInstructions: "Start by playing Motor Vessel Blue Horizon issuing a Mayday: fire in engine room, 6 POB, position 50°09'N 005°12'W. Then be silent (coastguard does not respond for 30 seconds). The user should acknowledge. After the user acknowledges, respond as Falmouth Coastguard arriving on frequency and taking control.",
+		CompletionCriteria: "User correctly acknowledges the Mayday using proper format (MAYDAY + distressed vessel name, own vessel name, received MAYDAY) AND provides own position AND offers assistance.",
+	},
+	"dsc-distress": {
+		ID:          "dsc-distress",
+		Name:        "DSC Distress Alert",
+		Description: "Send a DSC distress alert via the CALL button, then follow up with voice Mayday on CH16",
+		Briefing:    "You are aboard SV Artemis, MMSI 235099000, position 50°10'N 005°15'W. Your vessel has struck a submerged object and is taking on water. Use the DSC CALL button to send a distress alert, then follow up with a voice Mayday on Channel 16.",
+		ExpectedProcedure: []string{
+			"Press CALL button to open DSC panel",
+			"Select 'Distress' alert type",
+			"Select nature of distress: 'Flooding'",
+			"Confirm position is correct",
+			"Press and hold Send (5 seconds) to transmit distress alert",
+			"Radio automatically switches to Channel 16",
+			"Issue voice Mayday on Channel 16 to follow up the DSC alert",
+		},
+		LLMInstructions: "The user has sent a DSC distress alert. Respond as Falmouth Coastguard with a DSC acknowledgement, then expect the voice Mayday follow-up. If the user only sends the DSC alert without following up with voice, prompt them via feedback that a voice Mayday on Ch16 is required after a DSC distress alert.",
+		CompletionCriteria: "User correctly sends DSC distress alert via CALL button AND follows up with voice Mayday on Channel 16 with proper format.",
+	},
+	"dsc-false-alert": {
+		ID:          "dsc-false-alert",
+		Name:        "DSC False Alert Cancellation",
+		Description: "Accidentally trigger a DSC distress alert and correctly cancel it",
+		Briefing:    "You are aboard SV Artemis, MMSI 235099000. You have accidentally triggered a DSC distress alert. Cancel the false alert immediately using the correct procedure.",
+		ExpectedProcedure: []string{
+			"DSC distress alert has been sent (simulated as accidental)",
+			"Switch to Channel 16",
+			"Press PTT: 'All stations, all stations, all stations, this is Sailing Vessel Artemis, call sign MART, MMSI 235 099 000'",
+			"Continue: 'Please cancel my distress alert of [time] UTC'",
+			"Continue: 'I am not in distress, I say again, I am not in distress'",
+			"End with 'out'",
+		},
+		LLMInstructions: "The scenario starts with the user having accidentally sent a DSC distress alert. Respond as Falmouth Coastguard acknowledging the cancellation. If the user doesn't include their MMSI or the time of the alert, note this in feedback. Emphasise that failing to cancel a false alert is an offence.",
+		CompletionCriteria: "User correctly cancels the false alert on Channel 16 with proper format (all stations x3, own vessel + call sign + MMSI, cancel request with time, confirmation of not in distress, OUT).",
+	},
+	"medico": {
+		ID:          "medico",
+		Name:        "MEDICO Call",
+		Description: "Contact coastguard for medical advice via Pan-Pan Medical",
+		Briefing:    "You are aboard SV Artemis, position 50°06'N 005°08'W, 3 nautical miles south of Falmouth. A crew member has severe abdominal pain, fever, and has been vomiting for 6 hours. You need medical advice from the coastguard. Use the Pan-Pan Medical procedure.",
+		ExpectedProcedure: []string{
+			"Switch to Channel 16",
+			"Press PTT: 'PAN PAN, PAN PAN, PAN PAN, Falmouth Coastguard, Falmouth Coastguard, Falmouth Coastguard, this is Sailing Vessel Artemis, Sailing Vessel Artemis, Sailing Vessel Artemis'",
+			"Continue: 'I have a medical emergency on board and require medical advice'",
+			"Provide position and number of persons on board",
+			"Describe symptoms when asked by coastguard",
+			"Follow medical advice given",
+		},
+		LLMInstructions: "You are Falmouth Coastguard. The user is making a Pan-Pan Medical call. Acknowledge and ask them to switch to a working channel. On the working channel, ask about the patient's symptoms, age, medical history, and any medications taken. Provide practical first aid advice and consider whether to recommend diversion to port or helicopter evacuation based on the severity described.",
+		CompletionCriteria: "User correctly initiates Pan-Pan Medical with proper format AND provides clear symptom description AND follows medical advice.",
+	},
 }
 
 func GetScenario(id string) (Scenario, bool) {
@@ -773,7 +841,10 @@ cd packages/api && go test ./internal/radio/...
 
 ```bash
 git add packages/api/internal/radio/scenarios.go packages/api/internal/radio/scenarios_test.go
-git commit -m "feat(api): add 6 guided VHF scenarios for RYA exam prep
+git commit -m "feat(api): add 10 guided VHF scenarios incl. DSC and MEDICO
+
+Covers radio check, Pan-Pan, Mayday, Mayday relay, Mayday response,
+Securité, routine call, DSC distress, DSC false alert, and MEDICO.
 
 Closes #162"
 ```
@@ -877,12 +948,33 @@ func BuildSystemPrompt(region radio.Region, scenario *radio.Scenario, vesselName
 	// 2. VHF regulations
 	sb.WriteString("## VHF Radio Procedures\n\n")
 	sb.WriteString("Follow ITU Radio Regulations and GMDSS procedures. Key rules:\n")
-	sb.WriteString("- Use correct prowords: OVER (expecting reply), OUT (end of communication, never used with OVER), ROGER (received and understood), SAY AGAIN (request repeat), COPY (understood), WILCO (will comply)\n")
+	sb.WriteString("- Use correct prowords: OVER (expecting reply), OUT (end of communication, never used with OVER), ROGER (received and understood), SAY AGAIN (request repeat), THIS IS (identifies speaker), I SAY AGAIN (emphasises repeat), CORRECTION (corrects error), I SPELL (precedes phonetic spelling), WAIT (pause, will call back), STAND BY (remain on frequency), BREAK (separates message parts), NEGATIVE, AFFIRMATIVE, FIGURES (precedes numbers), WILCO (will comply), SILENCE MAYDAY (impose radio silence during distress), SILENCE FINI (cancel radio silence), PRUDONCE (limited working on distress frequency)\n")
 	sb.WriteString("- Phonetic alphabet: Alpha, Bravo, Charlie, Delta, Echo, Foxtrot, Golf, Hotel, India, Juliet, Kilo, Lima, Mike, November, Oscar, Papa, Quebec, Romeo, Sierra, Tango, Uniform, Victor, Whiskey, X-ray, Yankee, Zulu\n")
 	sb.WriteString("- Channel 16 (156.800 MHz) is the international distress, safety and calling frequency\n")
 	sb.WriteString("- Channel 70 is reserved for Digital Selective Calling (DSC)\n")
 	sb.WriteString("- Distress priority: MAYDAY > PAN PAN > SECURITÉ > routine\n")
-	sb.WriteString("- Call format: [station called] x3, THIS IS [own vessel] x3, [message], OVER/OUT\n\n")
+	sb.WriteString("- Call format: [station called] x3, THIS IS [own vessel] x3, [message], OVER/OUT\n")
+	sb.WriteString("- Positions: always in degrees and decimal minutes (e.g. 50 degrees 10 minutes North, 005 degrees 15 minutes West)\n")
+	sb.WriteString("- Power: 25W (high) for distress/calling, 1W (low) for harbour/close range. Use minimum power necessary.\n")
+	sb.WriteString("- Listen before transmitting. Keep transmissions brief. No profanity or unnecessary signals.\n")
+	sb.WriteString("- Mayday format: MAYDAY x3, THIS IS [vessel name] x3 + [call sign] + [MMSI], MAYDAY [vessel name, call sign], MY POSITION IS..., [nature of distress], I REQUIRE IMMEDIATE ASSISTANCE, [POB], [description], OVER\n")
+	sb.WriteString("- Pan-Pan format: PAN PAN PAN PAN PAN PAN (six continuous words), ALL STATIONS x3, THIS IS [vessel] x3, [urgency details]\n\n")
+
+	// DSC procedures
+	sb.WriteString("## DSC (Digital Selective Calling)\n\n")
+	sb.WriteString("- DSC alerts are sent on Channel 70 (156.525 MHz) — this channel is for automated DSC only, no voice\n")
+	sb.WriteString("- After sending a DSC distress alert, the radio automatically switches to Channel 16 for voice follow-up\n")
+	sb.WriteString("- A DSC distress alert includes: MMSI, nature of distress, position, time\n")
+	sb.WriteString("- Voice Mayday MUST follow a DSC distress alert on Channel 16\n")
+	sb.WriteString("- False alert cancellation: broadcast on Channel 16 — 'All stations x3, this is [vessel, call sign, MMSI], please cancel my distress alert of [time] UTC, I am not in distress, out'\n")
+	sb.WriteString("- Failing to cancel a false alert is an offence under maritime law\n\n")
+
+	// GMDSS study reference
+	sb.WriteString("## GMDSS Equipment Knowledge\n\n")
+	sb.WriteString("- EPIRB (406 MHz): satellite distress beacon, 48h battery, hydrostatic release, must be registered\n")
+	sb.WriteString("- SART (9 GHz): radar transponder, shows 12-dot arc on radar, ~5nm range, 96h standby + 8h active\n")
+	sb.WriteString("- NAVTEX (518/490 kHz): text broadcasts for MSI, weather, navigational warnings\n")
+	sb.WriteString("- VHF DSC controller: Ch70 watch, distress button (lift cover, press 5s), MMSI identification\n\n")
 
 	// 3. Region world state
 	sb.WriteString(fmt.Sprintf("## Current Radio Environment: %s\n\n", region.Name))
@@ -1358,8 +1450,8 @@ func TestScenariosHandler(t *testing.T) {
 	}
 	var scenarios []map[string]any
 	json.Unmarshal(w.Body.Bytes(), &scenarios)
-	if len(scenarios) < 6 {
-		t.Errorf("expected at least 6 scenarios, got %d", len(scenarios))
+	if len(scenarios) < 10 {
+		t.Errorf("expected at least 10 scenarios, got %d", len(scenarios))
 	}
 }
 ```
@@ -2572,12 +2664,475 @@ create policy "Users can access messages in own sessions" on vhf_messages
 
 ---
 
+### Task 19: AIS Client (aisstream.io)
+
+**GitHub Issue:** TBD
+
+**Files:**
+- Create: `packages/api/internal/ais/types.go`
+- Create: `packages/api/internal/ais/client.go`
+- Create: `packages/api/internal/ais/client_test.go`
+
+- [ ] **Step 1: Write AIS types**
+
+```go
+// internal/ais/types.go
+package ais
+
+// Vessel represents a real vessel from AIS data, injected into the LLM system prompt.
+type Vessel struct {
+	MMSI        int     `json:"mmsi"`
+	Name        string  `json:"name"`
+	CallSign    string  `json:"call_sign"`
+	VesselType  int     `json:"vessel_type"`
+	Latitude    float64 `json:"latitude"`
+	Longitude   float64 `json:"longitude"`
+	Destination string  `json:"destination"`
+	TypeName    string  `json:"type_name"` // human-readable vessel type
+}
+
+// BoundingBox defines a geographic area to query AIS vessels within.
+type BoundingBox struct {
+	MinLat float64
+	MaxLat float64
+	MinLon float64
+	MaxLon float64
+}
+
+// VesselTypeNames maps AIS vessel type codes to human-readable names.
+var VesselTypeNames = map[int]string{
+	30: "Fishing",
+	36: "Sailing",
+	37: "Pleasure craft",
+	60: "Passenger",
+	70: "Cargo",
+	80: "Tanker",
+}
+
+func VesselTypeName(code int) string {
+	if name, ok := VesselTypeNames[code]; ok {
+		return name
+	}
+	return "Vessel"
+}
+```
+
+- [ ] **Step 2: Write AIS client test**
+
+```go
+// internal/ais/client_test.go
+package ais_test
+
+import (
+	"testing"
+
+	"github.com/curphey/above-deck/api/internal/ais"
+)
+
+func TestVesselTypeName(t *testing.T) {
+	tests := []struct {
+		code int
+		want string
+	}{
+		{36, "Sailing"},
+		{70, "Cargo"},
+		{99, "Vessel"},
+	}
+	for _, tt := range tests {
+		got := ais.VesselTypeName(tt.code)
+		if got != tt.want {
+			t.Errorf("VesselTypeName(%d) = %q, want %q", tt.code, got, tt.want)
+		}
+	}
+}
+
+func TestBoundingBox(t *testing.T) {
+	bb := ais.BoundingBox{MinLat: 49.5, MaxLat: 50.5, MinLon: -6.0, MaxLon: -4.0}
+	if bb.MinLat >= bb.MaxLat || bb.MinLon >= bb.MaxLon {
+		t.Error("invalid bounding box")
+	}
+}
+```
+
+- [ ] **Step 3: Run tests — expect PASS**
+
+```bash
+cd packages/api && go test ./internal/ais/...
+```
+
+- [ ] **Step 4: Implement AIS WebSocket client**
+
+```go
+// internal/ais/client.go
+package ais
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"time"
+
+	"golang.org/x/net/websocket"
+)
+
+const aisStreamURL = "wss://stream.aisstream.io/v0/stream"
+
+// Client queries aisstream.io for live vessel data.
+type Client struct {
+	APIKey string
+}
+
+// NewClient creates an AIS client. The API key is from aisstream.io (free tier).
+func NewClient(apiKey string) *Client {
+	return &Client{APIKey: apiKey}
+}
+
+// FetchVessels queries aisstream.io for vessels within the bounding box.
+// Returns up to maxCount vessels, with a timeout. Falls back to empty slice on error.
+func (c *Client) FetchVessels(ctx context.Context, bbox BoundingBox, maxCount int) ([]Vessel, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	ws, err := websocket.Dial(aisStreamURL, "", "http://localhost")
+	if err != nil {
+		return nil, fmt.Errorf("ais: websocket dial: %w", err)
+	}
+	defer ws.Close()
+
+	// Subscribe with bounding box filter
+	subscribe := map[string]any{
+		"APIKey": c.APIKey,
+		"BoundingBoxes": [][]float64{
+			{bbox.MinLat, bbox.MinLon, bbox.MaxLat, bbox.MaxLon},
+		},
+	}
+	if err := websocket.JSON.Send(ws, subscribe); err != nil {
+		return nil, fmt.Errorf("ais: subscribe: %w", err)
+	}
+
+	vessels := make(map[int]Vessel)
+	for len(vessels) < maxCount {
+		select {
+		case <-ctx.Done():
+			break
+		default:
+		}
+
+		var msg json.RawMessage
+		if err := websocket.JSON.Receive(ws, &msg); err != nil {
+			break
+		}
+
+		var parsed struct {
+			MetaData struct {
+				MMSI      int     `json:"MMSI"`
+				Latitude  float64 `json:"latitude"`
+				Longitude float64 `json:"longitude"`
+			} `json:"MetaData"`
+			Message struct {
+				PositionReport struct {
+					ShipName    string `json:"ShipName"`
+					CallSign    string `json:"CallSign"`
+					VesselType  int    `json:"ShipType"`
+					Destination string `json:"Destination"`
+				} `json:"PositionReport"`
+			} `json:"Message"`
+		}
+		if err := json.Unmarshal(msg, &parsed); err != nil {
+			continue
+		}
+
+		mmsi := parsed.MetaData.MMSI
+		if mmsi == 0 || parsed.Message.PositionReport.ShipName == "" {
+			continue
+		}
+
+		vessels[mmsi] = Vessel{
+			MMSI:        mmsi,
+			Name:        parsed.Message.PositionReport.ShipName,
+			CallSign:    parsed.Message.PositionReport.CallSign,
+			VesselType:  parsed.Message.PositionReport.VesselType,
+			Latitude:    parsed.MetaData.Latitude,
+			Longitude:   parsed.MetaData.Longitude,
+			Destination: parsed.Message.PositionReport.Destination,
+			TypeName:    VesselTypeName(parsed.Message.PositionReport.VesselType),
+		}
+	}
+
+	result := make([]Vessel, 0, len(vessels))
+	for _, v := range vessels {
+		result = append(result, v)
+	}
+	return result, nil
+}
+```
+
+- [ ] **Step 5: Add `golang.org/x/net` dependency**
+
+```bash
+cd packages/api && go get golang.org/x/net
+```
+
+- [ ] **Step 6: Run tests — expect PASS**
+
+```bash
+cd packages/api && go test ./internal/ais/...
+```
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add packages/api/internal/ais/
+git commit -m "feat(api): add aisstream.io client for live AIS vessel data
+
+Queries aisstream.io WebSocket for real vessels by bounding box.
+Returns vessel name, call sign, MMSI, position, and type.
+Used to inject realistic vessel data into LLM system prompts."
+```
+
+---
+
+### Task 20: DSC Panel Component
+
+**GitHub Issue:** TBD
+
+**Files:**
+- Create: `components/vhf/DSCPanel.tsx`
+- Create: `components/vhf/__tests__/DSCPanel.test.tsx`
+
+- [ ] **Step 1: Write DSC panel test**
+
+```typescript
+// components/vhf/__tests__/DSCPanel.test.tsx
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { DSCPanel } from '../DSCPanel';
+
+describe('DSCPanel', () => {
+  it('renders alert type options', () => {
+    render(<DSCPanel onSendAlert={vi.fn()} onCancel={vi.fn()} mmsi="235099000" />);
+    expect(screen.getByText('Distress')).toBeDefined();
+    expect(screen.getByText('Urgency')).toBeDefined();
+    expect(screen.getByText('Safety')).toBeDefined();
+    expect(screen.getByText('Routine')).toBeDefined();
+  });
+
+  it('shows nature of distress selector for distress alerts', () => {
+    render(<DSCPanel onSendAlert={vi.fn()} onCancel={vi.fn()} mmsi="235099000" />);
+    fireEvent.click(screen.getByText('Distress'));
+    expect(screen.getByText('Flooding')).toBeDefined();
+    expect(screen.getByText('Fire/Explosion')).toBeDefined();
+  });
+
+  it('calls onSendAlert with correct data', () => {
+    const onSend = vi.fn();
+    render(<DSCPanel onSendAlert={onSend} onCancel={vi.fn()} mmsi="235099000" />);
+    fireEvent.click(screen.getByText('Distress'));
+    fireEvent.click(screen.getByText('Flooding'));
+    // The send button requires confirmation for distress
+    fireEvent.click(screen.getByText('Send'));
+    fireEvent.click(screen.getByText('Confirm'));
+    expect(onSend).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'distress', nature: 'flooding', mmsi: '235099000' })
+    );
+  });
+
+  it('cancel button calls onCancel', () => {
+    const onCancel = vi.fn();
+    render(<DSCPanel onSendAlert={vi.fn()} onCancel={onCancel} mmsi="235099000" />);
+    fireEvent.click(screen.getByText('Cancel'));
+    expect(onCancel).toHaveBeenCalled();
+  });
+});
+```
+
+- [ ] **Step 2: Run tests — expect FAIL**
+
+```bash
+cd packages/web && pnpm exec vitest run components/vhf/__tests__/DSCPanel.test.tsx
+```
+Expected: FAIL — `DSCPanel` module not found
+
+- [ ] **Step 3: Implement DSCPanel**
+
+```tsx
+// components/vhf/DSCPanel.tsx
+import { useState } from 'react';
+
+const ALERT_TYPES = ['distress', 'urgency', 'safety', 'routine', 'all-ships'] as const;
+type AlertType = (typeof ALERT_TYPES)[number];
+
+const DISTRESS_NATURES = [
+  'undesignated', 'fire-explosion', 'flooding', 'collision', 'grounding',
+  'capsizing', 'sinking', 'disabled-adrift', 'abandoning-ship', 'mob', 'piracy',
+] as const;
+
+const DISTRESS_LABELS: Record<string, string> = {
+  'undesignated': 'Undesignated',
+  'fire-explosion': 'Fire/Explosion',
+  'flooding': 'Flooding',
+  'collision': 'Collision',
+  'grounding': 'Grounding',
+  'capsizing': 'Capsizing',
+  'sinking': 'Sinking',
+  'disabled-adrift': 'Disabled/Adrift',
+  'abandoning-ship': 'Abandoning Ship',
+  'mob': 'MOB',
+  'piracy': 'Piracy',
+};
+
+interface DSCAlert {
+  type: AlertType;
+  nature?: string;
+  mmsi: string;
+  targetMmsi?: string;
+}
+
+interface DSCPanelProps {
+  onSendAlert: (alert: DSCAlert) => void;
+  onCancel: () => void;
+  mmsi: string;
+  position?: string;
+}
+
+export function DSCPanel({ onSendAlert, onCancel, mmsi, position }: DSCPanelProps) {
+  const [alertType, setAlertType] = useState<AlertType | null>(null);
+  const [nature, setNature] = useState<string | null>(null);
+  const [targetMmsi, setTargetMmsi] = useState('');
+  const [confirming, setConfirming] = useState(false);
+
+  function handleSend() {
+    if (alertType === 'distress' && !confirming) {
+      setConfirming(true);
+      return;
+    }
+    onSendAlert({
+      type: alertType!,
+      nature: nature ?? undefined,
+      mmsi,
+      targetMmsi: targetMmsi || undefined,
+    });
+  }
+
+  return (
+    <div className="dsc-panel">
+      <div className="dsc-header">
+        <span className="dsc-title">DSC Alert</span>
+        <button className="dsc-cancel" onClick={onCancel}>Cancel</button>
+      </div>
+
+      <div className="dsc-mmsi">MMSI: {mmsi}</div>
+      {position && <div className="dsc-position">Position: {position}</div>}
+
+      <div className="dsc-types">
+        {ALERT_TYPES.map((type) => (
+          <button
+            key={type}
+            className={`dsc-type-btn ${alertType === type ? 'active' : ''} ${type === 'distress' ? 'distress' : ''}`}
+            onClick={() => { setAlertType(type); setConfirming(false); }}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}
+          </button>
+        ))}
+      </div>
+
+      {alertType === 'distress' && (
+        <div className="dsc-natures">
+          {DISTRESS_NATURES.map((n) => (
+            <button
+              key={n}
+              className={`dsc-nature-btn ${nature === n ? 'active' : ''}`}
+              onClick={() => setNature(n)}
+            >
+              {DISTRESS_LABELS[n]}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {alertType && alertType !== 'all-ships' && alertType !== 'distress' && (
+        <input
+          className="dsc-target-input"
+          placeholder="Target MMSI (9 digits)"
+          value={targetMmsi}
+          onChange={(e) => setTargetMmsi(e.target.value.replace(/\D/g, '').slice(0, 9))}
+        />
+      )}
+
+      {alertType && (
+        <button
+          className={`dsc-send-btn ${confirming ? 'confirming' : ''}`}
+          onClick={handleSend}
+          disabled={alertType === 'distress' && !nature}
+        >
+          {confirming ? 'Confirm' : 'Send'}
+        </button>
+      )}
+    </div>
+  );
+}
+```
+
+- [ ] **Step 4: Run tests — expect PASS**
+
+```bash
+cd packages/web && pnpm exec vitest run components/vhf/__tests__/DSCPanel.test.tsx
+```
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add packages/web/src/components/vhf/DSCPanel.tsx packages/web/src/components/vhf/__tests__/DSCPanel.test.tsx
+git commit -m "feat(web): add DSC alert panel component
+
+Supports distress, urgency, routine, and all-ships alert types.
+Distress alerts require nature selection and confirmation tap.
+Renders as overlay triggered by CALL button."
+```
+
+---
+
+### Task 21: Add MMSI to Settings and Store
+
+**GitHub Issue:** TBD
+
+**Files:**
+- Modify: `stores/vhf.ts` — add `mmsi` field to settings
+- Modify: `components/vhf/SettingsPanel.tsx` — add MMSI input
+
+- [ ] **Step 1: Add MMSI to store**
+
+Add `mmsi: string` to the settings slice of the Zustand store, with a default randomly generated valid MMSI (e.g., `'235' + Math.random().toString().slice(2, 8).padEnd(6, '0')`).
+
+- [ ] **Step 2: Add MMSI input to SettingsPanel**
+
+Add a text input for MMSI below the Call Sign field. Validate it's 9 digits. Label: "MMSI Number".
+
+- [ ] **Step 3: Run all frontend tests**
+
+```bash
+cd packages/web && pnpm exec vitest run
+```
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add packages/web/src/stores/vhf.ts packages/web/src/components/vhf/SettingsPanel.tsx
+git commit -m "feat(web): add MMSI to VHF radio settings
+
+9-digit MMSI stored in Zustand, defaulting to random valid UK MMSI.
+Used for DSC alerts and Mayday call identification."
+```
+
+---
+
 ## Build & Test Sequence
 
 1. **Go API first** (Tasks 1-7): Each task produces tested, committed code
 2. **Frontend foundation** (Tasks 8-11): Types, store, speech, audio — all testable independently
-3. **Frontend components** (Tasks 12-15): UI components using the store
+3. **Frontend components** (Tasks 12-15, 20-21): UI components using the store
 4. **Integration** (Tasks 16-17): Hook + island wiring, end-to-end test
+5. **AIS integration** (Task 19): Connect live vessel data to session creation
 
 **To run all Go tests:** `cd packages/api && go test ./...`
 **To run all frontend tests:** `cd packages/web && pnpm exec vitest run`

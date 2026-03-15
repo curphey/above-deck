@@ -4,6 +4,7 @@
 
 - **Git: NEVER commit to main.** Feature branches + PRs only.
 - **Screenshots:** Always `tmp/screenshots/` (gitignored). Never repo root or `packages/`.
+- **Content: NEVER add text, copy, taglines, or prose to the codebase without explicit user permission.** This includes closing lines, slogans, motivational phrases, and marketing copy. Only the user writes the words.
 
 ## TDD Workflow (Mandatory)
 
