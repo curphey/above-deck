@@ -3,13 +3,11 @@ import { useState, useEffect } from 'react';
 const NAV_ITEMS = [
   { id: 'home', icon: '⊞', label: 'Home' },
   { id: 'solar', icon: '☀', label: 'Solar' },
+  { id: 'vhf', icon: '📻', label: 'VHF' },
   { id: 'passage', icon: '⚓', label: 'Passage' },
   { id: 'weather', icon: '◉', label: 'Weather' },
   { id: 'log', icon: '☰', label: 'Log' },
-] as const;
-
-const LINK_ITEMS = [
-  { href: '/about', icon: 'ⓘ', label: 'About' },
+  { id: 'about', icon: 'ⓘ', label: 'About' },
 ] as const;
 
 const GITHUB_SVG = (
@@ -57,12 +55,6 @@ export function NavBar() {
           <span className="nav-icon">{item.icon}</span>
           <span className="nav-label">{item.label}</span>
         </button>
-      ))}
-      {LINK_ITEMS.map((item) => (
-        <a key={item.href} className="nav-btn" href={item.href} aria-label={item.label}>
-          <span className="nav-icon">{item.icon}</span>
-          <span className="nav-label">{item.label}</span>
-        </a>
       ))}
       <a
         className="nav-btn"

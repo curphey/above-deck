@@ -1,13 +1,19 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-export const prerender = true;
+// ScreenAbout.astro — About page inside the device frame
 ---
-<BaseLayout title="About — Above Deck" description="The story behind Above Deck — open-source sailing tools built by the community, free forever.">
-  <main class="about">
+<div class="screen solar-screen" id="screen-about">
+  <div class="schematic-header">
+    <div>
+      <div class="schematic-title">About</div>
+      <div class="schematic-subtitle">The story behind Above Deck</div>
+    </div>
+    <button class="back-btn" onclick="window.showScreen('home')">← Home</button>
+  </div>
 
-    <article class="about-content">
+  <div class="about-scroll">
+    <article class="about-article">
 
-      <h1 class="about-title">A Reformed Hacker, an AI Copilot, a Catamaran Purchase and an Idea</h1>
+      <h1>A Reformed Hacker, an AI Copilot, a Catamaran Purchase and an Idea</h1>
 
       <p>I'm a British software engineer running my third startup out of New York. After 25 years in California, I moved back to the UK and I'm getting ready to do something I never thought I'd say out loud — wind down, stop working, buy a catamaran, and go on a massive adventure, slowly circumnavigating the world with my wife, starting in 2027.</p>
 
@@ -57,165 +63,128 @@ export const prerender = true;
 
       <p>To be completely clear, this is not and will never be a commercial startup. I've been there, done it, and I'm not doing it again. I'm paying for all the hosting and operating costs myself. Open-source and community software has been good to me over the years, and this is a way of giving back. I also just love communities — doing stuff like this in the past has been some of the most fun I've had. If it stops being fun, I'll just stop doing it.</p>
 
-      <h2>So here we are. Come join me (and hopefully us, when a community forms).</h2>
+      <h2>Come join me</h2>
 
       <p>This only works if people show up. Here's how to get involved:</p>
 
-      <div class="cta-list">
-        <div class="cta-item">
-          <h3>Try the apps</h3>
-          <p>Everything works straight from a browser — no downloads, no app stores, no credit cards. Some apps need an account so you can save your data, but it's just your Google account.</p>
+      <div class="about-cta-grid">
+        <div class="about-cta-card">
+          <div class="about-cta-title">Try the apps</div>
+          <div class="about-cta-desc">Everything works straight from a browser — no downloads, no app stores, no credit cards.</div>
         </div>
-        <div class="cta-item">
-          <h3>Sign up to the newsletter</h3>
-          <p>What's being built, what's coming next, and the occasional story from the water. No spam, no selling.</p>
+        <div class="about-cta-card">
+          <div class="about-cta-title">Join the forums</div>
+          <div class="about-cta-desc">Share ideas, report bugs, request features, or just tell me I'm doing it wrong.</div>
         </div>
-        <div class="cta-item">
-          <h3>Join the discussion forums</h3>
-          <p>Share ideas, report bugs, request features, or just tell me I'm doing it wrong. This is where the community lives.</p>
+        <div class="about-cta-card">
+          <div class="about-cta-title">Grab the source</div>
+          <div class="about-cta-desc">Everything is on GitHub. Fork it, hack it, contribute — that's the whole point.</div>
         </div>
-        <div class="cta-item">
-          <h3>Grab the source code</h3>
-          <p>Everything is on GitHub. If you're a developer and want to hack away, contribute, or fork something — go for it.</p>
-        </div>
-        <div class="cta-item">
-          <h3>Spread the word</h3>
-          <p>Share this with your sailing club, your WhatsApp group, your cruising forum. The more people who know about this, the faster it gets better for everyone.</p>
+        <div class="about-cta-card">
+          <div class="about-cta-title">Spread the word</div>
+          <div class="about-cta-desc">Share with your sailing club, WhatsApp group, or cruising forum.</div>
         </div>
       </div>
 
-      <p class="closing">Let's build something brilliant together.</p>
+      <p class="about-closing">Let's build something brilliant together.</p>
 
     </article>
-
-  </main>
-</BaseLayout>
+  </div>
+</div>
 
 <style>
-  :root {
-    --bg-dark: #1a1a2e;
-    --surface: #16213e;
-    --bg-light: #f5f5f0;
-    --text-dark: #e0e0e0;
-    --text-light: #2d2d3a;
-    --text-secondary: #8b8b9e;
-    --accent-green: #4ade80;
-    --accent-blue: #60a5fa;
-    --grid: #2d2d4a;
+  .about-scroll {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--paper);
   }
 
-  .about {
-    max-width: 720px;
+  .about-article {
+    max-width: 680px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 32px 40px 48px;
   }
 
-  .about-content {
-    padding: 3rem 0 4rem;
-  }
-
-  .about-title {
+  .about-article h1 {
     font-family: 'Space Mono', monospace;
-    font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+    font-size: 22px;
     font-weight: 700;
+    color: var(--ink);
     line-height: 1.3;
-    color: var(--text-dark);
-    margin: 0 0 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--grid);
+    margin: 0 0 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
   }
 
-  .about-content h2 {
+  .about-article h2 {
     font-family: 'Space Mono', monospace;
-    font-size: 1.125rem;
+    font-size: 15px;
     font-weight: 700;
-    color: var(--text-dark);
-    margin: 2.5rem 0 1rem;
+    color: var(--ink);
+    margin: 28px 0 12px;
   }
 
-  .about-content p {
+  .about-article p {
     font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    line-height: 1.8;
-    color: var(--text-secondary);
-    margin: 0 0 1.25rem;
+    font-size: 14px;
+    line-height: 1.75;
+    color: rgba(0,0,0,0.55);
+    margin: 0 0 14px;
   }
 
-  .about-content a {
-    color: var(--accent-blue);
+  .about-article a {
+    color: var(--accent-green);
     text-decoration: none;
-    border-bottom: 1px solid rgba(96, 165, 250, 0.3);
+    border-bottom: 1px solid rgba(45,138,78,0.25);
     transition: border-color 0.15s;
   }
+  .about-article a:hover { border-bottom-color: var(--accent-green); }
 
-  .about-content a:hover {
-    border-bottom-color: var(--accent-blue);
-  }
-
-  .about-content em {
+  .about-article em {
     font-style: italic;
-    color: var(--text-dark);
+    color: var(--ink);
   }
 
-  .cta-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin: 1.5rem 0 2rem;
+  .about-cta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 16px 0 24px;
   }
 
-  .cta-item {
-    border: 1px solid var(--grid);
-    padding: 1.25rem 1.5rem;
+  .about-cta-card {
+    padding: 14px 16px;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.015);
   }
 
-  .cta-item h3 {
+  .about-cta-title {
     font-family: 'Space Mono', monospace;
-    font-size: 0.875rem;
+    font-size: 11px;
     font-weight: 700;
-    color: var(--text-dark);
-    margin: 0 0 0.5rem;
+    color: var(--ink);
+    margin-bottom: 4px;
   }
 
-  .cta-item p {
-    font-size: 0.9rem;
-    margin: 0;
+  .about-cta-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    color: rgba(0,0,0,0.4);
   }
 
-  .closing {
+  .about-closing {
     font-family: 'Space Mono', monospace;
-    font-size: 1.125rem;
+    font-size: 15px;
     font-weight: 700;
     color: var(--accent-green) !important;
-    margin-top: 2rem !important;
+    margin-top: 20px !important;
   }
 
-  /* Light mode */
-  [data-mantine-color-scheme="light"] .about-title,
-  [data-mantine-color-scheme="light"] .about-content h2,
-  [data-mantine-color-scheme="light"] .cta-item h3 {
-    color: var(--text-light);
-  }
-
-  [data-mantine-color-scheme="light"] .about-content em {
-    color: var(--text-light);
-  }
-
-  [data-mantine-color-scheme="light"] .about-title {
-    border-bottom-color: #d4d4d4;
-  }
-
-  [data-mantine-color-scheme="light"] .cta-item {
-    border-color: #d4d4d4;
-  }
-
-  [data-mantine-color-scheme="light"] .closing {
-    color: #16a34a !important;
-  }
-
-  @media (max-width: 480px) {
-    .about {
-      padding: 0 1rem;
-    }
+  @media (max-width: 640px) {
+    .about-article { padding: 20px 16px 32px; }
+    .about-article h1 { font-size: 18px; }
+    .about-cta-grid { grid-template-columns: 1fr; }
   }
 </style>
