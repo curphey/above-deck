@@ -43,11 +43,15 @@ Above Deck defines its own data model — not SignalK. Full control over the sch
 The data model covers:
 - **Navigation** — position, heading, speed, course, depth, wind
 - **Electrical** — batteries, solar, chargers, inverters, alternators
+- **Loads** — per-circuit state (on/off/dimming), current draw, fault detection. Covers lighting (cabin, navigation, anchor, courtesy, underwater), refrigeration, watermaker, windlass, thrusters, pumps, entertainment
+- **HVAC** — air conditioning and heating: target/actual temperature, mode (cooling/heating/auto/off), fan speed
 - **Propulsion** — engines, transmissions, fuel
 - **Tanks** — fuel, water, holding, LPG
-- **Environment** — temperature, humidity, pressure, sea state
+- **Environment** — temperature, humidity, pressure, sea state (cabin and exterior)
 - **Steering** — rudder, autopilot
 - **Notifications** — alarms, alerts, thresholds
+
+This integrates with CZone/Mastervolt digital switching (NMEA 2000 PGNs) for per-circuit monitoring and control on equipped boats. For boats without digital switching, ESP32 relay boards with current sensors provide a DIY path.
 
 ### Hardware Integration
 
