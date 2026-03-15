@@ -20,11 +20,11 @@ This is the foundation. It makes every tool smarter by providing real data from 
 
 Chartplotter, passage planner, weather routing, anchor watch, tidal planning, instrument dashboard, logbook. The things you use while actually sailing. These are the core product — practical tools that solve real problems for cruising sailors.
 
-### 3. Learning & Practice Tools
+### 3. Learning & Utility Tools
 
-VHF radio simulator, exam prep, reference guides. Useful standalone tools that bring people to the platform.
+VHF radio simulator, solar/energy planner, exam prep, reference guides. Useful standalone tools that bring people to the platform.
 
-**Build order:** 3 → 2 → 1. Start with learning tools (already built: VHF simulator, solar planner), then sailing tools (chartplotter next), then the platform layer. But architect for the platform from the start.
+**Build order:** 3 → 2 → 1. Start with learning and utility tools (already built: VHF simulator, solar planner), then sailing tools (chartplotter next), then the platform layer. But architect for the platform from the start.
 
 ---
 
@@ -32,7 +32,7 @@ VHF radio simulator, exam prep, reference guides. Useful standalone tools that b
 
 ### Two Deployments
 
-**Community Site (web)** — The public face. Identity and auth hub (Supabase, Google OAuth). Blog, knowledge base, community discussions, user profiles. Lightweight tools (solar planner, VHF trainer) available for casual use without installation. Syncs community data (anchorage reviews, hazard reports, shared routes) to local deployments when connected.
+**Community Site (web)** — The public face. Identity and auth hub (Supabase, Google OAuth). Blog, knowledge base, community discussions, user profiles. Lightweight tools (solar planner, VHF trainer) available for casual use without installation. Exposes an API so content and community data can be consumed and integrated by the local platform and third parties. Syncs community data (anchorage reviews, hazard reports, shared routes) to local deployments when connected.
 
 **Platform (Docker)** — The product. Runs locally on the boat or at home. Go server connects to hardware, serves the MFD interface, runs the AI. Works 100% offline at sea. When internet is available, syncs with the community site for identity, community data, and cloud backup.
 
@@ -62,6 +62,7 @@ Direct protocol support (no middleware dependencies):
 | Victron Modbus TCP | TCP 502 | All Victron devices via Cerbo GX |
 | AIS | NMEA 0183 (AIVDM/AIVDO) | Vessel tracking, Class A/B transponders |
 | MQTT sensors | TCP 1883 | ESP32/DIY sensors, temperature, bilge, tanks |
+| Bluetooth Low Energy | BLE GATT | Wireless sensors (Ruuvi tags, B&G wind, DIY ESP32) |
 
 ### Plugin Architecture
 
@@ -126,8 +127,8 @@ Intelligence built into the platform from day one. MCP server bridges AI to ever
 
 | Tool | Status | Layer |
 |------|--------|-------|
-| VHF Radio Simulator | Built (feature branch) | Learning & Practice |
-| Solar/Energy Planner | Built | Learning & Practice |
+| VHF Radio Simulator | Built (feature branch) | Learning & Utility |
+| Solar/Energy Planner | Built | Learning & Utility |
 | MFD Device Frame | Built | Platform UI |
 | Go API Server | Built (VHF backend) | Platform |
 | Community Site | Built (blog, KB, discussions) | Community |
@@ -146,7 +147,7 @@ Intelligence built into the platform from day one. MCP server bridges AI to ever
 - **Instrument Dashboard** — depth, wind, speed, heading displays (live from boat data)
 - **Logbook** — digital ship's log, auto-populated from instruments, legal-grade
 
-### Learning & Practice Tools (Layer 3)
+### Learning & Utility Tools (Layer 3)
 - **VHF Radio Simulator** — AI-powered radio practice for RYA/ASA exam prep (built)
 - **Solar/Energy Planner** — equipment sizing, consumption modelling (built)
 - **Maintenance Log** — engine hours, oil changes, rig checks, through-hull inspections
