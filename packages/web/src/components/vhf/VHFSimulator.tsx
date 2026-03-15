@@ -36,10 +36,8 @@ export function VHFSimulator() {
   const transcript = <TranscriptPanel />;
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
-
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
         {layout === 'panel' ? (
           <>
             <div style={{ flex: '0 0 auto' }}>
@@ -53,6 +51,19 @@ export function VHFSimulator() {
           <HandheldRadio transcriptPanel={transcript} onTransmit={handleTransmit} />
         )}
       </div>
+
+      {showSettings && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 10,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '20px',
+        }}>
+          <div style={{ maxHeight: '100%', overflowY: 'auto' }}>
+            <SettingsPanel onClose={() => setShowSettings(false)} />
+          </div>
+        </div>
+      )}
 
       <div style={{ padding: '8px', display: 'flex', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <button onClick={() => setShowSettings(true)} style={toolbarBtnStyle}>Settings</button>
