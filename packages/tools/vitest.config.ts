@@ -15,6 +15,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      '@above-deck/shared/theme': resolve(__dirname, '../shared/src/theme'),
     },
   },
 });

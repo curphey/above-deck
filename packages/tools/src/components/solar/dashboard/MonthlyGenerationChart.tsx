@@ -10,7 +10,7 @@ import {
   Cell,
 } from 'recharts';
 import { Text } from '@mantine/core';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 
 const MONTH_LABELS = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',

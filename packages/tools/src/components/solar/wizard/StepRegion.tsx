@@ -1,5 +1,5 @@
 import { Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 import { useSolarStore } from '@/stores/solar';
 import { CURATED_REGIONS } from '@/lib/solar/regions';
 

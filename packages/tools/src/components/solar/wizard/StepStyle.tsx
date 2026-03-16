@@ -1,6 +1,6 @@
 import { Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { IconAnchor, IconCompass, IconWorld } from '@tabler/icons-react';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 import { useSolarStore } from '@/stores/solar';
 import { getProfileAdjustments } from '@/lib/solar/cruising-profiles';
 import type { CruisingStyle } from '@/lib/solar/types';

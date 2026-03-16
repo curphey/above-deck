@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, NumberInput, Stack, Text, Title } from '@mantine/core';
 import { IconUsers } from '@tabler/icons-react';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 import { useSolarStore } from '@/stores/solar';
 
 interface StepCrewProps {

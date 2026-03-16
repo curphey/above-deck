@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { ResultsDashboard } from '../ResultsDashboard';
 import { useSolarStore } from '@/stores/solar';
-import { theme } from '@/theme/theme';
+import { theme } from '@above-deck/shared/theme/theme';
 import type { DrainEquipment, ChargeEquipment, StoreEquipment } from '@/lib/solar/types';
 
 function renderWithMantine(ui: React.ReactElement) {

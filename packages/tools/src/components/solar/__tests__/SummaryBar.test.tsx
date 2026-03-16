@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { SummaryBar } from '../SummaryBar';
-import { theme } from '@/theme/theme';
+import { theme } from '@above-deck/shared/theme/theme';
 
 function renderWithMantine(ui: React.ReactElement) {
   return render(<MantineProvider theme={theme}>{ui}</MantineProvider>);

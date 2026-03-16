@@ -21,7 +21,7 @@ import type {
   PanelType,
 } from '@/lib/solar/types';
 
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 
 // --- Constants ---
 const INVERTER_EFFICIENCY = 0.85;

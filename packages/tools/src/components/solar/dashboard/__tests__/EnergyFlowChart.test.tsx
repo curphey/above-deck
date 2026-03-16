@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { EnergyFlowChart } from '../EnergyFlowChart';
 import { generateHourlyData } from '../EnergyFlowChart';
-import { theme } from '@/theme/theme';
+import { theme } from '@above-deck/shared/theme/theme';
 
 function renderWithMantine(ui: React.ReactElement) {
   return render(<MantineProvider theme={theme}>{ui}</MantineProvider>);

@@ -7,7 +7,7 @@ import {
 } from '@mantine/core';
 import { IconSettings, IconShare } from '@tabler/icons-react';
 import { useSolarStore } from '@/stores/solar';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 import type { ViewMode } from '@/stores/solar';
 
 export interface BoatBarProps {

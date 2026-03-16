@@ -1,6 +1,6 @@
 import { Modal, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { useSolarStore } from '@/stores/solar';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 import { CURATED_REGIONS } from '@/lib/solar/regions';
 
 export interface RegionModalProps {

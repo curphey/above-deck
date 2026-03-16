@@ -1,5 +1,5 @@
 import { Text } from '@mantine/core';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 
 interface DashboardHeaderProps {
   netBalance: number;

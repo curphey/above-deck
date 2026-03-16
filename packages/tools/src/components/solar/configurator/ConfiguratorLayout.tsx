@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Group, Paper, SegmentedControl, Stack, Text } from '@mantine/core';
 import { useSolarStore } from '@/stores/solar';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 import { buildWhPerDayMap } from '@/lib/solar/wh-per-day';
 import { buildSchematicGraph } from '@/lib/solar/schematic';
 import { findRegionByName } from '@/lib/solar/regions';

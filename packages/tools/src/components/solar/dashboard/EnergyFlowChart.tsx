@@ -10,7 +10,7 @@ import {
   ComposedChart,
 } from 'recharts';
 import { Text } from '@mantine/core';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 
 // Category color mapping
 const CATEGORY_COLORS: Record<string, string> = {

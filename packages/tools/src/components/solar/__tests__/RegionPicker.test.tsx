@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { RegionPicker } from '../RegionPicker';
 import { CURATED_REGIONS } from '@/lib/solar/regions';
-import { theme } from '@/theme/theme';
+import { theme } from '@above-deck/shared/theme/theme';
 import { useSolarStore, initialState } from '@/stores/solar';
 
 function renderWithMantine(ui: React.ReactElement) {

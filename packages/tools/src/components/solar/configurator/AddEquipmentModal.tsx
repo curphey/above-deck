@@ -13,7 +13,7 @@ import {
   TextInput,
 } from '@mantine/core';
 import { IconSearch, IconPlus } from '@tabler/icons-react';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 import { useEquipmentCatalog, catalogRowToEquipment } from '@/hooks/use-equipment-catalog';
 import type { CatalogRow } from '@/hooks/use-equipment-catalog';
 import type { EquipmentInstance, DrainEquipment, ChargeEquipment, StoreEquipment } from '@/lib/solar/types';

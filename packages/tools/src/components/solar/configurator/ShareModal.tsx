@@ -10,7 +10,7 @@ import {
 } from '@mantine/core';
 import { IconCheck, IconClipboard, IconFileText, IconUser, IconFileExport } from '@tabler/icons-react';
 import { useSolarStore } from '@/stores/solar';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 import { encodeConfig } from '@/lib/solar/url-state';
 
 export interface ShareModalProps {
