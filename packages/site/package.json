@@ -1,5 +1,5 @@
 {
-  "name": "@above-deck/web",
+  "name": "@above-deck/site",
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -46,6 +46,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.0.0",
+    "@above-deck/shared": "workspace:*",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
