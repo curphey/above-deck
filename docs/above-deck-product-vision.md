@@ -107,7 +107,7 @@ AI is built into the platform from day one, not bolted on.
 | AIS (remote) | aisstream.io WebSocket | Free tier for browser-only use |
 | Deployment | Docker | Runs on any hardware |
 | Testing | Vitest (unit), Playwright (e2e) | TDD workflow |
-| Monorepo | pnpm workspaces | `packages/web/`, `packages/api/` |
+| Monorepo | pnpm workspaces | `packages/site/`, `packages/tools/`, `packages/shared/`, `packages/api/` |
 
 ---
 
