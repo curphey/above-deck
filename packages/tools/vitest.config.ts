@@ -1,0 +1,21 @@
+import { defineConfig } from 'vitest/config';
+import { resolve } from 'path';
+
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    environmentOptions: {
+      jsdom: {
+        url: 'http://localhost',
+      },
+    },
+    globals: true,
+    setupFiles: ['./src/test/setup.ts'],
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@above-deck/shared/theme': resolve(__dirname, '../shared/src/theme'),
+    },
+  },
+});

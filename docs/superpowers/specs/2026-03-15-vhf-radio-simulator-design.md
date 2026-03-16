@@ -2,7 +2,7 @@
 
 ## Overview
 
-A virtual VHF marine radio for practicing radio procedures, targeting RYA Yacht Master exam prep. Users interact with a realistic radio UI using voice (push-to-talk), and an LLM (Claude) plays the radio environment — coastguard, other vessels, marinas, port control — responding with correct VHF protocol.
+A virtual VHF marine radio for practicing radio procedures, targeting RYA SRC (Short Range Certificate) and ASA VHF certification exam prep. Users interact with a realistic radio UI using voice (push-to-talk), and an LLM (Claude) plays the radio environment — coastguard, other vessels, marinas, port control — responding with correct VHF protocol.
 
 The implementation will be broken into phases for manageability, but this spec covers the complete feature.
 
@@ -16,9 +16,12 @@ The implementation will be broken into phases for manageability, but this spec c
 ## Non-Goals
 
 - Multi-user / multiplayer radio simulation
-- DSC (Digital Selective Calling) simulation
-- AIS integration
 - Multiple LLM provider support (Claude only for now)
+- Full GMDSS equipment simulation (EPIRB hardware, SART hardware, NAVTEX receiver) — but knowledge of these is covered in the study reference
+
+## Legal Disclaimer
+
+The simulator must display a prominent disclaimer: "Training simulator only. Does not replace formal RYA SRC training, certification, or real radio equipment. Not affiliated with the RYA or ASA."
 
 ---
 
@@ -52,9 +55,10 @@ User holds PTT
 
 ### Key Architectural Decisions
 
-- **Go backend** — handles LLM calls (no CORS issues), conversation state, scenario management
+- **Go backend** — handles LLM calls (no CORS issues), conversation state, scenario management, AIS data
 - **User's own API key** — passed to Go service per-request via auth header. Key stored in localStorage on client, transmitted over HTTPS, never persisted server-side.
 - **Anthropic API only** — Go service calls Claude on behalf of the user
+- **Live AIS data (aisstream.io)** — on session creation, Go service queries aisstream.io WebSocket for real vessels in the selected region's bounding box. Picks 4-6 vessels (mix of types) and injects their real names, call signs, MMSI, positions, and vessel types into the system prompt. Falls back to hardcoded fictional vessels if the API is unavailable.
 - **Supabase for persistence** — conversation history, session management. Ties into existing auth (Google OAuth).
 - **Browser Speech APIs** — Web Speech API for STT, SpeechSynthesis for TTS (client-side)
 - **Web Audio API** — band-pass filter, static/crackle effects for radio realism (client-side)
@@ -102,13 +106,29 @@ Scrollable log of all transmissions in the session:
 
 ### Controls
 
-- **Channel dial** — rotatable knob, changes channel (1-88). Click/drag on desktop, swipe on mobile.
+- **Channel dial** — rotatable knob, selects from valid ITU international VHF channels only (not a continuous 1-88 range — skips unassigned numbers). Click/drag on desktop, swipe on mobile.
 - **Squelch dial** — adjusts background noise threshold. Higher = less static.
 - **PTT button** — hold to transmit. Mouse hold on desktop, touch hold on mobile. Large touch target on handheld.
 - **CH16 button** — instant jump to Channel 16 (distress/calling). Red accent.
 - **H/L button** — toggle high (25W) / low (1W) power.
-- **CALL button** — rendered disabled in v1 (DSC in later sub-project).
+- **CALL button** — opens DSC alert panel. Tap to select alert type (distress, urgency, routine), enter target MMSI, and send. Red accent.
 - **WX button** — shortcut to weather channel (same as dialling to the weather channel manually).
+
+### DSC Panel (overlay)
+
+Triggered by CALL button. Overlays the radio screen. Contains:
+
+- **Alert type selector** — Distress, Urgency, Safety, Routine, All Ships
+- **MMSI input** — 9-digit field for target vessel (pre-filled from AIS vessels in region)
+- **Nature of distress** selector (for distress alerts) — Undesignated, Fire/Explosion, Flooding, Collision, Grounding, Capsizing, Sinking, Disabled/Adrift, Abandoning Ship, MOB, Piracy
+- **Position** — auto-filled from user's simulated position, editable
+- **Send button** — red, requires confirmation tap for distress
+- **Cancel** — returns to normal radio view
+- **False alert cancellation** — if a distress alert was sent, a prominent "Cancel False Alert" button appears. Cancellation follows ITU procedure: transmit on CH16 "All stations, all stations, all stations. This is [vessel name, call sign, MMSI]. Please cancel my distress alert of [time UTC]. I am not in distress. Out."
+
+When a DSC acknowledgement is received (from coastguard or another vessel), the radio screen displays "DSC ACK" with the acknowledging station's MMSI and name, then auto-switches to Ch16 for voice follow-up.
+
+The DSC panel is a UI overlay only — all DSC interactions are converted to text and processed through the same LLM conversation engine as voice transmissions.
 
 ---
 
@@ -123,10 +143,12 @@ A single Claude conversation per session. The system prompt instructs Claude to 
 The system prompt includes:
 
 1. **Role definition** — "You are the VHF radio environment simulator. You play all stations: coastguard, port control, marinas, other vessels."
-2. **VHF regulations** — ITU Radio Regulations, GMDSS procedures, correct call formats, phonetic alphabet, channel usage rules, prowords ("over", "out", "roger", "say again")
+2. **VHF regulations** — ITU Radio Regulations, GMDSS procedures, correct call formats, phonetic alphabet, channel usage rules, prowords (OVER, OUT, ROGER, SAY AGAIN, THIS IS, I SAY AGAIN, CORRECTION, I SPELL, WAIT, STAND BY, BREAK, NEGATIVE, AFFIRMATIVE, FIGURES, SILENCE MAYDAY, SILENCE FINI, PRUDONCE), position format (degrees and decimal minutes), power regulations (25W high / 1W low, use minimum power necessary), transmission rules (listen before transmitting, no profanity, brevity)
 3. **Region world state** — injected based on selected cruising region. Includes coastguard stations, nearby vessels (names, types, nationalities, personalities), marinas, anchorages.
 4. **Scenario instructions** (if in scenario mode) — exercise briefing, expected procedure, completion criteria.
-5. **Response format** — JSON schema with `response`, `feedback`, and `scenario` objects.
+5. **DSC procedures** (if DSC alert initiated) — alert type, MMSI, nature of distress, expected voice follow-up, false alert cancellation procedure.
+6. **GMDSS study reference** — EPIRB, SART, NAVTEX, DSC controller knowledge for quiz/assessment.
+7. **Response format** — JSON schema with `response`, `feedback`, and `scenario` objects.
 
 ### Response JSON Schema
 
@@ -154,7 +176,7 @@ The system prompt includes:
 ### Token Management
 
 - System prompt: ~2000 tokens (constant)
-- Conversation history kept in Zustand store
+- Conversation history: Zustand holds the working copy for the current session (for UI rendering); Go service persists to Supabase for logged-in users (durable storage)
 - After ~20 exchanges, older messages are truncated (earliest messages dropped, keeping the system prompt and most recent 10 exchanges). No separate summarisation call — simple sliding window to keep costs predictable.
 - Estimated cost: ~$0.01-0.03 per exchange
 
@@ -210,11 +232,15 @@ Idle
 | Scenario | Description |
 |----------|-------------|
 | Radio Check | Request signal report from coastguard on CH16 |
-| Pan-Pan | Declare urgency (engine failure, crew injury) |
-| Mayday | Full distress call with position, vessel description |
+| Pan-Pan | Declare urgency — "PAN PAN PAN PAN PAN PAN, ALL STATIONS x3, THIS IS [vessel name] x3, [call sign], [MMSI], MY POSITION IS..., [nature of urgency], [assistance required], [POB], [vessel description], OVER" |
+| Mayday | Full distress call — "MAYDAY MAYDAY MAYDAY, THIS IS [vessel name] x3, [call sign], [MMSI], MAYDAY [vessel name, call sign], MY POSITION IS..., [nature of distress], I REQUIRE IMMEDIATE ASSISTANCE, [POB], [vessel description], OVER" |
 | Mayday Relay | Hear and relay another vessel's Mayday |
+| Responding to a Mayday | Hear a Mayday from another vessel, acknowledge correctly, offer assistance |
 | Securité | Broadcast navigational/weather warning |
 | Routine Call | Contact vessel, agree working channel, conversation |
+| DSC Distress Alert | Send a DSC distress alert via the CALL button, then follow up with voice Mayday on CH16 |
+| DSC False Alert Cancellation | Accidentally trigger a DSC distress alert, then correctly cancel it on CH16 |
+| MEDICO Call | Contact coastguard for medical advice via Pan-Pan medical |
 
 Each scenario includes:
 - **Briefing** — situation setup with your vessel, position, circumstances
@@ -225,7 +251,7 @@ Each scenario includes:
 
 ### Scenario Data
 
-Defined in `lib/vhf/scenarios.ts` as typed objects. Pure client-side, no database.
+Scenario definitions live in Go (`internal/radio/scenarios.go`) since they are injected into the LLM system prompt. The frontend fetches them via `GET /api/vhf/scenarios`.
 
 ---
 
@@ -234,7 +260,7 @@ Defined in `lib/vhf/scenarios.ts` as typed objects. Pure client-side, no databas
 The radio environment changes based on selected region. Each region provides:
 
 - Coastguard / port authority stations with correct call signs
-- 4-6 nearby vessels with names, types, nationalities, personalities
+- 4-6 nearby vessels — sourced from live AIS data (aisstream.io) when available, falling back to hardcoded fictional vessels. Real vessels provide authentic names, call signs, MMSI numbers, positions, vessel types, and destinations.
 - Marinas and anchorages with working channels
 - Local flavour (accented English, local knowledge, cultural context)
 
@@ -251,7 +277,7 @@ The radio environment changes based on selected region. Each region provides:
 
 **Ship with 2 regions for v1** (UK South Coast + Caribbean). Add remaining regions incrementally — the data authoring (accurate callsigns, working channels, local knowledge) needs to be credible.
 
-Region data lives in `lib/vhf/regions.ts` as typed objects.
+Region data lives in Go (`internal/radio/regions.go`) since it is injected into LLM system prompts. Each region includes a geographic bounding box used to query aisstream.io for live vessels. Regional channel notes (e.g., Ch9 for marina calling in the Mediterranean, Ch72 for inter-ship in the Caribbean) are included in the system prompt.
 
 ---
 
@@ -264,6 +290,7 @@ Accessible from gear icon on radio or transcript panel. All stored in localStora
 | API Key | Anthropic API key (paste from console.anthropic.com). Validated on save. |
 | Region | Cruising area picker |
 | Call Sign | Your vessel name (default: "SV Artemis") |
+| MMSI | Your vessel's 9-digit MMSI number. Default: random UK MID (MID 235 prefix). Validated as 9 digits starting with a valid MID. Simulator uses real MID ranges for authenticity — the number is never transmitted. |
 | Vessel Type | Sailing yacht, motor yacht, catamaran |
 | TTS Voice | Select from available browser voices |
 | TTS Rate | Speech speed |
@@ -292,10 +319,14 @@ packages/api/
 │   │   ├── client.go                  # Anthropic API client
 │   │   ├── prompt.go                  # System prompt builder
 │   │   └── client_test.go
+│   ├── ais/
+│   │   ├── client.go                  # aisstream.io WebSocket client
+│   │   ├── types.go                   # AIS message types, vessel data
+│   │   └── client_test.go
 │   ├── radio/
 │   │   ├── channels.go                # ITU channel↔frequency map
-│   │   ├── regions.go                 # Cruising regions + world state
-│   │   ├── scenarios.go               # Scenario definitions
+│   │   ├── regions.go                 # Cruising regions + world state + bounding boxes
+│   │   ├── scenarios.go               # Scenario definitions (incl. DSC scenarios)
 │   │   ├── channels_test.go
 │   │   ├── regions_test.go
 │   │   └── scenarios_test.go
@@ -318,7 +349,6 @@ packages/web/src/
 ├── pages/tools/vhf.astro
 ├── components/vhf/
 │   ├── VHFSimulator.tsx               # Top-level island
-│   ├── RadioPanel.tsx                 # Shared radio logic
 │   ├── PanelRadio.tsx                 # Desktop fixed-mount layout
 │   ├── HandheldRadio.tsx              # Mobile handheld layout
 │   ├── RadioScreen.tsx                # LCD display
@@ -328,7 +358,7 @@ packages/web/src/
 │   ├── TranscriptPanel.tsx            # Log + feedback
 │   ├── ScenarioPicker.tsx             # Exercise selector
 │   ├── SettingsPanel.tsx              # API key, region, voice
-│   └── RegionPicker.tsx               # Cruising region selector
+│   └── DSCPanel.tsx                   # DSC alert overlay (distress, urgency, routine, safety)
 ├── stores/vhf.ts                      # Zustand store (UI state, settings)
 ├── hooks/
 │   └── use-vhf-radio.ts              # Orchestrates speech + Go API + audio
@@ -360,9 +390,22 @@ packages/web/src/
 
 ---
 
+## GMDSS Study Reference
+
+The system prompt includes concise reference material for GMDSS equipment and procedures that SRC candidates must know, even though the simulator doesn't physically replicate the hardware:
+
+- **EPIRB (Emergency Position Indicating Radio Beacon)** — 406 MHz satellite alert, manual activation, hydrostatic release, registration requirements, battery life (48h minimum)
+- **SART (Search and Rescue Transponder)** — 9 GHz radar transponder, shows as 12-dot arc on radar, range ~5nm, battery life 96h standby + 8h active
+- **NAVTEX** — 518 kHz / 490 kHz text broadcasts, MSI (Maritime Safety Information), weather forecasts, navigational warnings, station identifiers
+- **DSC (Digital Selective Calling)** — automated distress alerting on Ch70, MMSI identification, distress/urgency/safety/routine categories, acknowledgement procedures
+- **VHF DSC Controller** — Ch70 watch, distress button (lift cover, press 5 seconds), alert format (MMSI, position, nature of distress, time)
+
+This reference is injected into the LLM prompt so Claude can quiz users on GMDSS knowledge during free practice and assess it in scenarios.
+
+---
+
 ## Future Enhancements
 
 - **Scenario scoring & progress** — persistent scores, exercise history, completion tracking (may use Supabase)
 - **Additional LLM providers** — OpenAI, Groq, open gateway for OpenAI-compatible endpoints
-- **DSC simulation** — Digital Selective Calling procedures
 - **Community scenarios** — user-contributed exercises shared via the platform

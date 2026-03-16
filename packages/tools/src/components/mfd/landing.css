@@ -1,0 +1,472 @@
+/* ============================================================
+   LANDING PAGE — CHARTPLOTTER DEVICE
+   Above Deck · Open-source catamaran tools community
+   Self-contained CSS (no Mantine). Blueprint/e-ink aesthetic.
+   ============================================================ */
+
+/* CUSTOM PROPERTIES */
+:root {
+  --paper: #f4f1eb;
+  --paper-hover: #f8f5ef;
+  --ink: #1a1a1a;
+  --ink-light: rgba(0,0,0,0.3);
+  --ink-faint: rgba(0,0,0,0.12);
+  --metal-light: #d2d0cb;
+  --metal-mid: #b8b5af;
+  --metal-dark: #aeaba5;
+  --accent-green: #2d8a4e;
+  --accent-red: #b43c32;
+  --accent-red-compass: #c0392b;
+  --frame-bg: #1a1a1a;
+  --screen-bg: #111;
+}
+
+/* ============================================================
+   RESET / BODY
+   ============================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--frame-bg);
+  color: #f5f5f7;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   DEVICE FRAME — brushed titanium bezel, chamfered edges
+   ============================================================ */
+
+.device {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 12px;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.015) 1px, transparent 2px, rgba(0,0,0,0.01) 3px, transparent 4px),
+    repeating-linear-gradient(88deg, transparent 0px, rgba(255,255,255,0.008) 2px, transparent 5px),
+    linear-gradient(155deg,
+      var(--metal-light) 0%,
+      #c4c1bb 4%,
+      var(--metal-mid) 10%,
+      #c9c6c0 16%,
+      #b3b0aa 24%,
+      #bfbcb6 30%,
+      var(--metal-dark) 38%,
+      #c2bfb9 46%,
+      #b5b2ac 52%,
+      #c7c4be 58%,
+      #b0ada7 65%,
+      #bcb9b3 72%,
+      #a9a6a0 80%,
+      #c0bdb7 88%,
+      var(--metal-mid) 94%,
+      #ccc9c3 100%
+    );
+  box-shadow:
+    0 -1px 0 0 rgba(255,255,255,0.35), -1px 0 0 0 rgba(255,255,255,0.2),
+    0 1px 0 0 rgba(0,0,0,0.25), 1px 0 0 0 rgba(0,0,0,0.15),
+    0 2px 8px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.15);
+}
+
+.device::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-bottom-color: rgba(0,0,0,0.1);
+  border-right-color: rgba(0,0,0,0.08);
+  pointer-events: none;
+  z-index: 200;
+}
+
+/* ============================================================
+   TOP BAR — transparent on metal, debossed text
+   ============================================================ */
+
+.top-bar {
+  height: 44px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  padding-top: env(safe-area-inset-top);
+  z-index: 100;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.top-bar-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4a4a4a;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.top-bar-readings { display: flex; gap: 24px; align-items: center; }
+.reading { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--ink-light); }
+.reading .val { color: rgba(0,0,0,0.6); }
+.reading.accent .val { color: var(--accent-green); }
+
+/* ============================================================
+   SCREENS — recessed with inset shadow, flex layout
+   ============================================================ */
+
+.screen {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+  margin: 0 12px;
+  border-radius: 6px;
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(0,0,0,0.4),
+    inset 2px 0 4px rgba(0,0,0,0.2), inset -2px 0 4px rgba(0,0,0,0.2),
+    inset 0 -1px 3px rgba(0,0,0,0.3);
+}
+.screen.active { display: flex; }
+
+/* ============================================================
+   HOME GRID — 3-column MFD layout
+   ============================================================ */
+
+.home-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  background: var(--screen-bg);
+  padding: 3px;
+  position: relative;
+}
+
+/* ============================================================
+   WIDGET BASE — paper background, dark text
+   ============================================================ */
+
+.widget {
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--ink);
+}
+.widget:hover { background: var(--paper-hover); }
+.widget-head { padding: 16px 20px 0; display: flex; align-items: center; justify-content: space-between; }
+.widget-label { font-size: 11px; font-weight: 600; color: var(--ink-light); letter-spacing: 0.5px; text-transform: uppercase; }
+.widget-badge { font-family: 'Fira Code', monospace; font-size: 9px; padding: 2px 8px; border-radius: 10px; background: rgba(0,100,0,0.08); color: var(--accent-green); }
+.widget-body { flex: 1; padding: 12px 20px 16px; display: flex; flex-direction: column; }
+
+/* ============================================================
+   WIDGET-SPECIFIC: SOLAR
+   ============================================================ */
+
+.solar-value { font-family: 'Fira Code', monospace; font-size: 40px; font-weight: 400; color: var(--ink); line-height: 1; letter-spacing: -1px; }
+.solar-value .unit { font-size: 16px; color: rgba(0,0,0,0.25); font-weight: 400; margin-left: 2px; }
+.solar-sub { font-size: 13px; color: rgba(0,0,0,0.35); margin-top: 4px; }
+.solar-curve { flex: 1; margin-top: 16px; position: relative; min-height: 50px; }
+.solar-curve svg { width: 100%; height: 100%; position: absolute; inset: 0; }
+.solar-row { display: flex; justify-content: space-between; margin-top: auto; padding-top: 12px; }
+.solar-stat { text-align: center; }
+.solar-stat .num { font-family: 'Fira Code', monospace; font-size: 15px; color: var(--ink); }
+.solar-stat .lbl { font-size: 10px; color: var(--ink-light); margin-top: 2px; }
+.solar-desc { font-size: 12px; color: var(--ink-light); line-height: 1.5; margin-top: 12px; }
+
+/* ============================================================
+   WIDGET-SPECIFIC: CHART (centre hero)
+   ============================================================ */
+
+.widget-hero { grid-column: 2; grid-row: 1 / 3; background: var(--paper); border-radius: 6px; }
+.chart-canvas { flex: 1; position: relative; background: var(--paper); overflow: hidden; }
+.chart-grid-lines {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(var(--ink-faint) 1px, transparent 1px), linear-gradient(90deg, var(--ink-faint) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+.chart-center-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; max-width: 420px; padding: 0 20px; }
+.chart-headline { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 600; color: var(--ink); line-height: 1.3; letter-spacing: -0.5px; margin-bottom: 12px; }
+.chart-headline em { font-style: normal; color: var(--ink-light); }
+.chart-desc { font-size: 15px; color: rgba(0,0,0,0.4); line-height: 1.6; margin-bottom: 24px; }
+.chart-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--paper); border: none; padding: 10px 24px; border-radius: 980px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.chart-btn:hover { background: #333; transform: scale(1.02); }
+.chart-btn-secondary { background: transparent; border: 1px solid rgba(0,0,0,0.15); color: var(--ink); margin-left: 12px; }
+.chart-btn-secondary:hover { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.25); }
+
+/* ============================================================
+   CHART ANIMATIONS — boat sail path, GPS ring, contour shift
+   ============================================================ */
+
+.boat { position: absolute; animation: sail 45s linear infinite; z-index: 5; }
+.boat svg { width: 20px; height: 20px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1)); }
+.boat::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 6px; height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(45,138,78,0.3);
+  animation: gpsRing 3s ease-out infinite;
+}
+
+@keyframes gpsRing {
+  0%   { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(5); opacity: 0; }
+}
+
+@keyframes sail {
+  0%   { top: 62%; left: 12%; transform: rotate(-25deg); }
+  15%  { top: 52%; left: 22%; transform: rotate(-20deg); }
+  30%  { top: 44%; left: 34%; transform: rotate(-15deg); }
+  50%  { top: 38%; left: 50%; transform: rotate(-18deg); }
+  70%  { top: 32%; left: 66%; transform: rotate(-22deg); }
+  85%  { top: 28%; left: 78%; transform: rotate(-18deg); }
+  100% { top: 22%; left: 90%; transform: rotate(-15deg); }
+}
+
+@keyframes contourShift {
+  0%   { transform: scale(1) rotate(0deg); }
+  100% { transform: scale(1.02) rotate(2deg); }
+}
+
+/* ============================================================
+   CHART DETAILS — soundings, nav marks, depth contours
+   ============================================================ */
+
+.wake { position: absolute; z-index: 3; pointer-events: none; }
+.wake svg { width: 100%; height: 100%; position: absolute; inset: 0; }
+.sounding { position: absolute; font-family: 'Fira Code', monospace; font-size: 9px; color: var(--ink-faint); z-index: 2; pointer-events: none; }
+.chart-mark { position: absolute; z-index: 3; pointer-events: none; }
+.chart-mark svg { width: 100%; height: 100%; }
+.contour-line {
+  position: absolute;
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 40% 60% 55% 45% / 50% 40% 60% 50%;
+  z-index: 1;
+  pointer-events: none;
+  animation: contourShift 20s ease-in-out infinite alternate;
+}
+.heading-line { position: absolute; z-index: 4; pointer-events: none; animation: sail 45s linear infinite; }
+.heading-line::before {
+  content: '';
+  position: absolute;
+  top: -40px; left: 9px;
+  width: 1px; height: 40px;
+  background: linear-gradient(rgba(0,0,0,0.15), transparent);
+  transform: rotate(0deg);
+}
+.chart-location { position: absolute; bottom: 16px; left: 20px; font-family: 'Fira Code', monospace; font-size: 11px; color: rgba(0,0,0,0.2); }
+.chart-compass { position: absolute; top: 20px; right: 20px; width: 48px; height: 48px; border: 1px solid rgba(0,0,0,0.06); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.chart-compass-n { position: absolute; top: 5px; font-family: 'Fira Code', monospace; font-size: 8px; font-weight: 700; color: var(--accent-red-compass); }
+.chart-compass-needle { width: 1px; height: 16px; background: linear-gradient(var(--accent-red-compass) 50%, rgba(0,0,0,0.2) 50%); }
+
+/* ============================================================
+   WIDGET-SPECIFIC: WEATHER
+   ============================================================ */
+
+.weather-now { display: flex; align-items: baseline; gap: 12px; }
+.weather-temp { font-family: 'Fira Code', monospace; font-size: 44px; font-weight: 400; color: var(--ink); line-height: 1; letter-spacing: -2px; }
+.weather-temp .deg { font-size: 18px; color: rgba(0,0,0,0.2); }
+.weather-cond { font-size: 13px; color: rgba(0,0,0,0.4); }
+.wind-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 10px 0; border-top: 1px solid rgba(0,0,0,0.06); }
+.wind-circle { width: 40px; height: 40px; border: 1px solid rgba(0,0,0,0.1); border-radius: 50%; position: relative; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.wind-arrow { width: 1px; height: 14px; background: linear-gradient(var(--ink), transparent); transform: rotate(225deg); transform-origin: bottom center; }
+.wind-text { font-family: 'Fira Code', monospace; }
+.wind-text .speed { font-size: 18px; color: var(--ink); }
+.wind-text .speed .u { font-size: 10px; color: var(--ink-light); }
+.wind-text .dir { font-size: 10px; color: var(--ink-light); margin-top: 1px; }
+.forecast-row { display: flex; gap: 1px; margin-top: auto; background: rgba(0,0,0,0.04); border-radius: 8px; overflow: hidden; }
+.forecast-cell { flex: 1; text-align: center; padding: 8px 4px; background: rgba(0,0,0,0.02); }
+.forecast-cell .d { font-size: 10px; color: var(--ink-light); font-weight: 500; }
+.forecast-cell .t { font-family: 'Fira Code', monospace; font-size: 13px; color: var(--ink); margin-top: 4px; }
+.forecast-cell .lo { font-family: 'Fira Code', monospace; font-size: 10px; color: rgba(0,0,0,0.2); }
+.weather-desc { font-size: 12px; color: var(--ink-light); line-height: 1.5; margin-top: 12px; }
+
+/* ============================================================
+   WIDGET-SPECIFIC: PASSAGE
+   ============================================================ */
+
+.route-visual { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.route-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.route-dot.from { background: var(--ink); }
+.route-dot.to { background: var(--ink-light); }
+.route-line-vis { flex: 1; height: 1px; background: linear-gradient(90deg, var(--ink), rgba(0,0,0,0.08) 50%, var(--ink-light)); }
+.route-places { display: flex; justify-content: space-between; }
+.route-place { font-family: 'Fira Code', monospace; font-size: 14px; color: var(--ink); }
+.route-place .sub { font-size: 10px; color: var(--ink-light); font-family: 'Inter', sans-serif; }
+.passage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.06); }
+.p-stat .num { font-family: 'Fira Code', monospace; font-size: 20px; color: var(--ink); font-weight: 400; }
+.p-stat .num .u { font-size: 10px; color: rgba(0,0,0,0.25); }
+.p-stat .lbl { font-size: 10px; color: var(--ink-light); margin-top: 2px; }
+.passage-desc { font-size: 12px; color: var(--ink-light); line-height: 1.5; margin-top: auto; padding-top: 12px; }
+
+/* ============================================================
+   WIDGET-SPECIFIC: LOG
+   ============================================================ */
+
+.log-entries { display: flex; flex-direction: column; gap: 1px; flex: 1; }
+.log-entry { padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.log-entry:last-child { border-bottom: none; }
+.log-tag { font-size: 10px; font-weight: 600; color: rgba(0,0,0,0.4); margin-bottom: 4px; }
+.log-title { font-size: 13px; font-weight: 500; color: var(--ink); line-height: 1.3; }
+.log-date { font-family: 'Fira Code', monospace; font-size: 10px; color: rgba(0,0,0,0.2); margin-top: 4px; }
+
+/* ============================================================
+   SOLAR SCHEMATIC SCREEN — paper background, sidebar, energy nodes
+   ============================================================ */
+
+.solar-screen { flex-direction: column; background: var(--paper); }
+.schematic-header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.schematic-title { font-size: 17px; font-weight: 600; color: var(--ink); }
+.schematic-subtitle { font-size: 13px; color: var(--ink-light); margin-top: 2px; }
+.back-btn { background: none; border: none; color: var(--ink); font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Inter', sans-serif; }
+.schematic-body { flex: 1; display: flex; overflow: hidden; }
+.schematic-main { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: var(--paper); }
+.cat-schematic { position: relative; width: 80%; max-width: 700px; }
+.cat-schematic svg { width: 100%; height: auto; opacity: 0.4; }
+.energy-node { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.energy-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.energy-icon.solar { background: rgba(45,138,78,0.08); border: 1px solid rgba(45,138,78,0.2); }
+.energy-icon.battery { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.12); }
+.energy-icon.load { background: rgba(180,60,50,0.06); border: 1px solid rgba(180,60,50,0.15); }
+.energy-label { font-family: 'Fira Code', monospace; font-size: 10px; color: rgba(0,0,0,0.35); text-align: center; }
+.energy-val { font-family: 'Fira Code', monospace; font-size: 14px; font-weight: 500; }
+.energy-val.green { color: var(--accent-green); }
+.energy-val.blue { color: var(--ink); }
+.energy-val.red { color: var(--accent-red); }
+.flow-line { position: absolute; height: 1px; background: linear-gradient(90deg, transparent, #30d158, transparent); opacity: 0.3; }
+.flow-line.to-battery { background: linear-gradient(90deg, #30d158, #0a84ff); }
+.flow-line.to-load { background: linear-gradient(90deg, #0a84ff, #ff453a); }
+.schematic-sidebar { width: 280px; border-left: 1px solid rgba(0,0,0,0.06); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+.sidebar-card { background: rgba(0,0,0,0.02); border-radius: 12px; padding: 16px; }
+.sidebar-card-title { font-size: 11px; font-weight: 600; color: rgba(0,0,0,0.35); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.sidebar-stat { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+.sidebar-stat:last-child { border-bottom: none; }
+.sidebar-stat .k { font-size: 12px; color: rgba(0,0,0,0.4); }
+.sidebar-stat .v { font-family: 'Fira Code', monospace; font-size: 13px; color: var(--ink); }
+.sidebar-stat .v.green { color: var(--accent-green); }
+.sidebar-stat .v.blue { color: var(--ink); }
+.power-balance { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.power-bar-track { flex: 1; height: 4px; background: rgba(0,0,0,0.06); border-radius: 2px; overflow: hidden; }
+.power-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent-green), var(--ink)); transition: width 0.5s; }
+.power-pct { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--accent-green); min-width: 36px; text-align: right; }
+
+/* ============================================================
+   NAV BAR — round backlit buttons, glow pulse, press states
+   ============================================================ */
+
+.nav-bar {
+  height: 64px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 32px;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 100;
+  position: relative;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.nav-bar::-webkit-scrollbar { display: none; }
+
+.nav-btn { scroll-snap-align: center; }
+
+.nav-btn {
+  width: 52px; height: 52px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  background: radial-gradient(ellipse at 50% 35%, rgba(80,80,80,0.5) 0%, rgba(40,40,40,0.8) 100%);
+  border: 1px solid rgba(0,0,0,0.4);
+  border-top-color: rgba(255,255,255,0.08);
+  border-radius: 50%;
+  color: rgba(255,255,255,0.25);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4), 0 1px 1px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05);
+  position: relative;
+  text-decoration: none;
+}
+.nav-btn:hover { color: rgba(255,255,255,0.5); box-shadow: 0 2px 4px rgba(0,0,0,0.4), 0 0 8px rgba(255,255,255,0.03), inset 0 1px 1px rgba(255,255,255,0.05); }
+.nav-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.5);
+  background: radial-gradient(ellipse at 50% 55%, rgba(60,60,60,0.6) 0%, rgba(30,30,30,0.9) 100%);
+  color: rgba(255,255,255,0.7);
+}
+.nav-btn.active {
+  color: rgba(255,255,255,0.85);
+  transform: translateY(1px);
+  background: radial-gradient(ellipse at 50% 50%, rgba(70,70,70,0.6) 0%, rgba(35,35,35,0.85) 100%);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.3), inset 0 1px 3px rgba(0,0,0,0.4), 0 0 10px rgba(255,255,255,0.04);
+}
+.nav-btn.active::before {
+  content: ''; position: absolute; inset: -3px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 8px rgba(255,255,255,0.05);
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.5; box-shadow: 0 0 6px rgba(255,255,255,0.04); }
+  50%       { opacity: 1;   box-shadow: 0 0 12px rgba(255,255,255,0.07); }
+}
+
+.nav-btn.active .nav-icon { filter: drop-shadow(0 0 3px rgba(255,255,255,0.2)); }
+.nav-icon { font-size: 16px; line-height: 1; transition: filter 0.2s; }
+.nav-label { font-family: 'Inter', sans-serif; font-size: 7px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   ============================================================ */
+
+@media (max-width: 1024px) {
+  .home-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; overflow-y: auto; }
+  .widget-hero { grid-column: 1 / -1; grid-row: auto; min-height: 320px; }
+  .widget { min-height: 240px; }
+  .schematic-sidebar { width: 240px; }
+}
+
+@media (max-width: 640px) {
+  .top-bar-readings .reading:nth-child(n+3) { display: none; }
+  .home-grid { grid-template-columns: 1fr; }
+  .widget-hero { min-height: 300px; }
+  .widget { min-height: 220px; }
+  .chart-headline { font-size: 22px; }
+  .solar-value { font-size: 32px; }
+  .weather-temp { font-size: 36px; }
+  .schematic-body { flex-direction: column; }
+  .schematic-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow-y: visible;
+    padding: 12px;
+    gap: 12px;
+  }
+  .sidebar-card { flex: 1; min-width: 140px; }
+}

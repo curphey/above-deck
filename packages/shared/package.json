@@ -1,0 +1,16 @@
+{
+  "name": "@above-deck/shared",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./theme": "./src/theme/index.ts",
+    "./theme/*": "./src/theme/*"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

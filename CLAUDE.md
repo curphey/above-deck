@@ -4,6 +4,7 @@
 
 - **Git: NEVER commit to main.** Feature branches + PRs only.
 - **Screenshots:** Always `tmp/screenshots/` (gitignored). Never repo root or `packages/`.
+- **Content: NEVER add text, copy, taglines, or prose to the codebase without explicit user permission.** This includes closing lines, slogans, motivational phrases, and marketing copy. Only the user writes the words.
 
 ## TDD Workflow (Mandatory)
 
@@ -38,13 +39,16 @@
 - **Charts:** Recharts 2
 - **PWA:** `@vite-pwa/astro` with Workbox
 - **Testing:** Vitest (unit), Playwright (e2e)
-- **Monorepo:** pnpm workspaces — `packages/web/` is the main app
+- **Monorepo:** pnpm workspaces — three packages: `site/`, `tools/`, `shared/`
 
 ## Project Structure
 
 ```
 .claude/rules/       # Architecture patterns (glob-matched, loaded when touching relevant files)
-packages/web/        # Main Astro app
+packages/site/       # Community site — blog, KB, community, admin, auth
+packages/tools/      # Standalone sailing tools — VHF sim, solar planner, MFD shell
+packages/shared/     # Shared theme, colors, fonts, types
+packages/api/        # Go API server
 research/            # Research documents
 docs/plans/          # Implementation plans
 wireframes/html/     # Wireframes
@@ -52,6 +56,8 @@ tasks/todo.md        # Work tracking (GitHub Issues is source of truth)
 tasks/lessons.md     # Lessons learned from past mistakes
 tmp/screenshots/     # Screenshots (gitignored)
 ```
+
+Tools are independently buildable and self-hostable without the content site. Shared theme is consumed via `@above-deck/shared/theme/*`.
 
 ## Brand Guidelines
 
