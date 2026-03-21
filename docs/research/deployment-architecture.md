@@ -527,9 +527,166 @@ Install via Container Manager UI:
 
 ---
 
-## 7. Open Questions
+## 7. Cloud Redundancy & Social Features
 
-1. **SQLite vs. embedded Postgres (embedded-postgres-go)?** SQLite is simpler but lacks PostGIS for geographic queries on the boat. If route/waypoint geographic queries are needed locally, consider embedded Postgres or spatialite.
+### 7.1 The Cloud Twin Model
+
+Every Above Deck boat deployment can optionally have a **cloud twin** — the same Docker image running on a VPS, home server, or NAS — that mirrors the boat's state when connected and serves as a fallback interface.
+
+```
+                    ┌─────────────────────────┐
+                    │   Cloud Twin             │
+                    │   (Above Deck Docker)    │
+                    │   --mode=cloud           │
+                    │                          │
+                    │   - Last known state     │
+                    │   - Historical data      │
+                    │   - Alert forwarding     │
+                    │   - Social features      │
+                    │   - PWA accessible       │
+                    └────────┬────────────────┘
+                             │ Starlink / cellular
+                             │ (when available)
+                    ┌────────┴────────────────┐
+                    │   Boat Server (primary)  │
+                    │   --mode=boat            │
+                    │   RPi / NUC + Go server  │
+                    │                          │
+                    │   - Live instrument data  │
+                    │   - NMEA / Victron / IoT │
+                    │   - Full functionality   │
+                    └──────────────────────────┘
+```
+
+**Three operating modes:**
+
+| Mode | When | What Works |
+|------|------|-----------|
+| **Local only** | At sea, no internet | Full functionality from boat server. PWA connects over boat WiFi |
+| **Connected** | Starlink/cellular available | Boat server is primary. Cloud gets real-time sync — position, battery, bilge, alerts |
+| **Failover** | Boat server down + internet available | Cloud serves last-known state, forwards alerts, shows position history |
+
+**Go server modes:**
+- `--mode=boat` — connects to hardware (NMEA, Victron, Matter), serves local PWA, syncs outbound when connected
+- `--mode=cloud` — receives sync data, serves remote PWA, no hardware adapters, enables social features
+
+### 7.2 What Syncs vs. What Doesn't
+
+| Data | Sync to Cloud? | Direction | Why |
+|------|---------------|-----------|-----|
+| Position (GPS) | Yes, every 1-5 min | Boat → Cloud | Remote tracking, anchor alarm from shore, social |
+| Battery/solar state | Yes, periodic | Boat → Cloud | Remote monitoring |
+| Bilge/alert status | Yes, immediately | Boat → Cloud | Safety-critical |
+| Routes/waypoints | Yes | Bidirectional | Plan from anywhere |
+| Boat config | Yes | Bidirectional | Backup, restore after SD card failure |
+| Community data | Yes | Bidirectional | Community sync hub |
+| Logbook entries | Yes | Bidirectional | Legal record, backup |
+| Raw instrument telemetry | **No** | — | Too much data, too fast. Stays local |
+| Chart tiles | **No** | — | Too large. Downloaded separately |
+| Camera feeds | **No** | — | Bandwidth-prohibitive offshore |
+
+### 7.3 How This Differs from AIS
+
+AIS is the existing "where are boats?" system. But it has significant limitations:
+
+| Aspect | AIS (Class B) | Above Deck Cloud |
+|--------|--------------|-------------------|
+| **Range** | 5-7 nm (Class B), 20 nm (Class A) — VHF line of sight only | Global (anywhere with internet) |
+| **Offshore** | Invisible mid-ocean unless satellite AIS (expensive, delayed) | Real-time via Starlink |
+| **At anchor** | Many cruisers turn AIS off to save power | Cloud shows last-known + battery trend |
+| **Data** | Position, SOG, COG, vessel name only | Position + battery + bilge + solar + temp + alerts + everything |
+| **Who sees you** | Anyone with AIS receiver in range | Only people you choose to share with (privacy controls) |
+| **History** | None (real-time only) | Full track history, anchor swing, passage log |
+| **Cost** | Free (hardware ~$300-800 for Class B) | Free (self-hosted) or $5/month VPS |
+| **Alerts** | None | Push notifications to phone when bilge triggers, anchor drags, battery low |
+
+**AIS gives position to strangers nearby. Above Deck Cloud gives everything to people you trust, anywhere.**
+
+### 7.4 Social Features: Find My Friends for Boats
+
+The cloud twin model naturally enables social features that AIS cannot:
+
+**Find My Crew:**
+- Share your position with selected friends/family
+- See friends' boats on your chartplotter in real-time
+- Privacy controls: share with specific people, time-limited sharing, accuracy degradation (marina-level vs exact position)
+- "I'm heading to Falmouth" → friends see your progress
+
+**Who's on the Mooring / In the Anchorage:**
+- When boats with Above Deck arrive at an anchorage, they appear on the chart
+- See who else is there, when they arrived, how long they've been there
+- **Opt-in social** — only visible if you choose to be. Not broadcasting to the world like AIS
+- "3 Above Deck boats in Studland Bay right now"
+- Could integrate with community anchorage reviews — "I'm here now, conditions are good, room for 10 more boats"
+
+**Rally/Flotilla Mode:**
+- Rally organiser creates a group
+- All participating boats sync to one cloud instance
+- Real-time fleet tracker on a shared map
+- Group messaging (via Meshtastic when offshore, via cloud when connected)
+- Rally leader sees all boats' positions, battery states, ETAs
+- Automatic daily position reports
+
+**Buddy System Hosting:**
+- Sailor A hosts a cloud instance at home (or on a $5 VPS)
+- Adds friends' boats as tenants
+- All boats' cloud backups run on one instance
+- When both are offshore with Starlink, they see each other
+- **Self-hosted fleet management** — no vendor, no subscription
+
+**Passage Buddy:**
+- Planning a channel crossing? See which friends are planning the same weather window
+- Share departure times, routes, estimated positions
+- "Buddy pair" — two boats agree to monitor each other during a passage
+- If one boat stops sending updates, the other gets alerted
+
+### 7.5 Privacy Model
+
+This is critical — sailors are protective of their position data.
+
+| Setting | What It Means |
+|---------|--------------|
+| **Ghost mode** | No position shared. Cloud twin stores data but doesn't share location with anyone |
+| **Friends only** | Position visible to approved contacts only |
+| **Anchorage social** | Visible as "a boat" in anchorages (not name/identity) unless friend |
+| **Rally mode** | Visible to all rally participants |
+| **Public track** | Full track visible (for bloggers, YouTube sailors who want to share journeys) |
+| **Time-limited share** | Share position for next 24 hours only (useful for "I'm arriving tomorrow") |
+
+Default is **Ghost mode**. Social features are opt-in, not opt-out.
+
+### 7.6 Hosting Options
+
+| Option | Cost | Who It's For |
+|--------|------|-------------|
+| **Self-hosted VPS** (Hetzner, DigitalOcean) | $4-6/month | Technical sailors, privacy-focused |
+| **Above Deck community cloud** (if project grows) | Free tier (1 boat, basic sync) | Everyone |
+| **Home server / NAS** | Free (own hardware) | People with Synology/QNAP at home |
+| **Buddy hosting** | Free (friend's VPS/server) | Cruising friends sharing an instance |
+| **Above Deck on Supabase** | Free tier covers most | Simplest — community data + boat sync on Supabase directly |
+
+### 7.7 Real Scenarios
+
+**SD card failure at anchor (common):**
+Boat's RPi SD card corrupts (this happens regularly). You're at a restaurant ashore. Cloud twin still shows: last known position, battery state trending down, bilge dry, all hatches closed. You know the boat is OK. You replace the SD card tomorrow, restore config from cloud backup, back to normal.
+
+**Family peace of mind:**
+Partner at home opens Above Deck PWA → sees your boat's position mid-Atlantic, battery at 78%, solar producing well, 142nm to go. No panicked satellite phone call needed.
+
+**Marina winter storage:**
+Boat in a marina for 3 months. Boat server powered down to save battery. But you left a cheap ESP32 Matter sensor on the bilge and one on battery. These report to a Meshtastic node which has cellular backup. Cloud twin gets periodic updates. You check cabin temperature and bilge status from home. No $200/year Raymarine subscription needed.
+
+**Convergence at an anchorage:**
+You arrive in Portofino. Your chartplotter shows 2 friends already there. You send a message via the app: "Arriving in 30 min, anchoring near the north wall." They send back: "Good holding in sand, 4m at low tide. Drinks at the bar at 7?"
+
+---
+
+## 8. Open Questions
+
+1. **Cloud twin sync protocol** — WebSocket push from boat? Supabase real-time? MQTT? What's the most bandwidth-efficient approach for Starlink?
+2. **Social feature privacy compliance** — GDPR implications of storing other boats' positions on a shared instance?
+3. **Meshtastic → cloud bridge** — can a Meshtastic node forward data to the cloud twin when cellular/Starlink is available but the boat server is down?
+4. **SQLite vs. embedded Postgres (embedded-postgres-go)?** SQLite is simpler but lacks PostGIS for geographic queries on the boat. If route/waypoint geographic queries are needed locally, consider embedded Postgres or spatialite.
 2. **HaLOS app store integration:** Should Above Deck be a first-class HaLOS app? This would simplify deployment on HALPI2 significantly.
 3. **SignalK integration model:** Does the Go server consume SignalK's WebSocket API, or does it talk directly to NMEA hardware? The former is more portable; the latter eliminates a dependency.
 4. **PWA on local network:** The Service Worker requirement for HTTPS is the biggest UX friction point for offline PWA on a local network. Needs a clear recommendation and setup guide.
