@@ -698,15 +698,20 @@ Detailed research supporting this plan lives in `research/`:
 
 | Document | Contents |
 |----------|----------|
-| `market-research.md` | Full competitive landscape (14 apps) |
-| `savvy-navvy-deep-dive.md` | Savvy Navvy feature/pricing analysis |
-| `predictwind-orca-navily-opencpn-analysis.md` | PredictWind, Orca, Navily, OpenCPN |
-| `deep-dive-competitor-analysis.md` | SeaPeople, Komoot, RideWithGPS, FastSeas |
+| `competitive-landscape.md` | Consolidated competitive analysis: 25+ competitors, market gaps, positioning, pricing |
+| `savvy-navvy-deep-dive.md` | Savvy Navvy feature/pricing deep dive |
+| `predictwind-orca-navily-opencpn-analysis.md` | PredictWind, Orca, Navily, OpenCPN deep dives |
 | `keeano-deep-dive.md` | Keeano analysis |
-| `apps-and-github-projects.md` | 25+ apps, 30+ GitHub projects |
+| `apps-and-github-projects.md` | 25+ apps, 30+ GitHub projects reference survey |
 | `marine-data-apis.md` | Free marine data APIs with endpoints |
 | `fastseas-and-weather-routing-research.md` | Weather routing algorithms |
 | `data-source-licenses.md` | Licensing matrix for all data sources |
+| `matter-protocol-iot-integration.md` | Matter protocol, SignalK overlap, Go implementation, Thread mesh |
+| `hardware-connectivity-technologies.md` | Raspberry Pi, ESP32, LoRa/Meshtastic, Web APIs, iPad deployment |
+| `marine-mfd-platforms-and-integrations.md` | Garmin/Raymarine/Navico/Furuno platforms, digital switching, UI builders |
+| `solar-energy-research.md` | Solar fundamentals, sizing, calculators, UX design, appliance database |
+| `community-platform-patterns.md` | Auth, forums, newsletters, KB implementation patterns |
+| `visual-design-patterns.md` | Design inspiration, CSS techniques, dark mode principles |
 
 ## Supporting Design Documents
 

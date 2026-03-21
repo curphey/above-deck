@@ -133,6 +133,13 @@ Apps you already know about (excluded from this list): Savvy Navvy, PredictWind,
 - **Description:** Central server for boat data. Connects all onboard devices over NMEA, WiFi, and other marine protocols. JSON-based marine data exchange format.
 - **Relevance:** The open standard for marine data. If your app ever connects to boat instruments, Signal K is the protocol. Also recently launched an MCP server for AI integration.
 
+#### canboat/canboatjs
+- **URL:** https://github.com/canboat/canboatjs
+- **Language:** JavaScript
+- **License:** Apache-2.0
+- **Description:** Pure JavaScript NMEA 2000 (CAN bus) decoder/encoder. Parses raw CAN frames into human-readable JSON and can encode PGNs back to binary. The foundational library that SignalK uses for NMEA 2000 protocol support.
+- **Relevance:** Core dependency of SignalK's NMEA 2000 pipeline. Understanding canboatjs is key to understanding how SignalK translates raw instrument data (GPS, wind, depth, engine) into its JSON format. Also relevant for any direct NMEA 2000 integration work.
+
 #### bareboat-necessities/lysmarine_gen (BBN OS)
 - **URL:** https://github.com/bareboat-necessities/lysmarine_gen
 - **Stars:** 310

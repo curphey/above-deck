@@ -218,10 +218,24 @@ These sailors:
 
 Detailed research supporting this vision:
 
-- `research/navigation-chartplotter-research.md` — Comprehensive landscape survey: commercial tools, open source, chart data, mapping tech, passage planning, community features, AI, environmental data, marine communications standards, hardware connectivity
-- `research/market-research.md` — Competitive landscape
-- `research/savvy-navvy-deep-dive.md` — Savvy Navvy analysis
-- `research/predictwind-orca-navily-opencpn-analysis.md` — Major competitor deep dives
-- `research/deep-dive-competitor-analysis.md` — SeaPeople, Komoot, RideWithGPS, FastSeas
-- `research/marine-data-apis.md` — Free marine data APIs
-- `research/fastseas-and-weather-routing-research.md` — Weather routing algorithms
+### Competitive & Market
+- `research/competitive-landscape.md` — Consolidated competitive analysis: 25+ competitors, market gaps, positioning matrix, translatable feature patterns from cycling apps, pricing comparison
+- `research/savvy-navvy-deep-dive.md` — Savvy Navvy deep dive
+- `research/predictwind-orca-navily-opencpn-analysis.md` — PredictWind, Orca, Navily, OpenCPN deep dives
+- `research/keeano-deep-dive.md` — Keeano (Mediterranean sailing app) deep dive
+- `research/apps-and-github-projects.md` — Reference survey of 25+ sailing apps and 30+ open-source GitHub projects
+
+### Technical & Data
+- `research/marine-data-apis.md` — Free marine data APIs (40+ endpoints with rate limits and coverage)
+- `research/data-source-licenses.md` — Legal analysis of marine data source licensing
+- `research/fastseas-and-weather-routing-research.md` — Weather routing algorithms and open-source implementations
+
+### Hardware & Connectivity
+- `research/matter-protocol-iot-integration.md` — Matter protocol for IoT on boats, SignalK overlap, Go implementation strategy, Thread mesh networking
+- `research/hardware-connectivity-technologies.md` — Raspberry Pi marine hardware, ESP32 gateways, LoRa/Meshtastic, Web APIs, iPad deployment
+- `research/marine-mfd-platforms-and-integrations.md` — Garmin OneHelm, Raymarine LightHouse, Navico, Furuno, digital switching (CZone/EmpirBus), mobile apps, UI builder patterns
+
+### Domain-Specific
+- `research/solar-energy-research.md` — Solar system fundamentals, sizing equations, existing calculators, UX design, appliance database, irradiance APIs
+- `research/community-platform-patterns.md` — Authentication, forums, newsletters, knowledge base implementation patterns
+- `research/visual-design-patterns.md` — Design inspiration from 20+ premium communities, CSS techniques, dark mode principles
