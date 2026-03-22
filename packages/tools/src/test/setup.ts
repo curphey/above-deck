@@ -1,3 +1,5 @@
+import '@testing-library/jest-dom';
+
 // Provide a proper localStorage implementation for tests.
 // Node 22+ exposes a built-in `localStorage` global that lacks the full
 // Web Storage API (no setItem/getItem methods), which breaks Zustand's
