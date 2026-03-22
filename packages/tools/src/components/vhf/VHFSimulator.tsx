@@ -31,6 +31,14 @@ export function VHFSimulator() {
     if (!apiKey) setShowSettings(true);
   }, [apiKey]);
 
+  // Auto-create session on mount if none exists
+  const sessionId = useVHFStore(s => s.sessionId);
+  useEffect(() => {
+    if (!sessionId) {
+      createSession().catch(err => console.error('[VHF] Auto-create session failed:', err));
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleTransmit = useCallback((message: string) => {
     stopTransmit(message);
   }, [stopTransmit]);

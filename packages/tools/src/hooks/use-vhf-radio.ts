@@ -16,25 +16,37 @@ export function useVHFRadio() {
   const isReady = !!store.apiKey;
 
   const startTransmit = useCallback(() => {
+    console.log('[VHF] startTransmit — starting STT');
     store.setRadioState('tx');
     if (isSTTSupported()) {
       sttSession.current = createSTTSession();
+      sttSession.current.onError((err: any) => console.error('[VHF] STT error:', err));
       sttSession.current.start();
+    } else {
+      console.warn('[VHF] STT not supported in this browser');
     }
   }, [store]);
 
   const stopTransmit = useCallback(async (manualText?: string) => {
+    console.log('[VHF] stopTransmit — manualText:', manualText, 'sessionId:', store.sessionId);
     let transcript = manualText || '';
     if (!manualText && sttSession.current) {
       transcript = await new Promise<string>((resolve) => {
-        sttSession.current!.onResult((text: string) => resolve(text));
+        sttSession.current!.onResult((text: string) => {
+          console.log('[VHF] STT result:', text);
+          resolve(text);
+        });
         sttSession.current!.stop();
-        // Timeout fallback
-        setTimeout(() => resolve(''), 3000);
+        setTimeout(() => {
+          console.warn('[VHF] STT timeout — no speech detected');
+          resolve('');
+        }, 3000);
       });
     }
 
+    console.log('[VHF] transcript:', JSON.stringify(transcript), 'sessionId:', store.sessionId);
     if (!transcript || !store.sessionId) {
+      console.warn('[VHF] Bailing — no transcript or no session');
       store.setRadioState('idle');
       return;
     }
@@ -51,19 +63,23 @@ export function useVHFRadio() {
 
     store.setRadioState('rx');
     try {
+      console.log('[VHF] Transmitting to API...', { sessionId: store.sessionId, message: transcript });
       const response = await client.transmit(
         { message: transcript, session_id: store.sessionId },
         store.apiKey,
       );
+      console.log('[VHF] API response:', response);
 
       if (audioFX.current && store.audioEffects) {
         audioFX.current.playSquelchBreak();
       }
 
       try {
+        console.log('[VHF] Speaking TTS:', response.response.message);
         await speak(response.response.message, store.ttsVoice, store.ttsRate);
-      } catch {
-        // TTS may not be available
+        console.log('[VHF] TTS complete');
+      } catch (ttsErr) {
+        console.warn('[VHF] TTS error:', ttsErr);
       }
 
       const rxEntry: TranscriptEntry = {
@@ -83,12 +99,14 @@ export function useVHFRadio() {
   }, [store, client]);
 
   const createSession = useCallback(async (scenarioId?: string) => {
+    console.log('[VHF] Creating session...');
     const session = await client.createSession({
       region: store.region,
       vessel_name: store.vesselName,
       vessel_type: store.vesselType,
       scenario_id: scenarioId,
     }, store.apiKey);
+    console.log('[VHF] Session created:', session.id);
     store.setSessionId(session.id);
     store.clearTranscript();
     if (scenarioId) store.setScenarioId(scenarioId);

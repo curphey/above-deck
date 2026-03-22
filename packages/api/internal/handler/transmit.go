@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 
@@ -70,6 +71,7 @@ func (h *TransmitHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.client.SendMessage(r.Context(), apiKey, systemPrompt, messages)
 	if err != nil {
+		log.Printf("LLM error for session %s: %v", req.SessionID, err)
 		http.Error(w, "LLM error: "+err.Error(), http.StatusBadGateway)
 		return
 	}
