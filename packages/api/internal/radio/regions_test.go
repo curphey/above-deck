@@ -38,3 +38,56 @@ func TestAllRegionsValid(t *testing.T) {
 		}
 	}
 }
+
+func TestAllRegionsCount(t *testing.T) {
+	regions := radio.AllRegions()
+	if len(regions) != 6 {
+		t.Errorf("expected 6 regions, got %d", len(regions))
+	}
+}
+
+func TestGetRegionMedGreece(t *testing.T) {
+	r, ok := radio.GetRegion("med-greece")
+	if !ok {
+		t.Fatal("med-greece not found")
+	}
+	if len(r.Coastguard) == 0 {
+		t.Error("no coastguard stations")
+	}
+	if len(r.Vessels) < 5 {
+		t.Errorf("expected at least 5 vessels, got %d", len(r.Vessels))
+	}
+	if len(r.Marinas) == 0 {
+		t.Error("no marinas")
+	}
+}
+
+func TestGetRegionSEAsia(t *testing.T) {
+	r, ok := radio.GetRegion("se-asia")
+	if !ok {
+		t.Fatal("se-asia not found")
+	}
+	if len(r.Vessels) < 5 {
+		t.Errorf("expected at least 5 vessels, got %d", len(r.Vessels))
+	}
+}
+
+func TestGetRegionPacific(t *testing.T) {
+	r, ok := radio.GetRegion("pacific")
+	if !ok {
+		t.Fatal("pacific not found")
+	}
+	if len(r.Vessels) < 5 {
+		t.Errorf("expected at least 5 vessels, got %d", len(r.Vessels))
+	}
+}
+
+func TestGetRegionAtlantic(t *testing.T) {
+	r, ok := radio.GetRegion("atlantic")
+	if !ok {
+		t.Fatal("atlantic not found")
+	}
+	if len(r.Vessels) < 5 {
+		t.Errorf("expected at least 5 vessels, got %d", len(r.Vessels))
+	}
+}
