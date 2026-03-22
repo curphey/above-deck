@@ -70,7 +70,11 @@ func BuildSystemPrompt(region radio.Region, scenario *radio.Scenario, vesselName
 	// 5. Scenario instructions (if provided)
 	if scenario != nil {
 		sb.WriteString(fmt.Sprintf("## Active Scenario: %s\n\n", scenario.Name))
-		sb.WriteString(fmt.Sprintf("Briefing: %s\n\n", scenario.Briefing))
+		briefing := scenario.Briefing
+		if hint, ok := scenario.RegionHints[region.ID]; ok {
+			briefing = hint
+		}
+		sb.WriteString(fmt.Sprintf("Briefing: %s\n\n", briefing))
 		sb.WriteString(fmt.Sprintf("Instructions: %s\n\n", scenario.LLMInstructions))
 		sb.WriteString(fmt.Sprintf("Completion criteria: %s\n\n", scenario.CompletionCriteria))
 	}
