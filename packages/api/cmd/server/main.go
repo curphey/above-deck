@@ -33,6 +33,7 @@ func main() {
 	mux.HandleFunc("GET /api/vhf/sessions/{id}", sessionHandler.Get)
 	mux.Handle("POST /api/vhf/transmit", transmitHandler)
 	mux.HandleFunc("GET /api/vhf/scenarios", handler.Scenarios)
+	mux.HandleFunc("GET /api/vhf/regions", handler.Regions)
 
 	wrapped := middleware.CORS(allowedOrigin)(mux)
 
