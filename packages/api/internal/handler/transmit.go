@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 
 	"github.com/curphey/above-deck/api/internal/llm"
 	"github.com/curphey/above-deck/api/internal/radio"
@@ -34,7 +35,10 @@ type transmitRequest struct {
 func (h *TransmitHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	apiKey := r.Header.Get("X-API-Key")
 	if apiKey == "" {
-		http.Error(w, "missing X-API-Key header", http.StatusUnauthorized)
+		apiKey = os.Getenv("ANTHROPIC")
+	}
+	if apiKey == "" {
+		http.Error(w, "missing X-API-Key header or ANTHROPIC env var", http.StatusUnauthorized)
 		return
 	}
 
