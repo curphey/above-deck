@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { TranscriptEntry, RadioState, PowerLevel, VesselType, RadioMode, LCDScreenMode, AISTarget } from '@/lib/vhf/types';
+import type { TranscriptEntry, RadioState, PowerLevel, VesselType, RadioMode, LCDScreenMode, AISTarget, FeedbackItem } from '@/lib/vhf/types';
 
 interface VHFState {
   channel: number;
@@ -47,6 +47,10 @@ interface VHFState {
   clearAisTargets: () => void;
   selectedAisTarget: string | null;
   setSelectedAisTarget: (mmsi: string | null) => void;
+
+  feedbackHistory: FeedbackItem[];
+  addFeedbackItems: (items: FeedbackItem[]) => void;
+  clearFeedbackHistory: () => void;
 }
 
 export const useVHFStore = create<VHFState>()(
@@ -96,6 +100,10 @@ export const useVHFStore = create<VHFState>()(
       clearAisTargets: () => set({ aisTargets: [] }),
       selectedAisTarget: null,
       setSelectedAisTarget: (mmsi) => set({ selectedAisTarget: mmsi }),
+
+      feedbackHistory: [],
+      addFeedbackItems: (items) => set((s) => ({ feedbackHistory: [...s.feedbackHistory, ...items] })),
+      clearFeedbackHistory: () => set({ feedbackHistory: [] }),
     }),
     {
       name: 'above-deck-vhf',

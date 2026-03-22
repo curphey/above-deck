@@ -78,3 +78,9 @@ export interface FeedbackAnnotation {
   type: 'correct' | 'warning';
   message: string;
 }
+
+export interface FeedbackItem {
+  type: 'correct' | 'suggestion' | 'tip';
+  label: string;
+  message: string;
+}
