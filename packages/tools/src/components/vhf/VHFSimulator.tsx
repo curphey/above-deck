@@ -7,13 +7,15 @@ import { TranscriptPanel } from './TranscriptPanel';
 import { SettingsPanel } from './SettingsPanel';
 import { ScenarioPicker } from './ScenarioPicker';
 import { VHFApiClient } from '@/lib/vhf/api-client';
+import { FistMic } from './FistMic';
+import { FeedbackPanel } from './FeedbackPanel';
 import type { Scenario } from '@/lib/vhf/types';
 
 export function VHFSimulator() {
   const { startTransmit, stopTransmit, createSession, selectScenario, isReady } = useVHFRadio();
   const apiKey = useVHFStore(s => s.apiKey);
   const [layout, setLayout] = useState<'panel' | 'handheld'>('panel');
-  const [showSettings, setShowSettings] = useState(!apiKey);
+  const [showSettings, setShowSettings] = useState(false);
   const [showScenarios, setShowScenarios] = useState(false);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const scenarioId = useVHFStore(s => s.scenarioId);
@@ -36,15 +38,21 @@ export function VHFSimulator() {
   const transcript = <TranscriptPanel />;
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Main content area */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {layout === 'panel' ? (
           <>
-            <div style={{ flex: '0 0 auto' }}>
+            {/* LEFT COLUMN (50%) */}
+            <div style={{ width: '50%', display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '16px', gap: '12px', borderRight: '1px solid #2d2d4a' }}>
               <PanelRadio onTransmit={handleTransmit} />
+              <FistMic onTransmit={handleTransmit} />
+              <FeedbackPanel scenarioLabel="" feedback={[]} />
             </div>
-            <div style={{ flex: 1, overflow: 'auto' }}>
-              {transcript}
+
+            {/* RIGHT COLUMN (50%) */}
+            <div style={{ width: '50%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <TranscriptPanel />
             </div>
           </>
         ) : (
@@ -52,6 +60,14 @@ export function VHFSimulator() {
         )}
       </div>
 
+      {/* Bottom toolbar */}
+      <div style={{ padding: '8px', display: 'flex', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+        <button onClick={() => setShowSettings(true)} style={toolbarBtnStyle}>Settings</button>
+        <button onClick={() => createSession()} style={toolbarBtnStyle}>New Session</button>
+        <button onClick={() => setShowScenarios(!showScenarios)} style={toolbarBtnStyle}>Scenarios</button>
+      </div>
+
+      {/* Settings overlay (if shown) */}
       {showSettings && (
         <div style={{
           position: 'absolute', inset: 0, zIndex: 10,
@@ -64,12 +80,6 @@ export function VHFSimulator() {
           </div>
         </div>
       )}
-
-      <div style={{ padding: '8px', display: 'flex', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-        <button onClick={() => setShowSettings(true)} style={toolbarBtnStyle}>Settings</button>
-        <button onClick={() => createSession()} style={toolbarBtnStyle}>New Session</button>
-        <button onClick={() => setShowScenarios(!showScenarios)} style={toolbarBtnStyle}>Scenarios</button>
-      </div>
     </div>
   );
 }
