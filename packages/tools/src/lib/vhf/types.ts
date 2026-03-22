@@ -52,7 +52,8 @@ export interface TranscriptEntry {
   message: string;
   channel: number;
   timestamp: Date;
-  feedback?: VHFResponse['feedback'];
+  apiResponse?: VHFResponse['feedback'];
+  feedback?: FeedbackAnnotation;
 }
 
 export type RadioMode = 'free' | 'scenario';

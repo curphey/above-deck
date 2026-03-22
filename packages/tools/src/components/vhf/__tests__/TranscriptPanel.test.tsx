@@ -24,4 +24,29 @@ describe('TranscriptPanel', () => {
     expect(screen.getByText('Radio check')).toBeDefined();
     expect(screen.getByText('Loud and clear')).toBeDefined();
   });
+
+  it('renders audio replay bar on each entry', () => {
+    useVHFStore.setState({
+      transcript: [{ id: '1', station: 'SV Artemis', message: 'Test', channel: 16, type: 'tx', timestamp: new Date() }],
+    });
+    render(<TranscriptPanel />);
+    expect(screen.getByLabelText('Play audio')).toBeInTheDocument();
+  });
+
+  it('renders inline feedback annotation when present', () => {
+    useVHFStore.setState({
+      transcript: [{
+        id: '1', station: 'SV Artemis', message: 'Test', channel: 16, type: 'tx', timestamp: new Date(),
+        feedback: { type: 'correct', message: 'Good procedure' },
+      }],
+    });
+    render(<TranscriptPanel />);
+    expect(screen.getByText('Good procedure')).toBeInTheDocument();
+  });
+
+  it('renders Clear and Export buttons', () => {
+    render(<TranscriptPanel />);
+    expect(screen.getByText('Clear')).toBeInTheDocument();
+    expect(screen.getByText('Export')).toBeInTheDocument();
+  });
 });

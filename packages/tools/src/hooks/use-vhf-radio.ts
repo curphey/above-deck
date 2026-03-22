@@ -73,7 +73,7 @@ export function useVHFRadio() {
         message: response.response.message,
         channel: response.response.channel,
         timestamp: new Date(),
-        feedback: response.feedback,
+        apiResponse: response.feedback,
       };
       store.addTranscriptEntry(rxEntry);
     } catch (err) {
