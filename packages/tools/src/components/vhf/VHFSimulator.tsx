@@ -46,7 +46,7 @@ export function VHFSimulator() {
             {/* LEFT COLUMN (50%) */}
             <div style={{ width: '50%', display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '16px', gap: '12px', borderRight: '1px solid #2d2d4a' }}>
               <PanelRadio onTransmit={handleTransmit} />
-              <FistMic onTransmit={handleTransmit} />
+              <FistMic onPressStart={startTransmit} onPressEnd={() => stopTransmit()} />
               <FeedbackPanel scenarioLabel="" feedback={[]} />
             </div>
 

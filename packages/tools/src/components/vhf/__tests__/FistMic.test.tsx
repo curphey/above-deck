@@ -10,22 +10,23 @@ describe('FistMic', () => {
   });
 
   it('renders PTT button', () => {
-    render(<FistMic onTransmit={() => {}} />);
+    render(<FistMic onPressStart={() => {}} onPressEnd={() => {}} />);
     expect(screen.getByLabelText('Push to talk')).toBeInTheDocument();
   });
 
-  it('shows TX state on mouse down', () => {
-    render(<FistMic onTransmit={() => {}} />);
+  it('calls onPressStart on mouse down', () => {
+    const onPressStart = vi.fn();
+    render(<FistMic onPressStart={onPressStart} onPressEnd={() => {}} />);
     fireEvent.mouseDown(screen.getByLabelText('Push to talk'));
-    expect(screen.getByText('TX')).toBeInTheDocument();
+    expect(onPressStart).toHaveBeenCalled();
   });
 
-  it('calls onTransmit on mouse up', () => {
-    const onTransmit = vi.fn();
-    render(<FistMic onTransmit={onTransmit} />);
+  it('calls onPressEnd on mouse up', () => {
+    const onPressEnd = vi.fn();
+    render(<FistMic onPressStart={() => {}} onPressEnd={onPressEnd} />);
     const btn = screen.getByLabelText('Push to talk');
     fireEvent.mouseDown(btn);
     fireEvent.mouseUp(btn);
-    expect(onTransmit).toHaveBeenCalled();
+    expect(onPressEnd).toHaveBeenCalled();
   });
 });

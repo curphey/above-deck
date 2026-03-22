@@ -1,21 +1,13 @@
 import { useVHFStore } from '@/stores/vhf';
 
 interface FistMicProps {
-  onTransmit: (message: string) => void;
+  onPressStart: () => void;
+  onPressEnd: () => void;
 }
 
-export function FistMic({ onTransmit }: FistMicProps) {
-  const { radioState, setRadioState } = useVHFStore();
+export function FistMic({ onPressStart, onPressEnd }: FistMicProps) {
+  const radioState = useVHFStore(s => s.radioState);
   const isActive = radioState === 'tx';
-
-  function handlePressStart() {
-    setRadioState('tx');
-  }
-
-  function handlePressEnd() {
-    setRadioState('idle');
-    onTransmit('');
-  }
 
   return (
     <div
@@ -81,10 +73,10 @@ export function FistMic({ onTransmit }: FistMicProps) {
         {/* PTT button */}
         <button
           aria-label="Push to talk"
-          onMouseDown={handlePressStart}
-          onMouseUp={handlePressEnd}
-          onTouchStart={handlePressStart}
-          onTouchEnd={handlePressEnd}
+          onMouseDown={onPressStart}
+          onMouseUp={onPressEnd}
+          onTouchStart={onPressStart}
+          onTouchEnd={onPressEnd}
           style={{
             width: '46px',
             height: '28px',
