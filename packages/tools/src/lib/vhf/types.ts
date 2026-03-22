@@ -59,3 +59,21 @@ export type RadioMode = 'free' | 'scenario';
 export type RadioState = 'idle' | 'tx' | 'rx';
 export type PowerLevel = '25W' | '1W';
 export type VesselType = 'sailing-yacht' | 'motor-yacht' | 'catamaran';
+
+export type LCDScreenMode = 'vhf' | 'ais' | 'dsc';
+
+export interface AISTarget {
+  mmsi: string;
+  name: string;
+  distance: number;
+  bearing: number;
+  cpa: number;
+  sog: number;
+  cog: number;
+  vesselType: 'sailing' | 'motor' | 'cargo' | 'tanker' | 'fishing' | 'passenger' | 'vessel';
+}
+
+export interface FeedbackAnnotation {
+  type: 'correct' | 'warning';
+  message: string;
+}

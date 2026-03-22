@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { TranscriptEntry, RadioState, PowerLevel, VesselType, RadioMode } from '@/lib/vhf/types';
+import type { TranscriptEntry, RadioState, PowerLevel, VesselType, RadioMode, LCDScreenMode, AISTarget } from '@/lib/vhf/types';
 
 interface VHFState {
   channel: number;
@@ -39,6 +39,14 @@ interface VHFState {
   setAudioEffects: (on: boolean) => void;
   setAudioIntensity: (intensity: number) => void;
   setMmsi: (mmsi: string) => void;
+
+  lcdScreen: LCDScreenMode;
+  setLcdScreen: (screen: LCDScreenMode) => void;
+  aisTargets: AISTarget[];
+  setAisTargets: (targets: AISTarget[]) => void;
+  clearAisTargets: () => void;
+  selectedAisTarget: string | null;
+  setSelectedAisTarget: (mmsi: string | null) => void;
 }
 
 export const useVHFStore = create<VHFState>()(
@@ -80,6 +88,14 @@ export const useVHFStore = create<VHFState>()(
       setAudioEffects: (on) => set({ audioEffects: on }),
       setAudioIntensity: (intensity) => set({ audioIntensity: intensity }),
       setMmsi: (mmsi) => set({ mmsi }),
+
+      lcdScreen: 'vhf',
+      setLcdScreen: (screen) => set({ lcdScreen: screen }),
+      aisTargets: [],
+      setAisTargets: (targets) => set({ aisTargets: targets }),
+      clearAisTargets: () => set({ aisTargets: [] }),
+      selectedAisTarget: null,
+      setSelectedAisTarget: (mmsi) => set({ selectedAisTarget: mmsi }),
     }),
     {
       name: 'above-deck-vhf',
