@@ -3,12 +3,13 @@ import type { VHFResponse, TransmitRequest, CreateSessionRequest, Session, Scena
 export class VHFApiClient {
   constructor(private baseUrl: string) {}
 
-  async transmit(req: TransmitRequest, apiKey: string): Promise<VHFResponse> {
-    if (!apiKey) throw new Error('API key required');
+  async transmit(req: TransmitRequest, apiKey?: string): Promise<VHFResponse> {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (apiKey) headers['X-API-Key'] = apiKey;
 
     const res = await fetch(`${this.baseUrl}/api/vhf/transmit`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+      headers,
       body: JSON.stringify(req),
     });
 
@@ -16,12 +17,13 @@ export class VHFApiClient {
     return res.json();
   }
 
-  async createSession(req: CreateSessionRequest, apiKey: string): Promise<Session> {
-    if (!apiKey) throw new Error('API key required');
+  async createSession(req: CreateSessionRequest, apiKey?: string): Promise<Session> {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (apiKey) headers['X-API-Key'] = apiKey;
 
     const res = await fetch(`${this.baseUrl}/api/vhf/sessions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+      headers,
       body: JSON.stringify(req),
     });
 

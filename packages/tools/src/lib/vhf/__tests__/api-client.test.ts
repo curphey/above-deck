@@ -8,10 +8,13 @@ describe('VHFApiClient', () => {
     vi.restoreAllMocks();
   });
 
-  it('throws if no API key on transmit', async () => {
-    await expect(
-      client.transmit({ message: 'hello', session_id: '123' }, '')
-    ).rejects.toThrow('API key required');
+  it('sends request without API key header when key is empty', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ response: { message: 'ok', station: 'CG', channel: 16 } }), { status: 200 })
+    );
+    await client.transmit({ message: 'hello', session_id: '123' }, '');
+    const callHeaders = (fetch as any).mock.calls[0][1].headers;
+    expect(callHeaders['X-API-Key']).toBeUndefined();
   });
 
   it('creates session with correct payload', async () => {
