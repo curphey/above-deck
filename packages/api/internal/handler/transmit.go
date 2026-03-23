@@ -3,8 +3,11 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
+	"os"
 
+	"github.com/curphey/above-deck/api/internal/agent"
 	"github.com/curphey/above-deck/api/internal/llm"
 	"github.com/curphey/above-deck/api/internal/radio"
 	"github.com/curphey/above-deck/api/internal/session"
@@ -34,7 +37,10 @@ type transmitRequest struct {
 func (h *TransmitHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	apiKey := r.Header.Get("X-API-Key")
 	if apiKey == "" {
-		http.Error(w, "missing X-API-Key header", http.StatusUnauthorized)
+		apiKey = os.Getenv("ANTHROPIC")
+	}
+	if apiKey == "" {
+		http.Error(w, "missing X-API-Key header or ANTHROPIC env var", http.StatusUnauthorized)
 		return
 	}
 
@@ -60,12 +66,51 @@ func (h *TransmitHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	systemPrompt := llm.BuildSystemPrompt(region, scenarioPtr, sess.VesselName, sess.VesselType)
+	// If region has agents, use the agent dispatcher
+	if len(region.Agents) > 0 {
+		dispatcher := agent.NewDispatcher(region.Agents, h.client)
+
+		// Convert scenario to agent.ScenarioContext if present
+		var scenarioCtx *agent.ScenarioContext
+		if scenarioPtr != nil {
+			briefing := scenarioPtr.Briefing
+			if hint, ok := scenarioPtr.RegionHints[region.ID]; ok {
+				briefing = hint
+			}
+			scenarioCtx = &agent.ScenarioContext{
+				Name:         scenarioPtr.Name,
+				Briefing:     briefing,
+				Instructions: scenarioPtr.LLMInstructions,
+				Completion:   scenarioPtr.CompletionCriteria,
+			}
+		}
+
+		// TODO: wire knowledge loading in a future task
+		_ = "knowledge" // knowledgePath placeholder
+
+		resp, err := dispatcher.Dispatch(r.Context(), apiKey, req.Message, sess.Region, sess.VesselName, sess.VesselType, scenarioCtx)
+		if err != nil {
+			log.Printf("Agent dispatch error for session %s: %v", req.SessionID, err)
+			http.Error(w, "LLM error: "+err.Error(), http.StatusBadGateway)
+			return
+		}
+
+		h.mgr.AddMessage(req.SessionID, "user", req.Message)
+		h.mgr.AddMessage(req.SessionID, "assistant", resp.Response.Message)
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+
+	// Fallback: old single-prompt path for regions without agents
+	systemPrompt := radio.BuildSystemPrompt(region, scenarioPtr, sess.VesselName, sess.VesselType)
 
 	messages := append(sess.Messages, llm.Message{Role: "user", Content: req.Message})
 
 	resp, err := h.client.SendMessage(r.Context(), apiKey, systemPrompt, messages)
 	if err != nil {
+		log.Printf("LLM error for session %s: %v", req.SessionID, err)
 		http.Error(w, "LLM error: "+err.Error(), http.StatusBadGateway)
 		return
 	}

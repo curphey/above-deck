@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useVHFStore } from '@/stores/vhf';
 import { getVoices, isTTSSupported } from '@/lib/vhf/speech';
 import type { VesselType } from '@/lib/vhf/types';
+import { VHFApiClient } from '@/lib/vhf/api-client';
+
+const API_URL = typeof import.meta !== 'undefined' && import.meta.env?.PUBLIC_VHF_API_URL || 'http://localhost:8080';
 
 const labelStyle: React.CSSProperties = {
   fontFamily: "'Space Mono', monospace",
@@ -52,6 +55,17 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   } = useVHFStore();
 
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [regions, setRegions] = useState<Array<{ id: string; name: string }>>([
+    { id: 'uk-south', name: 'UK South Coast' },
+    { id: 'caribbean', name: 'Caribbean' },
+  ]);
+
+  useEffect(() => {
+    const client = new VHFApiClient(API_URL);
+    client.getRegions().then(setRegions).catch(() => {
+      // Fallback to hardcoded if API unavailable
+    });
+  }, []);
 
   useEffect(() => {
     if (isTTSSupported()) {
@@ -120,8 +134,9 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
           onChange={(e) => setRegion(e.target.value)}
           style={selectStyle}
         >
-          <option value="uk-south">UK South</option>
-          <option value="caribbean">Caribbean</option>
+          {regions.map(r => (
+            <option key={r.id} value={r.id}>{r.name}</option>
+          ))}
         </select>
       </div>
 

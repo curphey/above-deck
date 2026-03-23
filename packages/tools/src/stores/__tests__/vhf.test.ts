@@ -44,4 +44,31 @@ describe('VHF Store', () => {
     const mmsi = useVHFStore.getState().mmsi;
     expect(mmsi).toMatch(/^235\d{6}$/);
   });
+
+  it('should initialize lcdScreen to vhf', () => {
+    const { lcdScreen } = useVHFStore.getState();
+    expect(lcdScreen).toBe('vhf');
+  });
+
+  it('should toggle lcdScreen between modes', () => {
+    const { setLcdScreen } = useVHFStore.getState();
+    setLcdScreen('ais');
+    expect(useVHFStore.getState().lcdScreen).toBe('ais');
+    setLcdScreen('vhf');
+    expect(useVHFStore.getState().lcdScreen).toBe('vhf');
+  });
+
+  it('should store and clear aisTargets', () => {
+    const { setAisTargets, clearAisTargets } = useVHFStore.getState();
+    setAisTargets([{ mmsi: '235001234', name: 'BLUE HORIZON', distance: 0.8, bearing: 45, cpa: 0.3, sog: 5.2, cog: 225, vesselType: 'sailing' }]);
+    expect(useVHFStore.getState().aisTargets).toHaveLength(1);
+    clearAisTargets();
+    expect(useVHFStore.getState().aisTargets).toHaveLength(0);
+  });
+
+  it('should track selectedAisTarget', () => {
+    const { setSelectedAisTarget } = useVHFStore.getState();
+    setSelectedAisTarget('235001234');
+    expect(useVHFStore.getState().selectedAisTarget).toBe('235001234');
+  });
 });
