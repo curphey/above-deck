@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useMap } from './useMap';
 import blueprintStyle from './styles/blueprint-dark.json';
@@ -8,12 +8,39 @@ import { ChartWeatherLayer } from './ChartWeatherLayer';
 import { ChartInfoPopup } from './ChartInfoPopup';
 import { useChartStore } from './chartStore';
 
+// Inject dark nautical CSS filter for the map canvas
+const CHART_CSS = `
+.chart-container .maplibregl-canvas {
+  filter: brightness(0.45) contrast(1.3) saturate(0.3) sepia(0.4) hue-rotate(180deg);
+}
+.chart-container .maplibregl-popup-content {
+  filter: none !important;
+  background: #16213e !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #2d2d4a !important;
+  border-radius: 4px !important;
+}
+.chart-container .maplibregl-popup-tip {
+  border-top-color: #16213e !important;
+}
+`;
+
+let cssInjected = false;
+function injectChartCSS() {
+  if (cssInjected) return;
+  const style = document.createElement('style');
+  style.textContent = CHART_CSS;
+  document.head.appendChild(style);
+  cssInjected = true;
+}
+
 interface ChartViewProps {
   center?: [number, number];
   zoom?: number;
 }
 
 export function ChartView({ center, zoom }: ChartViewProps) {
+  useEffect(() => { injectChartCSS(); }, []);
   const containerRef = useRef<HTMLDivElement>(null);
   const { map, isLoaded } = useMap({
     container: containerRef,
@@ -26,11 +53,13 @@ export function ChartView({ center, zoom }: ChartViewProps) {
   return (
     <div
       ref={containerRef}
+      className="chart-container"
       style={{
         width: '100%',
         height: '100%',
         background: '#081830',
         position: 'relative',
+        /* Dark nautical filter applied via CSS below */
       }}
     >
       <ChartVesselLayer map={map} isLoaded={isLoaded} />
