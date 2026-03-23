@@ -29,7 +29,7 @@ func main() {
 	wsHub := ws.NewHub()
 	go wsHub.Run()
 
-	sessionHandler := handler.NewSessionHandler(sessionMgr)
+	sessionHandler := handler.NewSessionHandler(sessionMgr, wsHub)
 	transmitHandler := handler.NewTransmitHandler(sessionMgr, llmClient, wsHub)
 
 	mux := http.NewServeMux()
