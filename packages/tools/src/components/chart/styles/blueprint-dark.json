@@ -1,0 +1,137 @@
+{
+  "version": 8,
+  "name": "Blueprint Dark (Nautical)",
+  "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+  "sources": {
+    "demotiles": {
+      "type": "vector",
+      "tiles": ["https://demotiles.maplibre.org/tiles/{z}/{x}/{y}.pbf"],
+      "maxzoom": 6
+    },
+    "openseamap": {
+      "type": "raster",
+      "tiles": ["https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"],
+      "tileSize": 256,
+      "attribution": "Map data: &copy; <a href='http://www.openseamap.org'>OpenSeaMap</a> contributors"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#081830"
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "demotiles",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "#081830"
+      }
+    },
+    {
+      "id": "land",
+      "type": "fill",
+      "source": "demotiles",
+      "source-layer": "land",
+      "paint": {
+        "fill-color": "#1a2a1a"
+      }
+    },
+    {
+      "id": "landuse",
+      "type": "fill",
+      "source": "demotiles",
+      "source-layer": "landuse",
+      "paint": {
+        "fill-color": "#1f2f1f"
+      }
+    },
+    {
+      "id": "buildings",
+      "type": "fill",
+      "source": "demotiles",
+      "source-layer": "buildings",
+      "paint": {
+        "fill-color": "#1f2f1f",
+        "fill-opacity": 0.4
+      }
+    },
+    {
+      "id": "boundary",
+      "type": "line",
+      "source": "demotiles",
+      "source-layer": "boundary",
+      "paint": {
+        "line-color": "rgba(74,222,128,0.15)",
+        "line-width": 1
+      }
+    },
+    {
+      "id": "coastline",
+      "type": "line",
+      "source": "demotiles",
+      "source-layer": "coastline",
+      "paint": {
+        "line-color": "rgba(74,222,128,0.15)",
+        "line-width": 1
+      }
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "demotiles",
+      "source-layer": "roads",
+      "layout": {
+        "visibility": "none"
+      },
+      "paint": {
+        "line-color": "#2d2d4a",
+        "line-width": 1
+      }
+    },
+    {
+      "id": "place-labels",
+      "type": "symbol",
+      "source": "demotiles",
+      "source-layer": "places",
+      "layout": {
+        "text-field": "{name}",
+        "text-font": ["Open Sans Regular"],
+        "text-size": 12
+      },
+      "paint": {
+        "text-color": "#8b8b9e",
+        "text-halo-color": "#081830",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "water-labels",
+      "type": "symbol",
+      "source": "demotiles",
+      "source-layer": "water_name",
+      "layout": {
+        "text-field": "{name}",
+        "text-font": ["Open Sans Regular"],
+        "text-size": 11
+      },
+      "paint": {
+        "text-color": "rgba(96,165,250,0.4)",
+        "text-halo-color": "#081830",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "openseamap-overlay",
+      "type": "raster",
+      "source": "openseamap",
+      "paint": {
+        "raster-opacity": 0.8
+      }
+    }
+  ]
+}
