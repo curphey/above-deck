@@ -8,17 +8,14 @@ import { ChartWeatherLayer } from './ChartWeatherLayer';
 import { ChartInfoPopup } from './ChartInfoPopup';
 import { useChartStore } from './chartStore';
 
-// Inject dark nautical CSS filter for the map canvas
+// Inject chart popup CSS
 const CHART_CSS = `
-.chart-container .maplibregl-canvas {
-  filter: brightness(0.45) contrast(1.3) saturate(0.3) sepia(0.4) hue-rotate(180deg);
-}
 .chart-container .maplibregl-popup-content {
-  filter: none !important;
   background: #16213e !important;
   color: #e0e0e0 !important;
   border: 1px solid #2d2d4a !important;
   border-radius: 4px !important;
+  padding: 0 !important;
 }
 .chart-container .maplibregl-popup-tip {
   border-top-color: #16213e !important;

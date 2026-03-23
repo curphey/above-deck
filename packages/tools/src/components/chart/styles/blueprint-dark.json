@@ -3,12 +3,12 @@
   "name": "Blueprint Dark (Nautical)",
   "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
   "sources": {
-    "osm-raster": {
+    "carto-dark": {
       "type": "raster",
-      "tiles": ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      "tiles": ["https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png"],
       "tileSize": 256,
       "maxzoom": 19,
-      "attribution": "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
+      "attribution": "&copy; <a href='https://carto.com'>CARTO</a> &copy; <a href='https://www.openstreetmap.org/copyright'>OSM</a>"
     },
     "openseamap": {
       "type": "raster",
@@ -23,13 +23,13 @@
       "id": "background",
       "type": "background",
       "paint": {
-        "background-color": "#081830"
+        "background-color": "#0b1426"
       }
     },
     {
-      "id": "osm-base",
+      "id": "carto-base",
       "type": "raster",
-      "source": "osm-raster",
+      "source": "carto-dark",
       "paint": {
         "raster-opacity": 1
       }
@@ -39,7 +39,7 @@
       "type": "raster",
       "source": "openseamap",
       "paint": {
-        "raster-opacity": 0.85
+        "raster-opacity": 0.9
       }
     }
   ]
