@@ -104,7 +104,7 @@ func TestTransmitHandler_Success(t *testing.T) {
 
 func TestSessionHandler_Create(t *testing.T) {
 	mgr := session.NewManager()
-	h := handler.NewSessionHandler(mgr, nil)
+	h := handler.NewSessionHandler(mgr, nil, nil)
 
 	body := `{"region":"uk-south","vessel_name":"Artemis","vessel_type":"sailing"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/vhf/sessions", bytes.NewBufferString(body))

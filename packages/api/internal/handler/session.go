@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/curphey/above-deck/api/internal/ais"
 	"github.com/curphey/above-deck/api/internal/radio"
 	"github.com/curphey/above-deck/api/internal/session"
 	"github.com/curphey/above-deck/api/internal/ws"
@@ -12,13 +13,15 @@ import (
 
 // SessionHandler handles session creation and retrieval.
 type SessionHandler struct {
-	mgr   *session.Manager
-	wsHub *ws.Hub
+	mgr       *session.Manager
+	wsHub     *ws.Hub
+	aisClient *ais.Client // may be nil when no AIS feed is configured
 }
 
 // NewSessionHandler returns a SessionHandler backed by the given manager.
-func NewSessionHandler(mgr *session.Manager, wsHub *ws.Hub) *SessionHandler {
-	return &SessionHandler{mgr: mgr, wsHub: wsHub}
+// aisClient may be nil.
+func NewSessionHandler(mgr *session.Manager, wsHub *ws.Hub, aisClient *ais.Client) *SessionHandler {
+	return &SessionHandler{mgr: mgr, wsHub: wsHub, aisClient: aisClient}
 }
 
 type createSessionRequest struct {
@@ -43,7 +46,7 @@ func (h *SessionHandler) Create(w http.ResponseWriter, r *http.Request) {
 		sess, _ = h.mgr.Get(sess.ID)
 	}
 
-	// Start vessel simulator for this session if region has agents
+	// Start vessel simulator for this session if region has agents.
 	if h.wsHub != nil {
 		region, ok := radio.GetRegion(req.Region)
 		if ok && len(region.Agents) > 0 {
@@ -67,7 +70,7 @@ func (h *SessionHandler) Create(w http.ResponseWriter, r *http.Request) {
 				SeaState:       "moderate",
 				Visibility:     "good",
 			}
-			// Use first coastguard position as own vessel default position
+			// Use first coastguard position as own vessel default position.
 			ownLat, ownLon := 50.09, -5.04
 			for _, a := range region.Agents {
 				if a.AgentType == "coastguard" {
@@ -76,7 +79,7 @@ func (h *SessionHandler) Create(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 			}
-			sim := ws.NewSimulator(h.wsHub, sess.ID, vessels, weather, ownLat, ownLon)
+			sim := ws.NewSimulator(h.wsHub, sess.ID, vessels, weather, ownLat, ownLon, h.aisClient)
 			sim.Start()
 			log.Printf("Started vessel simulator for session %s with %d vessels", sess.ID, len(vessels))
 		}

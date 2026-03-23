@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/curphey/above-deck/api/internal/ais"
 	"github.com/curphey/above-deck/api/internal/handler"
 	"github.com/curphey/above-deck/api/internal/llm"
 	"github.com/curphey/above-deck/api/internal/middleware"
@@ -23,13 +24,25 @@ func main() {
 		allowedOrigin = "http://localhost:4321"
 	}
 
+	// Set up AIS real-time feed if an API key is provided.
+	aisKey := os.Getenv("AISSTREAM_API_KEY")
+	aisClient := ais.NewClient(aisKey)
+	if aisKey != "" {
+		go func() {
+			// Global bounding box — all vessels worldwide.
+			if err := aisClient.Start([2][2]float64{{-90, -180}, {90, 180}}); err != nil {
+				log.Printf("[AIS] Start error: %v", err)
+			}
+		}()
+	}
+
 	sessionMgr := session.NewManager()
 	llmClient := llm.NewClient("")
 
 	wsHub := ws.NewHub()
 	go wsHub.Run()
 
-	sessionHandler := handler.NewSessionHandler(sessionMgr, wsHub)
+	sessionHandler := handler.NewSessionHandler(sessionMgr, wsHub, aisClient)
 	transmitHandler := handler.NewTransmitHandler(sessionMgr, llmClient, wsHub)
 
 	mux := http.NewServeMux()

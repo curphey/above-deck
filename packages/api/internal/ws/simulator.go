@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"math"
 	"time"
+
+	"github.com/curphey/above-deck/api/internal/ais"
 )
 
 // VesselPos is a vessel position for the simulator.
@@ -55,25 +57,28 @@ type OwnPos struct {
 
 // Simulator ticks the world and broadcasts updates.
 type Simulator struct {
-	hub      *Hub
-	session  string
-	vessels  []VesselPos
-	weather  WeatherData
-	ownPos   OwnPos
-	interval time.Duration
-	stop     chan struct{}
+	hub       *Hub
+	session   string
+	vessels   []VesselPos
+	weather   WeatherData
+	ownPos    OwnPos
+	interval  time.Duration
+	stop      chan struct{}
+	aisClient *ais.Client // nil when no real AIS feed is configured
 }
 
 // NewSimulator creates a Simulator that broadcasts world updates to the given hub session.
-func NewSimulator(hub *Hub, sessionID string, vessels []VesselPos, weather WeatherData, ownLat, ownLon float64) *Simulator {
+// aisClient may be nil if no real AIS feed is available.
+func NewSimulator(hub *Hub, sessionID string, vessels []VesselPos, weather WeatherData, ownLat, ownLon float64, aisClient *ais.Client) *Simulator {
 	return &Simulator{
-		hub:      hub,
-		session:  sessionID,
-		vessels:  vessels,
-		weather:  weather,
-		ownPos:   OwnPos{Lat: ownLat, Lon: ownLon, SOG: 5.0, COG: 320},
-		interval: 2 * time.Second,
-		stop:     make(chan struct{}),
+		hub:       hub,
+		session:   sessionID,
+		vessels:   vessels,
+		weather:   weather,
+		ownPos:    OwnPos{Lat: ownLat, Lon: ownLon, SOG: 5.0, COG: 320},
+		interval:  2 * time.Second,
+		stop:      make(chan struct{}),
+		aisClient: aisClient,
 	}
 }
 
@@ -101,9 +106,28 @@ func (s *Simulator) tick() {
 	for i := range s.vessels {
 		s.vessels[i] = MoveVessel(s.vessels[i], dt)
 	}
+
+	// Merge real AIS vessels with simulated ones.
+	allVessels := make([]VesselPos, len(s.vessels))
+	copy(allVessels, s.vessels)
+
+	if s.aisClient != nil {
+		for _, v := range s.aisClient.GetVessels() {
+			allVessels = append(allVessels, VesselPos{
+				Name:     v.Name,
+				CallSign: v.CallSign,
+				Lat:      v.Latitude,
+				Lon:      v.Longitude,
+				SOG:      v.SOG,
+				COG:      int(v.COG),
+				Type:     ais.VesselTypeName(v.VesselType),
+			})
+		}
+	}
+
 	update := WorldUpdate{
 		Type:        "world_update",
-		Vessels:     s.vessels,
+		Vessels:     allVessels,
 		Weather:     s.weather,
 		OwnPosition: s.ownPos,
 		Timestamp:   time.Now().UTC().Format(time.RFC3339),
