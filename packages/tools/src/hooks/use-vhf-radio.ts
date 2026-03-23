@@ -3,7 +3,7 @@ import { useVHFStore } from '@/stores/vhf';
 import { VHFApiClient } from '@/lib/vhf/api-client';
 import { RadioAudioFX } from '@/lib/vhf/audio-fx';
 import { isSTTSupported, createSTTSession, speak } from '@/lib/vhf/speech';
-import type { TranscriptEntry } from '@/lib/vhf/types';
+import type { TranscriptEntry, FeedbackItem } from '@/lib/vhf/types';
 
 const API_URL = typeof import.meta !== 'undefined' && import.meta.env?.PUBLIC_VHF_API_URL || 'http://localhost:8080';
 
@@ -70,6 +70,24 @@ export function useVHFRadio() {
       );
       console.log('[VHF] API response:', response);
 
+      const feedbackItems: FeedbackItem[] = [];
+      if (response.feedback?.correct) {
+        response.feedback.correct.forEach(msg =>
+          feedbackItems.push({ type: 'correct', label: 'Correct', message: msg })
+        );
+      }
+      if (response.feedback?.errors) {
+        response.feedback.errors.forEach(msg =>
+          feedbackItems.push({ type: 'suggestion', label: 'Correction', message: msg })
+        );
+      }
+      if (response.feedback?.protocol_note) {
+        feedbackItems.push({ type: 'tip', label: 'Next Step', message: response.feedback.protocol_note });
+      }
+      if (feedbackItems.length > 0) {
+        store.addFeedbackItems(feedbackItems);
+      }
+
       if (audioFX.current && store.audioEffects) {
         audioFX.current.playSquelchBreak();
       }
@@ -82,6 +100,8 @@ export function useVHFRadio() {
         console.warn('[VHF] TTS error:', ttsErr);
       }
 
+      const firstError = response.feedback?.errors?.[0];
+      const firstCorrect = response.feedback?.correct?.[0];
       const rxEntry: TranscriptEntry = {
         id: crypto.randomUUID(),
         type: 'rx',
@@ -90,6 +110,11 @@ export function useVHFRadio() {
         channel: response.response.channel,
         timestamp: new Date(),
         apiResponse: response.feedback,
+        feedback: firstError
+          ? { type: 'warning' as const, message: firstError }
+          : firstCorrect
+          ? { type: 'correct' as const, message: firstCorrect }
+          : undefined,
       };
       store.addTranscriptEntry(rxEntry);
     } catch (err) {
@@ -109,6 +134,7 @@ export function useVHFRadio() {
     console.log('[VHF] Session created:', session.id);
     store.setSessionId(session.id);
     store.clearTranscript();
+    store.clearFeedbackHistory();
     if (scenarioId) store.setScenarioId(scenarioId);
   }, [store, client]);
 

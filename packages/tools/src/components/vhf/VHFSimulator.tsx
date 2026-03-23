@@ -19,6 +19,7 @@ export function VHFSimulator() {
   const [showScenarios, setShowScenarios] = useState(false);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const scenarioId = useVHFStore(s => s.scenarioId);
+  const feedbackHistory = useVHFStore(s => s.feedbackHistory);
 
   useEffect(() => {
     const checkWidth = () => setLayout(window.innerWidth >= 768 ? 'panel' : 'handheld');
@@ -55,7 +56,10 @@ export function VHFSimulator() {
             <div style={{ width: '50%', display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '16px', gap: '12px', borderRight: '1px solid #2d2d4a' }}>
               <PanelRadio onTransmit={handleTransmit} />
               <FistMic onPressStart={startTransmit} onPressEnd={() => stopTransmit()} />
-              <FeedbackPanel scenarioLabel="" feedback={[]} />
+              <FeedbackPanel
+                scenarioLabel={scenarioId || 'Free Practice'}
+                feedback={feedbackHistory}
+              />
             </div>
 
             {/* RIGHT COLUMN (50%) */}
