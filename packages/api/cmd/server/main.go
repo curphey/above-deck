@@ -25,8 +25,12 @@ func main() {
 
 	sessionMgr := session.NewManager()
 	llmClient := llm.NewClient("")
+
+	wsHub := ws.NewHub()
+	go wsHub.Run()
+
 	sessionHandler := handler.NewSessionHandler(sessionMgr)
-	transmitHandler := handler.NewTransmitHandler(sessionMgr, llmClient)
+	transmitHandler := handler.NewTransmitHandler(sessionMgr, llmClient, wsHub)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", handler.Health)
@@ -35,9 +39,6 @@ func main() {
 	mux.Handle("POST /api/vhf/transmit", transmitHandler)
 	mux.HandleFunc("GET /api/vhf/scenarios", handler.Scenarios)
 	mux.HandleFunc("GET /api/vhf/regions", handler.Regions)
-
-	wsHub := ws.NewHub()
-	go wsHub.Run()
 	mux.HandleFunc("GET /api/vhf/sessions/{id}/ws", ws.HandleWebSocket(wsHub))
 
 	wrapped := middleware.CORS(allowedOrigin)(mux)
