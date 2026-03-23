@@ -6,10 +6,8 @@ import { HandheldRadio } from './HandheldRadio';
 import { TranscriptPanel } from './TranscriptPanel';
 import { SettingsPanel } from './SettingsPanel';
 import { ScenarioPicker } from './ScenarioPicker';
-import { VHFApiClient } from '@/lib/vhf/api-client';
 import { FistMic } from './FistMic';
 import { FeedbackPanel } from './FeedbackPanel';
-import type { Scenario } from '@/lib/vhf/types';
 
 export function VHFSimulator() {
   const { startTransmit, stopTransmit, createSession, selectScenario, isReady } = useVHFRadio();
@@ -17,7 +15,6 @@ export function VHFSimulator() {
   const [layout, setLayout] = useState<'panel' | 'handheld'>('panel');
   const [showSettings, setShowSettings] = useState(false);
   const [showScenarios, setShowScenarios] = useState(false);
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const scenarioId = useVHFStore(s => s.scenarioId);
   const feedbackHistory = useVHFStore(s => s.feedbackHistory);
 
@@ -89,6 +86,51 @@ export function VHFSimulator() {
         }}>
           <div style={{ maxHeight: '100%', overflowY: 'auto' }}>
             <SettingsPanel onClose={() => setShowSettings(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Scenarios overlay (if shown) */}
+      {showScenarios && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 10,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '20px',
+        }}>
+          <div style={{
+            background: '#1a1a2e',
+            border: '1px solid #2d2d4a',
+            borderRadius: '8px',
+            padding: '16px',
+            maxWidth: '640px',
+            width: '100%',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '12px',
+            }}>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', color: '#e0e0e0' }}>
+                Select Scenario
+              </div>
+              <button
+                onClick={() => setShowScenarios(false)}
+                style={{ ...toolbarBtnStyle, padding: '4px 8px' }}
+              >
+                Close
+              </button>
+            </div>
+            <ScenarioPicker
+              onSelect={(id) => {
+                selectScenario(id);
+                setShowScenarios(false);
+              }}
+              activeScenarioId={scenarioId ?? null}
+            />
           </div>
         </div>
       )}
