@@ -28,7 +28,7 @@ func (m *mockLLMClient) SendMessage(_ context.Context, _, _ string, _ []llm.Mess
 func TestTransmitHandler_NoAPIKey(t *testing.T) {
 	mgr := session.NewManager()
 	client := &mockLLMClient{}
-	h := handler.NewTransmitHandler(mgr, client)
+	h := handler.NewTransmitHandler(mgr, client, nil)
 
 	body := `{"message":"hello","session_id":"any"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/vhf/transmit", bytes.NewBufferString(body))
@@ -46,7 +46,7 @@ func TestTransmitHandler_NoAPIKey(t *testing.T) {
 func TestTransmitHandler_NoSession(t *testing.T) {
 	mgr := session.NewManager()
 	client := &mockLLMClient{}
-	h := handler.NewTransmitHandler(mgr, client)
+	h := handler.NewTransmitHandler(mgr, client, nil)
 
 	body := `{"message":"hello","session_id":"nonexistent"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/vhf/transmit", bytes.NewBufferString(body))
@@ -74,7 +74,7 @@ func TestTransmitHandler_Success(t *testing.T) {
 	mockResp.Feedback.ProtocolNote = "Acknowledge with OUT"
 
 	client := &mockLLMClient{response: mockResp}
-	h := handler.NewTransmitHandler(mgr, client)
+	h := handler.NewTransmitHandler(mgr, client, nil)
 
 	body, _ := json.Marshal(map[string]string{
 		"message":    "Falmouth Coastguard, radio check, over.",
@@ -104,7 +104,7 @@ func TestTransmitHandler_Success(t *testing.T) {
 
 func TestSessionHandler_Create(t *testing.T) {
 	mgr := session.NewManager()
-	h := handler.NewSessionHandler(mgr)
+	h := handler.NewSessionHandler(mgr, nil, nil)
 
 	body := `{"region":"uk-south","vessel_name":"Artemis","vessel_type":"sailing"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/vhf/sessions", bytes.NewBufferString(body))

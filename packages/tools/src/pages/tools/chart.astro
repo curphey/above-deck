@@ -1,0 +1,8 @@
+---
+import MFDLayout from '../../layouts/MFDLayout.astro';
+import { ChartView } from '@/components/chart/ChartView';
+export const prerender = false;
+---
+<MFDLayout title="Chart — Above Deck" screenId="chart">
+  <ChartView client:only="react" />
+</MFDLayout>

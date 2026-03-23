@@ -7,6 +7,8 @@ type Vessel struct {
 	VesselType  int     `json:"vessel_type"`
 	Latitude    float64 `json:"latitude"`
 	Longitude   float64 `json:"longitude"`
+	SOG         float64 `json:"sog"`
+	COG         float64 `json:"cog"`
 	Destination string  `json:"destination"`
 	TypeName    string  `json:"type_name"`
 }

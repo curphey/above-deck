@@ -41,6 +41,13 @@
 
 - `.or()` filter strings are not sanitized. Escape `%`, `_`, `,`, `.` in user search input before interpolating into `ilike` patterns.
 
+## Chartplotter Map Tiles
+
+- MapLibre demo tiles (`demotiles.maplibre.org`) have very limited coverage and minimal detail — NOT suitable for a real nautical chart. Use OpenMapTiles, Protomaps, or MapTiler for proper base geography.
+- Always verify map tiles render visible content at the target zoom/position BEFORE building features on top. A blank dark canvas with vessel dots is useless.
+- Vessel positions must be placed at realistic geographic locations (near harbours, in shipping channels) — not arbitrary offsets from a coastguard station position.
+- The chart is foundational — everything else (vessels, weather, popups) is meaningless without visible coastline and features.
+
 ## User's Editor
 
 - User uses **Zed** (zed.dev), not VS Code. The sidebar shows the main repo root, not worktrees.

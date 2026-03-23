@@ -1,0 +1,39 @@
+{
+  "version": 8,
+  "name": "Nautical Chart",
+  "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+  "sources": {
+    "osm": {
+      "type": "raster",
+      "tiles": ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      "tileSize": 256,
+      "maxzoom": 19,
+      "attribution": "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
+    },
+    "openseamap": {
+      "type": "raster",
+      "tiles": ["https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"],
+      "tileSize": 256,
+      "maxzoom": 18,
+      "attribution": "&copy; <a href='http://www.openseamap.org'>OpenSeaMap</a>"
+    }
+  },
+  "layers": [
+    {
+      "id": "osm-base",
+      "type": "raster",
+      "source": "osm",
+      "paint": {
+        "raster-opacity": 1
+      }
+    },
+    {
+      "id": "openseamap-overlay",
+      "type": "raster",
+      "source": "openseamap",
+      "paint": {
+        "raster-opacity": 0.9
+      }
+    }
+  ]
+}

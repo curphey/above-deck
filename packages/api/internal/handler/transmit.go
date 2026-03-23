@@ -11,6 +11,7 @@ import (
 	"github.com/curphey/above-deck/api/internal/llm"
 	"github.com/curphey/above-deck/api/internal/radio"
 	"github.com/curphey/above-deck/api/internal/session"
+	"github.com/curphey/above-deck/api/internal/ws"
 )
 
 // LLMClient is the interface TransmitHandler depends on, allowing mock injection in tests.
@@ -22,11 +23,12 @@ type LLMClient interface {
 type TransmitHandler struct {
 	mgr    *session.Manager
 	client LLMClient
+	wsHub  *ws.Hub
 }
 
-// NewTransmitHandler returns a TransmitHandler wired with the given session manager and LLM client.
-func NewTransmitHandler(mgr *session.Manager, client LLMClient) *TransmitHandler {
-	return &TransmitHandler{mgr: mgr, client: client}
+// NewTransmitHandler returns a TransmitHandler wired with the given session manager, LLM client, and WebSocket hub.
+func NewTransmitHandler(mgr *session.Manager, client LLMClient, wsHub *ws.Hub) *TransmitHandler {
+	return &TransmitHandler{mgr: mgr, client: client, wsHub: wsHub}
 }
 
 type transmitRequest struct {
@@ -100,6 +102,17 @@ func (h *TransmitHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)
+
+		if h.wsHub != nil {
+			radioEvent, _ := json.Marshal(map[string]interface{}{
+				"type":    "radio_event",
+				"agentId": resp.Response.Station,
+				"station": resp.Response.Station,
+				"message": resp.Response.Message,
+				"channel": resp.Response.Channel,
+			})
+			h.wsHub.Broadcast(req.SessionID, radioEvent)
+		}
 		return
 	}
 
@@ -120,4 +133,15 @@ func (h *TransmitHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
+
+	if h.wsHub != nil {
+		radioEvent, _ := json.Marshal(map[string]interface{}{
+			"type":    "radio_event",
+			"agentId": resp.Response.Station,
+			"station": resp.Response.Station,
+			"message": resp.Response.Message,
+			"channel": resp.Response.Channel,
+		})
+		h.wsHub.Broadcast(req.SessionID, radioEvent)
+	}
 }
