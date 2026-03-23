@@ -54,7 +54,7 @@ export function ChartView({ center, zoom }: ChartViewProps) {
       style={{
         width: '100%',
         height: '100%',
-        background: '#081830',
+        background: '#a5bfdd',
         position: 'relative',
         /* Dark nautical filter applied via CSS below */
       }}
