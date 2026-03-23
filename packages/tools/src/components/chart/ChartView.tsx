@@ -4,6 +4,7 @@ import { useMap } from './useMap';
 import blueprintStyle from './styles/blueprint-dark.json';
 import { ChartVesselLayer } from './ChartVesselLayer';
 import { ChartControls } from './ChartControls';
+import { ChartWeatherLayer } from './ChartWeatherLayer';
 
 interface ChartViewProps {
   center?: [number, number];
@@ -31,6 +32,7 @@ export function ChartView({ center, zoom }: ChartViewProps) {
     >
       <ChartVesselLayer map={map} isLoaded={isLoaded} />
       <ChartControls map={map} />
+      <ChartWeatherLayer />
     </div>
   );
 }
