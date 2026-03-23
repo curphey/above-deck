@@ -19,6 +19,7 @@ type Client struct {
 	mu      sync.RWMutex
 	conn    *websocket.Conn
 	stop    chan struct{}
+	bbox    [2][2]float64
 }
 
 func NewClient(apiKey string) *Client {
@@ -56,24 +57,40 @@ type aisMessage struct {
 }
 
 // Start connects to aisstream.io and begins receiving vessel data in the background.
-// bbox is [minLat, minLon], [maxLat, maxLon] — use [[-90,-180],[90,180]] for global.
+// Automatically reconnects on disconnection.
 func (c *Client) Start(bbox [2][2]float64) error {
 	if c.APIKey == "" {
 		log.Println("[AIS] No API key — skipping real AIS data")
 		return nil
 	}
 
-	conn, _, err := websocket.DefaultDialer.Dial(aisStreamURL, nil)
+	c.bbox = bbox
+	go c.connectLoop()
+	return nil
+}
+
+func (c *Client) connect() error {
+	dialer := websocket.Dialer{
+		HandshakeTimeout: 10 * time.Second,
+	}
+	conn, _, err := dialer.Dial(aisStreamURL, nil)
 	if err != nil {
 		return err
 	}
 	c.conn = conn
 
+	// Set read deadline and pong handler to detect dead connections
+	conn.SetReadDeadline(time.Now().Add(90 * time.Second))
+	conn.SetPongHandler(func(string) error {
+		conn.SetReadDeadline(time.Now().Add(90 * time.Second))
+		return nil
+	})
+
 	sub := subscribeMsg{
 		APIKey: c.APIKey,
 		BoundingBoxes: [][][2]float64{{
-			{bbox[0][0], bbox[0][1]},
-			{bbox[1][0], bbox[1][1]},
+			{c.bbox[0][0], c.bbox[0][1]},
+			{c.bbox[1][0], c.bbox[1][1]},
 		}},
 		FilterMessageTypes: []string{"PositionReport"},
 	}
@@ -82,10 +99,49 @@ func (c *Client) Start(bbox [2][2]float64) error {
 		return err
 	}
 
-	log.Printf("[AIS] Connected to aisstream.io, bbox: %v", bbox)
+	log.Printf("[AIS] Connected to aisstream.io (%d vessels cached)", len(c.vessels))
 
-	go c.readLoop()
+	// Start ping ticker
+	go c.pingLoop(conn)
+
 	return nil
+}
+
+func (c *Client) pingLoop(conn *websocket.Conn) {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
+		case <-c.stop:
+			return
+		}
+	}
+}
+
+func (c *Client) connectLoop() {
+	for {
+		select {
+		case <-c.stop:
+			return
+		default:
+		}
+
+		if err := c.connect(); err != nil {
+			log.Printf("[AIS] Connect error: %v — retrying in 10s", err)
+			time.Sleep(10 * time.Second)
+			continue
+		}
+
+		c.readLoop()
+
+		// readLoop exited — connection dropped
+		log.Printf("[AIS] Disconnected — reconnecting in 5s (%d vessels cached)", len(c.vessels))
+		time.Sleep(5 * time.Second)
+	}
 }
 
 func (c *Client) readLoop() {
@@ -100,8 +156,7 @@ func (c *Client) readLoop() {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			log.Printf("[AIS] Read error: %v", err)
-			time.Sleep(5 * time.Second)
-			return
+			return // will reconnect via connectLoop
 		}
 
 		var msg aisMessage
@@ -124,11 +179,15 @@ func (c *Client) readLoop() {
 			VesselType: 0,
 			TypeName:   "Vessel",
 		}
-		// Cap map at 500 vessels to avoid unbounded growth.
-		if len(c.vessels) > 500 {
+		if len(c.vessels) > 2000 {
+			// Evict oldest entries to cap memory
+			count := 0
 			for k := range c.vessels {
 				delete(c.vessels, k)
-				break
+				count++
+				if count >= 500 {
+					break
+				}
 			}
 		}
 		c.mu.Unlock()
