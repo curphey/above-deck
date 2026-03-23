@@ -2,8 +2,26 @@ package agent
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 )
+
+// LoadKnowledgeDocs reads markdown files from the knowledge directory and returns concatenated content.
+func LoadKnowledgeDocs(basePath string, docs []string) string {
+	var sb strings.Builder
+	for _, doc := range docs {
+		path := filepath.Join(basePath, doc)
+		data, err := os.ReadFile(path)
+		if err != nil {
+			continue // skip missing docs
+		}
+		sb.WriteString(fmt.Sprintf("\n## Reference: %s\n\n", doc))
+		sb.WriteString(string(data))
+		sb.WriteString("\n")
+	}
+	return sb.String()
+}
 
 type ScenarioContext struct {
 	Name         string
