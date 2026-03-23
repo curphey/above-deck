@@ -23,7 +23,6 @@ const REGION_CENTERS: Record<string, [number, number]> = {
 
 export function VHFSimulator() {
   const { startTransmit, stopTransmit, createSession, selectScenario, isReady } = useVHFRadio();
-  const apiKey = useVHFStore(s => s.apiKey);
   const [layout, setLayout] = useState<'panel' | 'handheld'>('panel');
   const [showSettings, setShowSettings] = useState(false);
   const [showScenarios, setShowScenarios] = useState(false);
@@ -42,9 +41,8 @@ export function VHFSimulator() {
     return () => window.removeEventListener('resize', checkWidth);
   }, []);
 
-  useEffect(() => {
-    if (!apiKey) setShowSettings(true);
-  }, [apiKey]);
+  // Settings accessible via toolbar button — don't auto-show
+  // Server falls back to ANTHROPIC env var when no client-side key
 
   // Auto-create session on mount if none exists
   useEffect(() => {
