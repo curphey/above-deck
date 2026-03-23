@@ -2,6 +2,8 @@ import { useRef } from 'react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useMap } from './useMap';
 import blueprintStyle from './styles/blueprint-dark.json';
+import { ChartVesselLayer } from './ChartVesselLayer';
+import { ChartControls } from './ChartControls';
 
 interface ChartViewProps {
   center?: [number, number];
@@ -26,6 +28,9 @@ export function ChartView({ center, zoom }: ChartViewProps) {
         background: '#081830',
         position: 'relative',
       }}
-    />
+    >
+      <ChartVesselLayer map={map} isLoaded={isLoaded} />
+      <ChartControls map={map} />
+    </div>
   );
 }
