@@ -65,7 +65,7 @@ func (h *TransmitHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	systemPrompt := llm.BuildSystemPrompt(region, scenarioPtr, sess.VesselName, sess.VesselType)
+	systemPrompt := radio.BuildSystemPrompt(region, scenarioPtr, sess.VesselName, sess.VesselType)
 
 	messages := append(sess.Messages, llm.Message{Role: "user", Content: req.Message})
 

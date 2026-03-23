@@ -6,6 +6,35 @@ import (
 	"github.com/curphey/above-deck/api/internal/radio"
 )
 
+func TestUKSouthAgents(t *testing.T) {
+	r, ok := radio.GetRegion("uk-south")
+	if !ok {
+		t.Fatal("uk-south region not found")
+	}
+	if len(r.Agents) != 7 {
+		t.Errorf("expected 7 agents, got %d", len(r.Agents))
+	}
+	// Verify coastguard agents
+	found := map[string]bool{}
+	for _, a := range r.Agents {
+		if a.ID == "" {
+			t.Error("agent has empty ID")
+		}
+		if a.SystemPrompt == "" {
+			t.Errorf("agent %s has empty system prompt", a.ID)
+		}
+		if len(a.Tools) == 0 {
+			t.Errorf("agent %s has no tools", a.ID)
+		}
+		found[a.ID] = true
+	}
+	for _, id := range []string{"solent-cg", "falmouth-cg", "doris-may", "blue-horizon", "saoirse", "windchaser", "nordic-spirit"} {
+		if !found[id] {
+			t.Errorf("expected agent %q not found in uk-south", id)
+		}
+	}
+}
+
 func TestGetRegion(t *testing.T) {
 	r, ok := radio.GetRegion("uk-south")
 	if !ok {

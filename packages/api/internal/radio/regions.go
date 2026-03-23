@@ -1,5 +1,7 @@
 package radio
 
+import "github.com/curphey/above-deck/api/internal/agent"
+
 // Vessel represents a vessel that may be encountered in a cruising region.
 type Vessel struct {
 	Name        string `json:"name"`
@@ -28,9 +30,10 @@ type Region struct {
 	ID           string              `json:"id"`
 	Name         string              `json:"name"`
 	Description  string              `json:"description"`
-	Coastguard   []CoastguardStation `json:"coastguard"`
-	Vessels      []Vessel            `json:"vessels"`
-	Marinas      []Marina            `json:"marinas"`
+	Coastguard   []CoastguardStation `json:"coastguard"`   // keep for backward compat
+	Vessels      []Vessel            `json:"vessels"`       // keep for backward compat
+	Marinas      []Marina            `json:"marinas"`       // keep for backward compat
+	Agents       []agent.RadioAgent  `json:"agents"`        // NEW
 	LocalFlavour string              `json:"local_flavour"`
 }
 
@@ -96,6 +99,120 @@ var regions = []Region{
 			{Name: "Dartmouth", Channel: 80},
 			{Name: "Lymington", Channel: 80},
 			{Name: "Cowes", Channel: 69},
+		},
+		Agents: []agent.RadioAgent{
+			{
+				ID:           "solent-cg",
+				Name:         "Solent Coastguard",
+				CallSign:     "SOLENT COASTGUARD",
+				AgentType:    "coastguard",
+				Nationality:  "UK",
+				SystemPrompt: "You are a duty watchkeeper at Solent Coastguard MRCC. Professional, calm under pressure, 15 years experience. You coordinate SAR for Teignmouth to Beachy Head. You know the Solent intimately — every sandbank, tidal gate, and shipping lane.",
+				Tools:        []string{"get_weather", "get_tides", "get_ais_targets", "get_time", "get_vessel_info"},
+				KnowledgeDocs: []string{
+					"procedures/sar-coordination.md",
+					"procedures/gmdss-procedures.md",
+					"regions/uk-south/pilot-notes.md",
+				},
+			},
+			{
+				ID:           "falmouth-cg",
+				Name:         "Falmouth Coastguard",
+				CallSign:     "FALMOUTH COASTGUARD",
+				AgentType:    "coastguard",
+				Nationality:  "UK",
+				SystemPrompt: "You are a watch officer at Falmouth Coastguard MRCC. Experienced, 20 years on the coast. Cover Land's End to Teignmouth. Know the shipping lanes, Portland Bill race, and every lifeboat station.",
+				Tools:        []string{"get_weather", "get_tides", "get_ais_targets", "get_time", "get_vessel_info"},
+				KnowledgeDocs: []string{
+					"procedures/sar-coordination.md",
+					"procedures/gmdss-procedures.md",
+					"regions/uk-south/pilot-notes.md",
+				},
+			},
+			{
+				ID:           "doris-may",
+				Name:         "Doris May",
+				CallSign:     "MDMX9",
+				AgentType:    "vessel",
+				Nationality:  "UK",
+				Position:     agent.Position{Lat: 50.15, Lon: -5.07},
+				SystemPrompt: "You are Jim, 68, retired engineer sailing a Hallberg-Rassy 40 called Doris May with your wife Margaret. Cruising the south coast for 12 years. Methodical, always check in with coastguard. Currently heading from Falmouth to Plymouth.",
+				Tools:        []string{"get_weather", "get_time"},
+				VesselSpec: &agent.VesselSpec{
+					Type:   "sailing",
+					Length: "12m",
+					Flag:   "UK",
+					MMSI:   "235001234",
+					Rig:    "sloop",
+					Engine: "Yanmar 3YM30",
+				},
+			},
+			{
+				ID:           "blue-horizon",
+				Name:         "Blue Horizon",
+				CallSign:     "FZBH4",
+				AgentType:    "vessel",
+				Nationality:  "France",
+				Position:     agent.Position{Lat: 50.37, Lon: -1.15},
+				SystemPrompt: "You are Pierre, 45, French family man on a Jeanneau Sun Odyssey 440 called Blue Horizon with wife Marie and two children. Polite but prefer French, switch to English when needed. Planning to cross to Cherbourg tomorrow.",
+				Tools:        []string{"get_weather", "get_time"},
+				VesselSpec: &agent.VesselSpec{
+					Type:   "sailing",
+					Length: "13m",
+					Flag:   "France",
+					MMSI:   "227001234",
+					Rig:    "sloop",
+				},
+			},
+			{
+				ID:           "saoirse",
+				Name:         "Saoirse",
+				CallSign:     "EISX7",
+				AgentType:    "vessel",
+				Nationality:  "Ireland",
+				Position:     agent.Position{Lat: 50.08, Lon: -5.15},
+				SystemPrompt: "You are Declan, 55, solo circumnavigator on a Shannon 28 called Saoirse. Laconic and experienced — 40,000 miles under the keel. Only call when genuinely needed. Currently bound for the Azores.",
+				Tools:        []string{"get_weather", "get_time"},
+				VesselSpec: &agent.VesselSpec{
+					Type:   "sailing",
+					Length: "8.5m",
+					Flag:   "Ireland",
+					MMSI:   "250001234",
+					Rig:    "sloop",
+				},
+			},
+			{
+				ID:           "windchaser",
+				Name:         "Windchaser",
+				CallSign:     "MWCV3",
+				AgentType:    "vessel",
+				Nationality:  "UK",
+				Position:     agent.Position{Lat: 50.30, Lon: -1.95},
+				SystemPrompt: "You are Sarah, 38, live-aboard mum on a Lagoon 42 catamaran called Windchaser with husband Tom and kids Lily (8) and Jack (6). Enthusiastic on the radio, prone to chatting. Sailing from Cowes to Falmouth for the summer.",
+				Tools:        []string{"get_weather", "get_time"},
+				VesselSpec: &agent.VesselSpec{
+					Type:   "catamaran",
+					Length: "12.5m",
+					Flag:   "UK",
+					MMSI:   "235009876",
+				},
+			},
+			{
+				ID:           "nordic-spirit",
+				Name:         "Nordic Spirit",
+				CallSign:     "LANS2",
+				AgentType:    "vessel",
+				Nationality:  "Norway",
+				Position:     agent.Position{Lat: 50.45, Lon: -1.40},
+				SystemPrompt: "You are Lars, 42, Norwegian delivery skipper on a Hallberg-Rassy 48 called Nordic Spirit. Professional and precise, following standard maritime protocol to the letter. Delivering from Southampton to Stavanger.",
+				Tools:        []string{"get_weather", "get_time"},
+				VesselSpec: &agent.VesselSpec{
+					Type:   "motor sailer",
+					Length: "14.5m",
+					Flag:   "Norway",
+					MMSI:   "259001234",
+				},
+			},
 		},
 		LocalFlavour: "Channel shipping lanes require constant radar watch. Tidal gates at Portland Bill and the Needles are critical. Weather can change rapidly — the BBC Shipping Forecast and Ch67 Navtex are essential planning tools.",
 	},
