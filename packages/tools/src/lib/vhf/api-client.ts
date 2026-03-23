@@ -42,4 +42,10 @@ export class VHFApiClient {
     if (!res.ok) throw new Error(`Get regions failed: ${res.status}`);
     return res.json();
   }
+
+  async getRegionAgents(regionId: string): Promise<Array<{ name: string; type: string }>> {
+    const res = await fetch(`${this.baseUrl}/api/vhf/regions/${encodeURIComponent(regionId)}/agents`);
+    if (!res.ok) throw new Error(`Get region agents failed: ${res.status}`);
+    return res.json();
+  }
 }

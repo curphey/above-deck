@@ -35,4 +35,30 @@ describe('VHFApiClient', () => {
       expect.objectContaining({ method: 'POST' })
     );
   });
+
+  it('getRegionAgents calls the correct endpoint', async () => {
+    const mockAgents = [
+      { name: 'Solent Coastguard', type: 'coastguard' },
+      { name: 'Doris May', type: 'vessel' },
+    ];
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockAgents), { status: 200 })
+    );
+
+    const agents = await client.getRegionAgents('uk-south');
+
+    expect(agents).toHaveLength(2);
+    expect(agents[0].name).toBe('Solent Coastguard');
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:8080/api/vhf/regions/uk-south/agents'
+    );
+  });
+
+  it('getRegionAgents throws on non-ok response', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('Not Found', { status: 404 })
+    );
+
+    await expect(client.getRegionAgents('unknown')).rejects.toThrow('Get region agents failed: 404');
+  });
 });

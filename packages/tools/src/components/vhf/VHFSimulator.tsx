@@ -8,6 +8,7 @@ import { SettingsPanel } from './SettingsPanel';
 import { ScenarioPicker } from './ScenarioPicker';
 import { FistMic } from './FistMic';
 import { FeedbackPanel } from './FeedbackPanel';
+import { ChannelInfo } from './ChannelInfo';
 
 export function VHFSimulator() {
   const { startTransmit, stopTransmit, createSession, selectScenario, isReady } = useVHFRadio();
@@ -17,6 +18,7 @@ export function VHFSimulator() {
   const [showScenarios, setShowScenarios] = useState(false);
   const scenarioId = useVHFStore(s => s.scenarioId);
   const feedbackHistory = useVHFStore(s => s.feedbackHistory);
+  const region = useVHFStore(s => s.region);
 
   useEffect(() => {
     const checkWidth = () => setLayout(window.innerWidth >= 768 ? 'panel' : 'handheld');
@@ -53,6 +55,7 @@ export function VHFSimulator() {
             <div style={{ width: '50%', display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '16px', gap: '12px', borderRight: '1px solid #2d2d4a' }}>
               <PanelRadio onTransmit={handleTransmit} />
               <FistMic onPressStart={startTransmit} onPressEnd={() => stopTransmit()} />
+              <ChannelInfo region={region} />
               <FeedbackPanel
                 scenarioLabel={scenarioId || 'Free Practice'}
                 feedback={feedbackHistory}
