@@ -36,4 +36,10 @@ export class VHFApiClient {
     if (!res.ok) throw new Error(`Get scenarios failed: ${res.status}`);
     return res.json();
   }
+
+  async getRegions(): Promise<Array<{ id: string; name: string }>> {
+    const res = await fetch(`${this.baseUrl}/api/vhf/regions`);
+    if (!res.ok) throw new Error(`Get regions failed: ${res.status}`);
+    return res.json();
+  }
 }
