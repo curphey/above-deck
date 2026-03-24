@@ -102,10 +102,11 @@ The Axiom 2 sets the UX bar:
 - [ ] GRIB file overlay
 
 ### Phase 5: Social & AI (Month 4-6)
-- [ ] Anchorage reviews / community POIs
-- [ ] Route sharing
-- [ ] AI copilot with full platform data access
-- [ ] Friend tracking via AIS
+- [ ] **Strava for sailing** — track and share passages, days at sea, miles logged. Activity feed of friends' trips. Season summaries.
+- [ ] **Route library (Komoot-style)** — curated, shareable routes. "SV Delos Best of the Caribbean", "Coconut Milk Run Pacific", "Greek Islands in 2 Weeks". Users rate, review, fork routes. Creators get attribution.
+- [ ] **Community POIs** — anchorage reviews, marina ratings, hazard reports, local knowledge. Crowd-sourced data that gets richer over time.
+- [ ] **AI copilot** — conversational agent with full platform data access (your boat, your route, real weather, real tides)
+- [ ] **Friend tracking** — see where friends are via AIS, share your position opt-in
 
 ---
 
