@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useMap } from './useMap';
 import blueprintStyle from './styles/blueprint-dark.json';
@@ -8,6 +8,7 @@ import { ChartWeatherLayer } from './ChartWeatherLayer';
 import { ChartInfoPopup } from './ChartInfoPopup';
 import { ChartLayerPanel } from './ChartLayerPanel';
 import { ChartPOILayer } from './ChartPOILayer';
+import { ChartSeasonsLayer } from './ChartSeasonsLayer';
 import { useChartStore } from './chartStore';
 
 // Inject chart popup CSS
@@ -49,6 +50,7 @@ export function ChartView({ center, zoom }: ChartViewProps) {
   });
   const ownPosition = useChartStore(s => s.ownPosition);
   const showWeather = useChartStore(s => s.layers.weather);
+  const [showSeasons, setShowSeasons] = useState(false);
 
   // Toggle OpenSeaMap layer visibility based on seamarks toggle
   const showSeamarks = useChartStore(s => s.layers.seamarks);
@@ -75,8 +77,27 @@ export function ChartView({ center, zoom }: ChartViewProps) {
       <ChartInfoPopup map={map} isLoaded={isLoaded} />
       <ChartLayerPanel />
       <ChartPOILayer map={map} isLoaded={isLoaded} />
+      <ChartSeasonsLayer map={map} isLoaded={isLoaded} visible={showSeasons} />
       <ChartControls map={map} />
       {showWeather && <ChartWeatherLayer />}
+      {/* Seasons toggle button — top-right */}
+      <button
+        onClick={() => setShowSeasons(s => !s)}
+        title={showSeasons ? 'Hide cruising seasons' : 'Show cruising seasons'}
+        aria-label="Toggle cruising seasons"
+        style={{
+          position: 'absolute', top: 8, right: 8, zIndex: 10,
+          width: 28, height: 28,
+          background: showSeasons ? 'rgba(96,165,250,0.3)' : 'rgba(0,0,0,0.6)',
+          border: `1px solid ${showSeasons ? '#60a5fa' : 'rgba(255,255,255,0.15)'}`,
+          borderRadius: 4, cursor: 'pointer',
+          color: showSeasons ? '#60a5fa' : '#8b8b9e',
+          fontFamily: "'Fira Code', monospace", fontSize: 12,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        🌊
+      </button>
       {/* Position overlay */}
       <div style={{
         position: 'absolute', bottom: 8, left: 8, zIndex: 10,
