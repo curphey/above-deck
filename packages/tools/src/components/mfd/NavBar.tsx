@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
 
 const NAV_ITEMS = [
-  { id: 'home', icon: '⊞', label: 'Home' },
-  { id: 'solar', icon: '☀', label: 'Solar' },
-  { id: 'vhf', icon: '📻', label: 'VHF' },
-  { id: 'passage', icon: '⚓', label: 'Passage' },
-  { id: 'weather', icon: '◉', label: 'Weather' },
-  { id: 'log', icon: '☰', label: 'Log' },
-  { id: 'about', icon: 'ⓘ', label: 'About' },
+  { id: 'home', icon: '⊞', label: 'Home', href: '/' },
+  { id: 'solar', icon: '☀', label: 'Solar', href: '/tools/solar' },
+  { id: 'vhf', icon: '📻', label: 'VHF', href: '/tools/vhf' },
+  { id: 'chart', icon: '◈', label: 'Chart', href: '/tools/chart' },
 ] as const;
 
 const GITHUB_SVG = (
@@ -18,43 +15,33 @@ const GITHUB_SVG = (
 
 type ScreenId = (typeof NAV_ITEMS)[number]['id'];
 
-export function NavBar() {
-  const [active, setActive] = useState<ScreenId>('home');
+interface NavBarProps {
+  screenId?: string;
+}
 
-  function switchScreen(id: ScreenId) {
-    setActive(id);
-    document.querySelectorAll<HTMLElement>('.screen').forEach((el) => {
-      el.classList.toggle('active', el.id === `screen-${id}`);
-    });
-  }
+export function NavBar({ screenId }: NavBarProps) {
+  const [active, setActive] = useState<string>(screenId || 'home');
 
   useEffect(() => {
-    (window as any).showScreen = (id: ScreenId) => switchScreen(id);
-
-    const handler = (e: MouseEvent) => {
-      const link = (e.target as HTMLElement).closest<HTMLElement>('[data-screen-link]');
-      if (link) switchScreen(link.dataset.screenLink as ScreenId);
-    };
-    document.addEventListener('click', handler);
-    return () => {
-      document.removeEventListener('click', handler);
-      delete (window as any).showScreen;
-    };
-  });
+    // Detect active screen from current URL path
+    const path = window.location.pathname;
+    const match = NAV_ITEMS.find((item) => item.href !== '/' && path.startsWith(item.href));
+    if (match) setActive(match.id);
+    else if (path === '/' || path === '') setActive('home');
+  }, []);
 
   return (
     <div className="nav-bar">
       {NAV_ITEMS.map((item) => (
-        <button
+        <a
           key={item.id}
           className={`nav-btn ${active === item.id ? 'active' : ''}`}
-          data-screen={item.id}
-          onClick={() => switchScreen(item.id)}
+          href={item.href}
           aria-label={item.label}
         >
           <span className="nav-icon">{item.icon}</span>
           <span className="nav-label">{item.label}</span>
-        </button>
+        </a>
       ))}
       <a
         className="nav-btn"
