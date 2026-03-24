@@ -16,7 +16,7 @@ func NewTimeTool() *TimeTool {
 // Definition returns the tool schema for get_current_time.
 func (t *TimeTool) Definition() ToolDefinition {
 	return ToolDefinition{
-		Name:        "get_current_time",
+		Name:        "get_time",
 		Description: "Returns the current UTC time. Useful when the agent needs to know the current date or time for radio communications, weather queries, or log entries.",
 		InputSchema: map[string]any{
 			"type":       "object",

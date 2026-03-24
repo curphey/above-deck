@@ -23,8 +23,8 @@ func TestAISTool_Definition(t *testing.T) {
 	tool := tools.NewAISTool(provider)
 	def := tool.Definition()
 
-	if def.Name != "get_nearby_vessels" {
-		t.Errorf("Name: got %q, want %q", def.Name, "get_nearby_vessels")
+	if def.Name != "get_ais_targets" {
+		t.Errorf("Name: got %q, want %q", def.Name, "get_ais_targets")
 	}
 	if def.Description == "" {
 		t.Error("Description must not be empty")

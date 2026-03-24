@@ -34,7 +34,7 @@ func NewAISTool(provider AISProvider) *AISTool {
 // Definition returns the tool schema for get_nearby_vessels.
 func (a *AISTool) Definition() ToolDefinition {
 	return ToolDefinition{
-		Name:        "get_nearby_vessels",
+		Name:        "get_ais_targets",
 		Description: "Returns AIS vessel traffic near a given position. Results are sorted by distance and capped at 20 vessels.",
 		InputSchema: map[string]any{
 			"type": "object",

@@ -13,8 +13,8 @@ func TestTimeTool_Definition(t *testing.T) {
 	tool := tools.NewTimeTool()
 	def := tool.Definition()
 
-	if def.Name != "get_current_time" {
-		t.Errorf("Name: got %q, want %q", def.Name, "get_current_time")
+	if def.Name != "get_time" {
+		t.Errorf("Name: got %q, want %q", def.Name, "get_time")
 	}
 	if def.Description == "" {
 		t.Error("Description must not be empty")
