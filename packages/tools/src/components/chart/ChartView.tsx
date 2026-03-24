@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useMap } from './useMap';
 import blueprintStyle from './styles/blueprint-dark.json';
@@ -50,23 +50,18 @@ export function ChartView({ center, zoom }: ChartViewProps) {
     style: blueprintStyle as any,
   });
   const ownPosition = useChartStore(s => s.ownPosition);
-  const showWeather = useChartStore(s => s.layers.weather);
-  const [showSeasons, setShowSeasons] = useState(false);
+  const layers = useChartStore(s => s.layers);
 
   // Toggle tile layer visibility based on store
-  const showSeamarks = useChartStore(s => s.layers.seamarks);
-  const showBathymetry = useChartStore(s => s.layers.bathymetry);
-  const showPois = useChartStore(s => s.layers.pois);
-
   useEffect(() => {
     if (!map || !isLoaded) return;
     if (map.getLayer('openseamap-overlay')) {
-      map.setLayoutProperty('openseamap-overlay', 'visibility', showSeamarks ? 'visible' : 'none');
+      map.setLayoutProperty('openseamap-overlay', 'visibility', layers.seamarks ? 'visible' : 'none');
     }
     if (map.getLayer('gebco-bathymetry')) {
-      map.setLayoutProperty('gebco-bathymetry', 'visibility', showBathymetry ? 'visible' : 'none');
+      map.setLayoutProperty('gebco-bathymetry', 'visibility', layers.bathymetry ? 'visible' : 'none');
     }
-  }, [map, isLoaded, showSeamarks, showBathymetry]);
+  }, [map, isLoaded, layers.seamarks, layers.bathymetry]);
 
   return (
     <div
@@ -82,29 +77,11 @@ export function ChartView({ center, zoom }: ChartViewProps) {
       <ChartVesselLayer map={map} isLoaded={isLoaded} />
       <ChartInfoPopup map={map} isLoaded={isLoaded} />
       <ChartLayerPanel />
-      <ChartPOILayer map={map} isLoaded={isLoaded} visible={showPois} />
-      <ChartSeasonsLayer map={map} isLoaded={isLoaded} visible={showSeasons} />
+      <ChartPOILayer map={map} isLoaded={isLoaded} visible={layers.pois} />
+      <ChartSeasonsLayer map={map} isLoaded={isLoaded} visible={layers.seasons} />
       <ChartRouteLayer map={map} isLoaded={isLoaded} />
       <ChartControls map={map} />
-      {showWeather && <ChartWeatherLayer />}
-      {/* Seasons toggle button — top-right */}
-      <button
-        onClick={() => setShowSeasons(s => !s)}
-        title={showSeasons ? 'Hide cruising seasons' : 'Show cruising seasons'}
-        aria-label="Toggle cruising seasons"
-        style={{
-          position: 'absolute', top: 8, right: 8, zIndex: 10,
-          width: 28, height: 28,
-          background: showSeasons ? 'rgba(96,165,250,0.3)' : 'rgba(0,0,0,0.6)',
-          border: `1px solid ${showSeasons ? '#60a5fa' : 'rgba(255,255,255,0.15)'}`,
-          borderRadius: 4, cursor: 'pointer',
-          color: showSeasons ? '#60a5fa' : '#8b8b9e',
-          fontFamily: "'Fira Code', monospace", fontSize: 12,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-      >
-        🌊
-      </button>
+      {layers.weather && <ChartWeatherLayer />}
       {/* Position overlay */}
       <div style={{
         position: 'absolute', bottom: 8, left: 8, zIndex: 10,
