@@ -6,6 +6,7 @@ import { ChartVesselLayer } from './ChartVesselLayer';
 import { ChartControls } from './ChartControls';
 import { ChartWeatherLayer } from './ChartWeatherLayer';
 import { ChartInfoPopup } from './ChartInfoPopup';
+import { ChartLayerPanel } from './ChartLayerPanel';
 import { useChartStore } from './chartStore';
 
 // Inject chart popup CSS
@@ -46,6 +47,17 @@ export function ChartView({ center, zoom }: ChartViewProps) {
     style: blueprintStyle as any,
   });
   const ownPosition = useChartStore(s => s.ownPosition);
+  const showWeather = useChartStore(s => s.layers.weather);
+
+  // Toggle OpenSeaMap layer visibility based on seamarks toggle
+  const showSeamarks = useChartStore(s => s.layers.seamarks);
+  useEffect(() => {
+    if (!map || !isLoaded) return;
+    const layer = map.getLayer('openseamap-overlay');
+    if (layer) {
+      map.setLayoutProperty('openseamap-overlay', 'visibility', showSeamarks ? 'visible' : 'none');
+    }
+  }, [map, isLoaded, showSeamarks]);
 
   return (
     <div
@@ -56,13 +68,13 @@ export function ChartView({ center, zoom }: ChartViewProps) {
         height: '100%',
         background: '#a5bfdd',
         position: 'relative',
-        /* Dark nautical filter applied via CSS below */
       }}
     >
       <ChartVesselLayer map={map} isLoaded={isLoaded} />
       <ChartInfoPopup map={map} isLoaded={isLoaded} />
+      <ChartLayerPanel />
       <ChartControls map={map} />
-      <ChartWeatherLayer />
+      {showWeather && <ChartWeatherLayer />}
       {/* Position overlay */}
       <div style={{
         position: 'absolute', bottom: 8, left: 8, zIndex: 10,

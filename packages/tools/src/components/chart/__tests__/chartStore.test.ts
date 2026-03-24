@@ -34,4 +34,35 @@ describe('chartStore', () => {
     useChartStore.getState().setOrientation('head-up');
     expect(useChartStore.getState().orientation).toBe('head-up');
   });
+
+  it('toggles layer visibility', () => {
+    expect(useChartStore.getState().layers.seamarks).toBe(true);
+    useChartStore.getState().toggleLayer('seamarks');
+    expect(useChartStore.getState().layers.seamarks).toBe(false);
+    useChartStore.getState().toggleLayer('seamarks');
+    expect(useChartStore.getState().layers.seamarks).toBe(true);
+  });
+
+  it('toggles vessel type filter', () => {
+    expect(useChartStore.getState().vesselTypeFilter['Sailing']).toBe(true);
+    useChartStore.getState().toggleVesselType('Sailing');
+    expect(useChartStore.getState().vesselTypeFilter['Sailing']).toBe(false);
+  });
+
+  it('keeps rangeRings and showRangeRings in sync', () => {
+    useChartStore.getState().toggleLayer('rangeRings');
+    expect(useChartStore.getState().layers.rangeRings).toBe(false);
+    expect(useChartStore.getState().showRangeRings).toBe(false);
+  });
+
+  it('defaults Passenger and Tanker to hidden', () => {
+    expect(useChartStore.getState().vesselTypeFilter['Passenger']).toBe(false);
+    expect(useChartStore.getState().vesselTypeFilter['Tanker']).toBe(false);
+  });
+
+  it('tracks layer panel open state', () => {
+    expect(useChartStore.getState().layerPanelOpen).toBe(false);
+    useChartStore.getState().setLayerPanelOpen(true);
+    expect(useChartStore.getState().layerPanelOpen).toBe(true);
+  });
 });
