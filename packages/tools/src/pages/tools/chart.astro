@@ -4,5 +4,6 @@ import { ChartView } from '@/components/chart/ChartView';
 export const prerender = false;
 ---
 <MFDLayout title="Chart — Above Deck" screenId="chart">
-  <ChartView client:only="react" />
+  <!-- Pacific-centered global view for circumnavigation planning -->
+  <ChartView client:only="react" center={[170, 10]} zoom={2} />
 </MFDLayout>

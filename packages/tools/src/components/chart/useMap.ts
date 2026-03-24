@@ -21,6 +21,7 @@ export function useMap({ container, center = [-5.04, 50.09], zoom = 12, style }:
       center,
       zoom,
       attributionControl: false,
+      renderWorldCopies: true,
     });
 
     map.on('load', () => setIsLoaded(true));
