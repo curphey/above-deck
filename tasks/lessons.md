@@ -65,6 +65,16 @@
 
 - Git worktrees in `.claude/worktrees/` and `.worktrees/` are matched by Vitest's glob patterns (`**/*.test.ts`). Stale worktrees from old sessions with different package structures (e.g., pre-restructure `packages/web/`) cause phantom test failures. Always run `git worktree list` and remove stale entries with `git worktree remove <path> --force`.
 
+## Product Strategy
+
+- Building fast without a coherent product vision creates a patchwork quilt. Stop and research before building more.
+- Organize research by product domain (boat management, trips, communication, utilities) to see gaps clearly.
+- Study the best hardware UX (Raymarine Axiom 2, Garmin) then build the software equivalent — free, open-source, cross-platform.
+- The AI is not a feature, it's the platform identity. A crew of specialized agents (Navigator, Engineer, Radio Op, Bosun, Pilot).
+- Phase 1 is infrastructure (Docker, auth, sync, PWA), not UI. Get the plumbing right first.
+- Multi-surface = Docker on the boat + web anywhere + PWA on phone. Like Claude CLI/Desktop/Web.
+- This is 100% free and open source. No commercial model. Remove any premium/paywall language from docs.
+
 ## User's Editor
 
 - User uses **Zed** (zed.dev), not VS Code. The sidebar shows the main repo root, not worktrees.
