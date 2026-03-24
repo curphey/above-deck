@@ -9,6 +9,7 @@ import { ChartInfoPopup } from './ChartInfoPopup';
 import { ChartLayerPanel } from './ChartLayerPanel';
 import { ChartPOILayer } from './ChartPOILayer';
 import { ChartSeasonsLayer } from './ChartSeasonsLayer';
+import { ChartRouteLayer } from './ChartRouteLayer';
 import { useChartStore } from './chartStore';
 
 // Inject chart popup CSS
@@ -78,6 +79,7 @@ export function ChartView({ center, zoom }: ChartViewProps) {
       <ChartLayerPanel />
       <ChartPOILayer map={map} isLoaded={isLoaded} />
       <ChartSeasonsLayer map={map} isLoaded={isLoaded} visible={showSeasons} />
+      <ChartRouteLayer map={map} isLoaded={isLoaded} />
       <ChartControls map={map} />
       {showWeather && <ChartWeatherLayer />}
       {/* Seasons toggle button — top-right */}
