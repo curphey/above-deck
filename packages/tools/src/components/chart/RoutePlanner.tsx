@@ -2,6 +2,7 @@ import { useRef, useCallback } from 'react';
 import { useRoutePlannerStore } from '@/stores/route-planner';
 import { generateRoute } from '@/lib/chart/route-generator';
 import { MONTH_NAMES } from '@/lib/chart/cruising-seasons';
+import { ChartView } from './ChartView';
 
 const DEPARTURE_PRESETS: { name: string; lat: number; lon: number }[] = [
   { name: 'Gibraltar', lat: 36.14, lon: -5.35 },
@@ -166,8 +167,13 @@ export function RoutePlanner() {
         )}
       </div>
 
-      {/* Right panel — route display */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+      {/* Center — chart with route overlay */}
+      <div style={{ flex: 1, position: 'relative', minWidth: 0 }}>
+        <ChartView center={[170, 10]} zoom={2} />
+      </div>
+
+      {/* Right panel — route timeline */}
+      <div style={{ width: 300, minWidth: 300, overflowY: 'auto', padding: 16, borderLeft: '1px solid #2d2d4a' }}>
         {!store.plan && !store.loading && (
           <div style={{ color: '#8b8b9e', textAlign: 'center', marginTop: 40, fontFamily: "'Space Mono', monospace" }}>
             Configure your trip and click Generate Route
