@@ -30,9 +30,9 @@ The Axiom 2 sets the UX bar:
 
 - **Free charts exist:** NOAA ENCs (US), OpenSeaMap. But no free global vector chart source.
 - **The depth problem:** Our OSM tiles show no depth data. GEBCO bathymetry helps at ocean scale but not harbour scale. Real depth contours require S-57 ENC data.
-- **Route planning is the killer feature:** Savvy Navvy proved this. Auto-routing considering weather + tides + hazards is what sailors will pay for.
+- **Route planning is the killer feature:** Savvy Navvy proved this. Auto-routing considering weather + tides + hazards is what sailors actually need.
 
-**Action:** Integrate NOAA ENCs for US waters (free). For global, investigate Navionics/C-MAP licensing or OpenSeaMap depth contributions. Build passage planning as the premium feature.
+**Action:** Integrate NOAA ENCs for US waters (free). For global, investigate OpenSeaMap depth contributions and community-sourced depth data. Build passage planning as the core feature that ties everything together.
 
 ### 3. Weather (from marine weather deep-dive)
 
@@ -79,6 +79,7 @@ The Axiom 2 sets the UX bar:
 - [ ] Each tool = an app tile with live preview
 - [ ] Split view support (any two apps side by side)
 - [ ] Responsive: works on 7" tablet to 27" desktop
+- [ ] **Mobile-first PWA** — installable on iOS/Android home screen, offline-capable via service worker, full-screen mode. PWA is the right approach because: no app store gatekeeping, single codebase for all platforms, instant updates, works offline with Workbox caching. Already have `@vite-pwa/astro` in the stack.
 
 ### Phase 2: Navigation (Month 1-2)
 - [ ] NOAA ENC chart integration (US waters, free)
@@ -88,8 +89,11 @@ The Axiom 2 sets the UX bar:
 
 ### Phase 3: Boat Management (Month 2-3)
 - [ ] Victron VRM cloud integration (battery, solar, consumption)
+- [ ] **Engine monitoring** — RPM, oil pressure, coolant temp, exhaust temp, fuel consumption, hours (via NMEA 2000 / SignalK)
+- [ ] **Tank levels** — fuel, fresh water, black/grey water, LPG
+- [ ] **Electrical overview** — shore power, alternator, inverter, total load
 - [ ] Instrument dashboard (gauges, graphs, Simarine-style)
-- [ ] Boat plan view (interactive SVG with system zones)
+- [ ] Boat plan view (interactive SVG with system zones — like Axiom's HOME/POWER/FLUIDS/DRIVE/CLIMATE/BILGES)
 
 ### Phase 4: Passage Planning (Month 3-4)
 - [ ] Route creation + editing on chart
