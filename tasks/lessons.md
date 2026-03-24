@@ -61,6 +61,10 @@
 - When two Zustand stores need the same data in different shapes (e.g., chart vessels → VHF AIS targets), use a bridge hook (`useAISBridge`) that reads from one store and writes to another. Don't duplicate the WebSocket connection.
 - Compute derived values (distance, bearing, CPA) in the bridge hook, not in the rendering component. Keep rendering components focused on display.
 
+## Stale Worktrees
+
+- Git worktrees in `.claude/worktrees/` and `.worktrees/` are matched by Vitest's glob patterns (`**/*.test.ts`). Stale worktrees from old sessions with different package structures (e.g., pre-restructure `packages/web/`) cause phantom test failures. Always run `git worktree list` and remove stale entries with `git worktree remove <path> --force`.
+
 ## User's Editor
 
 - User uses **Zed** (zed.dev), not VS Code. The sidebar shows the main repo root, not worktrees.
