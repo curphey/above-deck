@@ -74,14 +74,19 @@ The Axiom 2 sets the UX bar:
 
 ## Build Priority (Next 6 Months)
 
-### Phase 1: Foundation (Now)
-- [ ] Redesign MFD shell as composable app grid (Axiom-style)
-- [ ] Each tool = an app tile with live preview
-- [ ] Split view support (any two apps side by side)
-- [ ] Responsive: works on 7" tablet to 27" desktop
-- [ ] **Mobile-first PWA** — installable on iOS/Android home screen, offline-capable via service worker, full-screen mode. PWA is the right approach because: no app store gatekeeping, single codebase for all platforms, instant updates, works offline with Workbox caching. Already have `@vite-pwa/astro` in the stack.
+### Phase 1: Core Platform Infrastructure (Now)
+- [ ] **Go server** — production-ready with health checks, graceful shutdown, config management
+- [ ] **Docker deployment** — single `docker-compose up` for the full stack (Go API + frontend + DB)
+- [ ] **Auth** — Google OAuth (already have PKCE flow via Supabase), user profiles, boat profiles (keyed to MMSI)
+- [ ] **Admin tools** — user management, system health, feature flags
+- [ ] **Update system** — Docker-based auto-update, version management, rollback
+- [ ] **PWA shell** — installable on any device, offline-capable via service worker, responsive from 7" to 27"
+- [ ] **Multi-surface architecture** — same platform accessible from: Docker on the boat (MFD/local network), web browser anywhere, PWA on phone/tablet. Like Claude CLI / Desktop / Web — different surfaces, same platform.
+- [ ] **Database** — Supabase for cloud, SQLite for offline/local. Sync between them.
 
-### Phase 2: Navigation (Month 1-2)
+### Phase 2: MFD UI + Navigation (Month 1-2)
+- [ ] Composable app grid home screen (Axiom-style, live previews)
+- [ ] Split view support (any two apps side by side)
 - [ ] NOAA ENC chart integration (US waters, free)
 - [ ] Tidal height overlay on chart (NOAA CO-OPS)
 - [ ] Weather overlay (Open-Meteo wind/waves on chart)
