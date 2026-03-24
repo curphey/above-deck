@@ -3,6 +3,8 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/curphey/above-deck/api/internal/llm"
 )
 
 // Executor dispatches tool_use calls by name to registered Tool implementations.
@@ -50,6 +52,23 @@ func (e *Executor) DefinitionsFor(names []string) []ToolDefinition {
 	for _, name := range names {
 		if t, ok := e.tools[name]; ok {
 			defs = append(defs, t.Definition())
+		}
+	}
+	return defs
+}
+
+// DefinitionsForLLM returns llm.ToolDef entries for the named tools, suitable for
+// passing directly to the Claude API. Satisfies agent.ToolExecutorInterface.
+func (e *Executor) DefinitionsForLLM(names []string) []llm.ToolDef {
+	defs := make([]llm.ToolDef, 0, len(names))
+	for _, name := range names {
+		if t, ok := e.tools[name]; ok {
+			d := t.Definition()
+			defs = append(defs, llm.ToolDef{
+				Name:        d.Name,
+				Description: d.Description,
+				InputSchema: d.InputSchema,
+			})
 		}
 	}
 	return defs
