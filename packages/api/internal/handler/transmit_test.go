@@ -23,12 +23,16 @@ func (m *mockLLMClient) SendMessage(_ context.Context, _, _ string, _ []llm.Mess
 	return m.response, m.err
 }
 
+func (m *mockLLMClient) SendMessageWithTools(_ context.Context, _, _ string, _ []llm.Message, _ []llm.ToolDef, _ llm.ToolExecutor) (*llm.VHFResponse, error) {
+	return m.response, m.err
+}
+
 // --- TransmitHandler tests ---
 
 func TestTransmitHandler_NoAPIKey(t *testing.T) {
 	mgr := session.NewManager()
 	client := &mockLLMClient{}
-	h := handler.NewTransmitHandler(mgr, client, nil)
+	h := handler.NewTransmitHandler(mgr, client, nil, nil)
 
 	body := `{"message":"hello","session_id":"any"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/vhf/transmit", bytes.NewBufferString(body))
@@ -46,7 +50,7 @@ func TestTransmitHandler_NoAPIKey(t *testing.T) {
 func TestTransmitHandler_NoSession(t *testing.T) {
 	mgr := session.NewManager()
 	client := &mockLLMClient{}
-	h := handler.NewTransmitHandler(mgr, client, nil)
+	h := handler.NewTransmitHandler(mgr, client, nil, nil)
 
 	body := `{"message":"hello","session_id":"nonexistent"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/vhf/transmit", bytes.NewBufferString(body))
@@ -74,7 +78,7 @@ func TestTransmitHandler_Success(t *testing.T) {
 	mockResp.Feedback.ProtocolNote = "Acknowledge with OUT"
 
 	client := &mockLLMClient{response: mockResp}
-	h := handler.NewTransmitHandler(mgr, client, nil)
+	h := handler.NewTransmitHandler(mgr, client, nil, nil)
 
 	body, _ := json.Marshal(map[string]string{
 		"message":    "Falmouth Coastguard, radio check, over.",

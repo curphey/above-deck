@@ -17,18 +17,20 @@ import (
 // LLMClient is the interface TransmitHandler depends on, allowing mock injection in tests.
 type LLMClient interface {
 	SendMessage(ctx context.Context, apiKey, systemPrompt string, messages []llm.Message) (*llm.VHFResponse, error)
+	SendMessageWithTools(ctx context.Context, apiKey, systemPrompt string, messages []llm.Message, tools []llm.ToolDef, executor llm.ToolExecutor) (*llm.VHFResponse, error)
 }
 
 // TransmitHandler handles POST /api/vhf/transmit.
 type TransmitHandler struct {
-	mgr    *session.Manager
-	client LLMClient
-	wsHub  *ws.Hub
+	mgr          *session.Manager
+	client       LLMClient
+	wsHub        *ws.Hub
+	toolExecutor agent.ToolExecutorInterface
 }
 
-// NewTransmitHandler returns a TransmitHandler wired with the given session manager, LLM client, and WebSocket hub.
-func NewTransmitHandler(mgr *session.Manager, client LLMClient, wsHub *ws.Hub) *TransmitHandler {
-	return &TransmitHandler{mgr: mgr, client: client, wsHub: wsHub}
+// NewTransmitHandler returns a TransmitHandler wired with the given session manager, LLM client, WebSocket hub, and optional tool executor.
+func NewTransmitHandler(mgr *session.Manager, client LLMClient, wsHub *ws.Hub, toolExec agent.ToolExecutorInterface) *TransmitHandler {
+	return &TransmitHandler{mgr: mgr, client: client, wsHub: wsHub, toolExecutor: toolExec}
 }
 
 type transmitRequest struct {
@@ -71,6 +73,9 @@ func (h *TransmitHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// If region has agents, use the agent dispatcher
 	if len(region.Agents) > 0 {
 		dispatcher := agent.NewDispatcher(region.Agents, h.client)
+		if h.toolExecutor != nil {
+			dispatcher.SetToolExecutor(h.toolExecutor)
+		}
 
 		// Convert scenario to agent.ScenarioContext if present
 		var scenarioCtx *agent.ScenarioContext

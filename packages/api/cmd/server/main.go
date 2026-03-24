@@ -10,6 +10,7 @@ import (
 	"github.com/curphey/above-deck/api/internal/llm"
 	"github.com/curphey/above-deck/api/internal/middleware"
 	"github.com/curphey/above-deck/api/internal/session"
+	"github.com/curphey/above-deck/api/internal/tools"
 	"github.com/curphey/above-deck/api/internal/ws"
 )
 
@@ -39,11 +40,17 @@ func main() {
 	sessionMgr := session.NewManager()
 	llmClient := llm.NewClient("")
 
+	// Build tool executor with all available agent tools.
+	toolExec := tools.NewExecutor()
+	toolExec.Register(tools.NewTimeTool())
+	toolExec.Register(tools.NewWeatherTool(""))
+	toolExec.Register(tools.NewAISTool(aisClient))
+
 	wsHub := ws.NewHub()
 	go wsHub.Run()
 
 	sessionHandler := handler.NewSessionHandler(sessionMgr, wsHub, aisClient)
-	transmitHandler := handler.NewTransmitHandler(sessionMgr, llmClient, wsHub)
+	transmitHandler := handler.NewTransmitHandler(sessionMgr, llmClient, wsHub, toolExec)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", handler.Health)
