@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { id: 'solar', icon: '☀', label: 'Solar', href: '/tools/solar' },
   { id: 'vhf', icon: '📻', label: 'VHF', href: '/tools/vhf' },
   { id: 'chart', icon: '◈', label: 'Chart', href: '/tools/chart' },
+  { id: 'route', icon: '🌍', label: 'Route', href: '/tools/route' },
 ] as const;
 
 const GITHUB_SVG = (
