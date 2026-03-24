@@ -122,7 +122,24 @@ export function TranscriptPanel() {
   };
 
   const handleExport = () => {
-    // Export functionality — no-op placeholder
+    if (!transcript.length) return;
+    const lines = transcript.map((e) => {
+      const time = formatTime(e.timestamp);
+      const dir = e.type === 'tx' ? 'TX' : 'RX';
+      const line = `[${time}] ${dir} CH${e.channel} ${e.station}: ${e.message}`;
+      if (e.feedback) {
+        return `${line}\n  >> ${e.feedback.type}: ${e.feedback.message}`;
+      }
+      return line;
+    });
+    const text = `VHF Voice Log — ${new Date().toLocaleDateString('en-GB')}\n${'='.repeat(50)}\n\n${lines.join('\n\n')}`;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vhf-log-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const buttonStyle: React.CSSProperties = {

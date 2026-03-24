@@ -48,6 +48,23 @@
 - Vessel positions must be placed at realistic geographic locations (near harbours, in shipping channels) — not arbitrary offsets from a coastguard station position.
 - The chart is foundational — everything else (vessels, weather, popups) is meaningless without visible coastline and features.
 
+## Claude Tool Use (Go API)
+
+- The Claude API's tool_use feature requires a loop: send request with tools → check `stop_reason` → if `"tool_use"`, execute the tool, send `tool_result` back → repeat until `stop_reason` is `"end_turn"`. Cap iterations (we use 5) to prevent infinite loops.
+- `tool_result` content can be a plain string — no need to wrap in content block arrays.
+- Tool names in Go agent definitions (`RadioAgent.Tools[]`) must exactly match names in the executor registry. A mismatch silently skips tools (the `DefinitionsForLLM` method filters by name).
+- `ToolExecutorInterface` should be an optional dependency (`SetToolExecutor` method) — agents without tools should fall back gracefully to plain `SendMessage`.
+- When adding a new method to a Go interface (e.g., `SendMessageWithTools` to `LLMClient`), ALL mock implementations in test files must add the new method or tests won't compile.
+
+## Cross-Store Data Bridges
+
+- When two Zustand stores need the same data in different shapes (e.g., chart vessels → VHF AIS targets), use a bridge hook (`useAISBridge`) that reads from one store and writes to another. Don't duplicate the WebSocket connection.
+- Compute derived values (distance, bearing, CPA) in the bridge hook, not in the rendering component. Keep rendering components focused on display.
+
+## Stale Worktrees
+
+- Git worktrees in `.claude/worktrees/` and `.worktrees/` are matched by Vitest's glob patterns (`**/*.test.ts`). Stale worktrees from old sessions with different package structures (e.g., pre-restructure `packages/web/`) cause phantom test failures. Always run `git worktree list` and remove stale entries with `git worktree remove <path> --force`.
+
 ## User's Editor
 
 - User uses **Zed** (zed.dev), not VS Code. The sidebar shows the main repo root, not worktrees.
