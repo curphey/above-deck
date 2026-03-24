@@ -11,6 +11,7 @@ import { FeedbackPanel } from './FeedbackPanel';
 import { ChannelInfo } from './ChannelInfo';
 import { ChartView } from '../chart/ChartView';
 import { useChartWebSocket } from '../chart/useChartWebSocket';
+import { useAISBridge } from './useAISBridge';
 
 const REGION_CENTERS: Record<string, [number, number]> = {
   'uk-south': [-1.3, 50.7],
@@ -33,6 +34,7 @@ export function VHFSimulator() {
   const sessionId = useVHFStore(s => s.sessionId);
 
   useChartWebSocket(sessionId);
+  useAISBridge();
 
   useEffect(() => {
     const checkWidth = () => setLayout(window.innerWidth >= 768 ? 'panel' : 'handheld');
