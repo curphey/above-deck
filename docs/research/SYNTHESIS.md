@@ -110,10 +110,25 @@ The Axiom 2 sets the UX bar:
 
 ---
 
+## AI Crew — The Platform Identity
+
+The AI is not a feature — it IS the platform. A crew of specialized AI sailing agents, each with deep knowledge and access to real boat/weather/chart data via tool_use:
+
+| Agent | Role | Data Access |
+|-------|------|-------------|
+| **Navigator** | Route planning, weather analysis, tidal gates, departure timing | Charts, weather APIs, tide data, cruising seasons |
+| **Engineer** | Boat systems, power management, engine monitoring | SignalK, Victron, NMEA 2000 sensors |
+| **Radio Operator** | VHF procedures, DSC, AIS interpretation | AIS feed, VHF channels, MMSI database |
+| **Bosun** | Provisioning, checklists, watch schedules, anchor watch | Crew data, inventory, GPS/anchor position |
+| **Pilot** | Local knowledge, port info, customs, marina recommendations | POI data, community reviews, port databases |
+
+The agents collaborate — Navigator asks Engineer about fuel range, Pilot tells Navigator about port approach hazards. Like a real crew. The VHF Radio Operator is already built (PR #184).
+
 ## Design Principles (from research)
 
 1. **Offline-first** — boats are offline. Everything must work without internet.
 2. **Data over decoration** — sailors want information density, not whitespace.
 3. **Progressive complexity** — simple for weekend sailors, deep for ocean cruisers.
 4. **Hardware-agnostic** — any screen, any sensor, any chart source.
-5. **AI-native** — the copilot knows your boat, your route, your weather.
+5. **AI crew, not AI feature** — specialized agents that know your boat and work together.
+6. **Free and open source** — no commercial model, community-driven, personally funded.
