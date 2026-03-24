@@ -9,18 +9,8 @@ import { ScenarioPicker } from './ScenarioPicker';
 import { FistMic } from './FistMic';
 import { FeedbackPanel } from './FeedbackPanel';
 import { ChannelInfo } from './ChannelInfo';
-import { ChartView } from '../chart/ChartView';
 import { useChartWebSocket } from '../chart/useChartWebSocket';
 import { useAISBridge } from './useAISBridge';
-
-const REGION_CENTERS: Record<string, [number, number]> = {
-  'uk-south': [-1.3, 50.7],
-  'caribbean': [-64.6, 18.4],
-  'med-greece': [23.7, 37.9],
-  'se-asia': [98.3, 7.9],
-  'pacific': [177.0, -17.8],
-  'atlantic': [-15.4, 28.1],
-};
 
 export function VHFSimulator() {
   const { startTransmit, stopTransmit, createSession, selectScenario, isReady } = useVHFRadio();
@@ -63,7 +53,7 @@ export function VHFSimulator() {
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {layout === 'panel' ? (
           <>
-            {/* LEFT: Radio + Tabs */}
+            {/* LEFT: Radio + PTT + Channel info */}
             <div style={{ width: '420px', flexShrink: 0, display: 'flex', flexDirection: 'column', borderRight: '1px solid #2d2d4a', overflow: 'hidden' }}>
               <div style={{ padding: '10px', flexShrink: 0 }}>
                 <PanelRadio onTransmit={handleTransmit} />
@@ -72,6 +62,9 @@ export function VHFSimulator() {
                 <FistMic onPressStart={startTransmit} onPressEnd={() => stopTransmit()} />
                 <ChannelInfo region={region} />
               </div>
+            </div>
+            {/* RIGHT: Voice log + feedback tabs */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               {/* Tab bar */}
               <div style={{ display: 'flex', borderBottom: '1px solid #2d2d4a', flexShrink: 0 }}>
                 {(['log', 'feedback', 'scenario'] as const).map(tab => (
@@ -96,10 +89,6 @@ export function VHFSimulator() {
                   </div>
                 )}
               </div>
-            </div>
-            {/* RIGHT: Chartplotter */}
-            <div style={{ flex: 1, position: 'relative' }}>
-              <ChartView center={REGION_CENTERS[region] || REGION_CENTERS['uk-south']} zoom={11} />
             </div>
           </>
         ) : (
