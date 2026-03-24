@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { TranscriptPanel } from '../TranscriptPanel';
 import { useVHFStore } from '@/stores/vhf';
 
@@ -48,5 +48,30 @@ describe('TranscriptPanel', () => {
     render(<TranscriptPanel />);
     expect(screen.getByText('Clear')).toBeInTheDocument();
     expect(screen.getByText('Export')).toBeInTheDocument();
+  });
+
+  it('export creates a blob download when transcript has entries', () => {
+    useVHFStore.setState({
+      transcript: [
+        { id: '1', type: 'tx', station: 'SV Artemis', message: 'Radio check', channel: 16, timestamp: new Date('2026-03-24T10:00:00Z') },
+        { id: '2', type: 'rx', station: 'Falmouth CG', message: 'Loud and clear', channel: 16, timestamp: new Date('2026-03-24T10:00:05Z') },
+      ],
+    });
+
+    const createObjectURL = vi.fn(() => 'blob:test');
+    const revokeObjectURL = vi.fn();
+    global.URL.createObjectURL = createObjectURL;
+    global.URL.revokeObjectURL = revokeObjectURL;
+
+    render(<TranscriptPanel />);
+    fireEvent.click(screen.getByText('Export'));
+
+    expect(createObjectURL).toHaveBeenCalledOnce();
+    const blob = createObjectURL.mock.calls[0][0] as Blob;
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.type).toBe('text/plain');
+    expect(revokeObjectURL).toHaveBeenCalledOnce();
+
+    vi.restoreAllMocks();
   });
 });
