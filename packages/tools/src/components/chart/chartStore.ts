@@ -31,6 +31,8 @@ export interface LayerVisibility {
   aisVessels: boolean;
   weather: boolean;
   rangeRings: boolean;
+  bathymetry: boolean;
+  pois: boolean;
 }
 
 export const VESSEL_TYPES = ['Sailing', 'Cargo', 'Fishing', 'Passenger', 'Tanker', 'Pleasure craft', 'Vessel'] as const;
@@ -76,7 +78,7 @@ const initialState = {
   weather: { windSpeedKnots: 0, windDirection: 0, seaState: 'calm', visibility: 'good' } as ChartWeather,
   activeRadioTarget: null as string | null,
   orientation: 'north-up' as Orientation,
-  layers: { seamarks: true, aisVessels: true, weather: true, rangeRings: true } as LayerVisibility,
+  layers: { seamarks: true, aisVessels: true, weather: true, rangeRings: true, bathymetry: false, pois: true } as LayerVisibility,
   vesselTypeFilter: { ...defaultVesselTypeFilter } as VesselTypeFilter,
   layerPanelOpen: false,
   showRangeRings: true,

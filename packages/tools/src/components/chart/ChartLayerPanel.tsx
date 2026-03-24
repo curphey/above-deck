@@ -33,7 +33,9 @@ const toggleBtnStyle: React.CSSProperties = {
 
 const LAYER_LABELS: Record<keyof LayerVisibility, string> = {
   seamarks: 'Sea marks',
+  bathymetry: 'Depth shading',
   aisVessels: 'AIS vessels',
+  pois: 'Marinas & POIs',
   weather: 'Weather',
   rangeRings: 'Range rings',
 };

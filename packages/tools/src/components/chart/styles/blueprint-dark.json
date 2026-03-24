@@ -10,6 +10,13 @@
       "maxzoom": 19,
       "attribution": "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
     },
+    "gebco": {
+      "type": "raster",
+      "tiles": ["https://tiles.arcgis.com/tiles/C8EMgrsFcRFL6LrL/arcgis/rest/services/GEBCO_basemap_NCEI/MapServer/tile/{z}/{y}/{x}"],
+      "tileSize": 256,
+      "maxzoom": 11,
+      "attribution": "&copy; <a href='https://www.gebco.net'>GEBCO</a>"
+    },
     "openseamap": {
       "type": "raster",
       "tiles": ["https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"],
@@ -19,6 +26,17 @@
     }
   },
   "layers": [
+    {
+      "id": "gebco-bathymetry",
+      "type": "raster",
+      "source": "gebco",
+      "paint": {
+        "raster-opacity": 0.6
+      },
+      "layout": {
+        "visibility": "none"
+      }
+    },
     {
       "id": "osm-base",
       "type": "raster",
