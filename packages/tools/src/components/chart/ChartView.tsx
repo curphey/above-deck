@@ -53,15 +53,20 @@ export function ChartView({ center, zoom }: ChartViewProps) {
   const showWeather = useChartStore(s => s.layers.weather);
   const [showSeasons, setShowSeasons] = useState(false);
 
-  // Toggle OpenSeaMap layer visibility based on seamarks toggle
+  // Toggle tile layer visibility based on store
   const showSeamarks = useChartStore(s => s.layers.seamarks);
+  const showBathymetry = useChartStore(s => s.layers.bathymetry);
+  const showPois = useChartStore(s => s.layers.pois);
+
   useEffect(() => {
     if (!map || !isLoaded) return;
-    const layer = map.getLayer('openseamap-overlay');
-    if (layer) {
+    if (map.getLayer('openseamap-overlay')) {
       map.setLayoutProperty('openseamap-overlay', 'visibility', showSeamarks ? 'visible' : 'none');
     }
-  }, [map, isLoaded, showSeamarks]);
+    if (map.getLayer('gebco-bathymetry')) {
+      map.setLayoutProperty('gebco-bathymetry', 'visibility', showBathymetry ? 'visible' : 'none');
+    }
+  }, [map, isLoaded, showSeamarks, showBathymetry]);
 
   return (
     <div
@@ -77,7 +82,7 @@ export function ChartView({ center, zoom }: ChartViewProps) {
       <ChartVesselLayer map={map} isLoaded={isLoaded} />
       <ChartInfoPopup map={map} isLoaded={isLoaded} />
       <ChartLayerPanel />
-      <ChartPOILayer map={map} isLoaded={isLoaded} />
+      <ChartPOILayer map={map} isLoaded={isLoaded} visible={showPois} />
       <ChartSeasonsLayer map={map} isLoaded={isLoaded} visible={showSeasons} />
       <ChartRouteLayer map={map} isLoaded={isLoaded} />
       <ChartControls map={map} />
