@@ -68,17 +68,21 @@ Organized by product domain. Each category needs: data sources, algorithms, comp
 
 ---
 
-## Priority Research Gaps
+## Recently Completed Research (2026-03-24)
 
-These are the areas where we have no research yet but need it to build coherent features:
+- [passage-planning-workflows.md](passage-planning-workflows.md) — APEM framework, data requirements, free APIs, competitor analysis, routing algorithms
+- [vessel-registration-systems.md](vessel-registration-systems.md) — MMSI, IMO, call signs, flag registries, platform implications
+- [raymarine-axiom2-deep-dive.md](raymarine-axiom2-deep-dive.md) — UX patterns, home screen, split views, dashboard, user complaints
+- [tides-and-currents.md](tides-and-currents.md) — APIs, harmonic analysis, algorithms, visualization
+- [marine-weather-deep-dive.md](marine-weather-deep-dive.md) — GRIB, forecast models, APIs, weather routing
+- [boat-systems-monitoring.md](boat-systems-monitoring.md) — SignalK, Victron, NMEA 2000, live sensor integration
+- [mfd-platform-ecosystems.md](mfd-platform-ecosystems.md) — Garmin OneHelm, LightHouse, Simrad, market analysis
 
-1. **Tides & currents** — critical for any serious passage planning
-2. **Passage planning workflows** — what does a real passage plan look like?
-3. **Maintenance tracking** — every boat owner needs this, no good open-source solution
-4. **Port/marina information** — beyond POI pins, what do sailors actually need to know?
-5. **Weather data deep-dive** — GRIB files, forecast models, what PredictWind does
-6. **Electrical load analysis** — extends the solar planner to full energy management
-7. **Offline-first architecture** — boats are offline most of the time
+## Remaining Research Gaps
+
+1. **Port/marina information** — beyond POI pins, what do sailors actually need to know?
+2. **Offline-first architecture** — boats are offline most of the time
+3. **Electrical load analysis** — extends the solar planner to full energy management
 
 ## Research Process
 
