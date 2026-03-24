@@ -7,6 +7,7 @@ import { ChartControls } from './ChartControls';
 import { ChartWeatherLayer } from './ChartWeatherLayer';
 import { ChartInfoPopup } from './ChartInfoPopup';
 import { ChartLayerPanel } from './ChartLayerPanel';
+import { ChartPOILayer } from './ChartPOILayer';
 import { useChartStore } from './chartStore';
 
 // Inject chart popup CSS
@@ -73,6 +74,7 @@ export function ChartView({ center, zoom }: ChartViewProps) {
       <ChartVesselLayer map={map} isLoaded={isLoaded} />
       <ChartInfoPopup map={map} isLoaded={isLoaded} />
       <ChartLayerPanel />
+      <ChartPOILayer map={map} isLoaded={isLoaded} />
       <ChartControls map={map} />
       {showWeather && <ChartWeatherLayer />}
       {/* Position overlay */}
