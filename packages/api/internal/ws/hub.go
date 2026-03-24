@@ -11,6 +11,7 @@ type Hub struct {
 	clients    map[*Client]bool
 	Register   chan *Client
 	Unregister chan *Client
+	stop       chan struct{}
 	mu         sync.RWMutex
 }
 
@@ -19,6 +20,7 @@ func NewHub() *Hub {
 		clients:    make(map[*Client]bool),
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
+		stop:       make(chan struct{}),
 	}
 }
 
@@ -36,8 +38,21 @@ func (h *Hub) Run() {
 				close(client.Send)
 			}
 			h.mu.Unlock()
+		case <-h.stop:
+			h.mu.Lock()
+			for client := range h.clients {
+				close(client.Send)
+				delete(h.clients, client)
+			}
+			h.mu.Unlock()
+			return
 		}
 	}
+}
+
+// Stop shuts down the hub and closes all client connections.
+func (h *Hub) Stop() {
+	close(h.stop)
 }
 
 func (h *Hub) Broadcast(sessionID string, message []byte) {
