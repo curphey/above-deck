@@ -36,6 +36,7 @@ const LAYER_LABELS: Record<keyof LayerVisibility, string> = {
   bathymetry: 'Depth shading',
   aisVessels: 'AIS vessels',
   pois: 'Marinas & POIs',
+  seasons: 'Cruising seasons',
   weather: 'Weather',
   rangeRings: 'Range rings',
 };
