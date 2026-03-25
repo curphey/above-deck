@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const NAV_ITEMS = [
-  { id: 'home', icon: '⊞', label: 'Home', href: '/' },
+  { id: 'home', icon: '⊞', label: 'Home', href: '/tools' },
   { id: 'solar', icon: '☀', label: 'Solar', href: '/tools/solar' },
   { id: 'vhf', icon: '📻', label: 'VHF', href: '/tools/vhf' },
   { id: 'chart', icon: '◈', label: 'Chart', href: '/tools/chart' },
