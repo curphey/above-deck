@@ -1,0 +1,8 @@
+---
+import MFDLayout from '../../layouts/MFDLayout.astro';
+import { UIExplorer } from '@/components/explorer/UIExplorer';
+export const prerender = false;
+---
+<MFDLayout title="UI Explorer — Above Deck" screenId="explorer">
+  <UIExplorer client:only="react" />
+</MFDLayout>
