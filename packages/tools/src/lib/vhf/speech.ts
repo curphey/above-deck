@@ -43,7 +43,7 @@ export function speak(text: string, voice?: string, rate = 1.0): Promise<void> {
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance(cleanForTTS(text));
     utterance.rate = rate;
     utterance.lang = 'en-GB';
 
@@ -58,6 +58,26 @@ export function speak(text: string, voice?: string, rate = 1.0): Promise<void> {
 
     speechSynthesis.speak(utterance);
   });
+}
+
+/** Clean up text for natural TTS pronunciation. */
+function cleanForTTS(text: string): string {
+  return text
+    .replace(/callsign/gi, 'call sign')
+    .replace(/MAYDAY/g, 'MAY DAY')
+    .replace(/PAN PAN/g, 'PAN PAN')
+    .replace(/SECURITÉ/g, 'SECURITAY')
+    .replace(/(\d{3})°/g, '$1 degrees')  // 220° → 220 degrees
+    .replace(/(\d+)kn/g, '$1 knots')     // 15kn → 15 knots
+    .replace(/(\d+)nm/g, '$1 nautical miles') // 5nm → 5 nautical miles
+    .replace(/Ch\.?\s*(\d+)/g, 'channel $1')  // Ch16 → channel 16
+    .replace(/VHF/g, 'V H F')
+    .replace(/DSC/g, 'D S C')
+    .replace(/AIS/g, 'A I S')
+    .replace(/MMSI/g, 'M M S I')
+    .replace(/GMDSS/g, 'G M D S S')
+    .replace(/SOG/g, 'speed over ground')
+    .replace(/COG/g, 'course over ground');
 }
 
 export function getVoices(): SpeechSynthesisVoice[] {
