@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -28,6 +29,9 @@ type Config struct {
 }
 
 func loadConfig() Config {
+	// Load .env file from repo root if it exists (dev convenience)
+	loadDotEnv()
+
 	return Config{
 		Port:          envOr("PORT", "8080"),
 		AllowedOrigin: envOr("ALLOWED_ORIGIN", "http://localhost:4321"),
@@ -42,6 +46,32 @@ func envOr(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+// loadDotEnv reads key=value pairs from .env files (repo root and cwd).
+// Does not override existing environment variables.
+func loadDotEnv() {
+	for _, path := range []string{"../../.env", ".env"} {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			continue
+		}
+		for _, line := range strings.Split(string(data), "\n") {
+			line = strings.TrimSpace(line)
+			if line == "" || strings.HasPrefix(line, "#") {
+				continue
+			}
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) != 2 {
+				continue
+			}
+			key, val := strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
+			// Don't override existing env vars
+			if os.Getenv(key) == "" {
+				os.Setenv(key, val)
+			}
+		}
+	}
 }
 
 func main() {
