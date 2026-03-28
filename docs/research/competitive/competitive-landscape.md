@@ -11,7 +11,9 @@ The marine navigation and sailing app market is fragmented, expensive, and ripe 
 
 No single product combines community-shared itineraries, modern UX, multi-day trip planning, weather-aware scheduling, crew collaboration, and open data. The market splits cleanly: **navigation apps** have no social features, **social apps** have no navigation, and **weather tools** are expensive and complex. Users currently need 3-4 apps to cover what should be one workflow.
 
-The clearest opportunity is a "Komoot for Sailing" — a web-native, open-source platform combining community knowledge, modern design, passage planning, and Signal K integration, targeting the charter and coastal cruiser market. The technical building blocks are all available (MapLibre, NOAA charts, Open-Meteo, Signal K); the missing piece is execution.
+The clearest opportunity is a web-native, open-source platform combining community knowledge, modern design, passage planning, and Signal K integration, targeting **coastal cruisers and bluewater sailors**. The technical building blocks are all available (MapLibre, NOAA charts, Open-Meteo, Signal K); the missing piece is execution.
+
+> **Update (2026-03-27):** Target users are coastal cruisers and bluewater sailors, NOT charter tourists. Charter sailors are a secondary audience at best.
 
 ---
 
@@ -1161,6 +1163,17 @@ d3kOS is the most conceptually ambitious open-source marine project — an AI-po
 
 ---
 
+### YachtOS
+
+> **Added (2026-03-27)**
+
+**Website:** https://yachtos.org/ (if available)
+**Platform:** Raspberry Pi / embedded Linux
+
+YachtOS is an emerging open-source marine operating system project. Like Above Deck, it aims to provide a modern software platform for boat computers. Worth monitoring as a potential competitor or collaboration partner in the open-source marine space.
+
+---
+
 ### BBN OS Community Insights
 
 From the [Bareboat Necessities GitHub Discussions](https://github.com/orgs/bareboat-necessities/discussions), key themes that inform Above Deck:
@@ -1296,8 +1309,10 @@ Navigation apps (Savvy Navvy, Navionics, Orca) have no meaningful social feature
 ### Gap 4: Crew Collaboration is Almost Non-Existent
 Only SailTies attempts collaborative itinerary viewing. SeaPeople has groups, RideWithGPS has clubs, but nobody lets a skipper plan a route and share it with crew members who can see ETAs, waypoint notes, provisioning lists, watch schedules, etc. The RideWithGPS club model (crew members get premium features on shared plans) hasn't been applied to sailing.
 
-### Gap 5: Charter Sailor Market is Ignored by Tech
-Charter sailors (the largest segment of recreational sailing) rely on paper guides, word-of-mouth, and basic Google Maps. They need: curated itineraries by region and duration, "what to do" at each stop, difficulty ratings for passages, local knowledge (hazards, best approach angles, anchoring tips), and day-by-day weather-aware scheduling.
+### Gap 5: ~~Charter Sailor Market is Ignored by Tech~~
+> **Update (2026-03-27):** Above Deck's target users are **coastal cruisers and bluewater sailors** who own or live aboard their boats, NOT charter tourists. Charter sailors are a secondary audience. The real gap is serving boat owners who need integrated boat management, passage planning, and community — not one-week holiday planners.
+
+Coastal cruisers and bluewater sailors need: intelligent passage planning with tidal gates, weather routing, community-shared local knowledge (hazards, best approach angles, anchoring tips), and integration with their onboard instruments via Signal K.
 
 ### Gap 6: Logbook + Route Integration
 No app seamlessly captures the journey (logbook) and connects it back to the planned route for post-trip review or sharing. Cycling apps (Strava, Komoot) do this brilliantly; sailing has nothing equivalent.
@@ -1308,8 +1323,10 @@ Every chartplotter brand has its own app ecosystem. A brand-agnostic planning to
 ### Gap 8: AI-Driven Passage Intelligence
 PredictWind has weather AI. Ditch has AIS-pattern AI. But nobody combines: historical weather patterns for a region/season, community reports on anchorage conditions, vessel-specific performance data, and real-time weather forecasting into a single "When should I leave, which route should I take, and where should I stop?" recommendation engine.
 
-### Gap 9: Affordable Pricing
-The market has bifurcated into free (limited) and expensive ($80-150/yr). A well-executed mid-tier product with strong free features and a reasonable premium tier could capture the large charter/casual cruiser market. $60-80/yr is the sweet spot. Avoid Komoot's mistake of paywalling previously-free features. Free tier essential for adoption.
+### Gap 9: ~~Affordable Pricing~~
+> **Update (2026-03-27):** Above Deck is **free and open-source, no paid tiers, ever.** This is a settled decision. The project is community-funded, not commercially monetised. Every feature is available to every user. This is the ultimate competitive advantage against every commercial product listed above.
+
+The market has bifurcated into free (limited) and expensive ($80-150/yr). Above Deck sits outside this entirely: fully free, fully open-source, no paid tiers, no paywalls, no subscriptions.
 
 ### Gap 10: Modern UX + Open Source Web Chartplotter
 Most marine apps look like they were designed in 2010. Savvy Navvy is the exception (for casual use), Orca for navigation. **No good open-source web-based chartplotter exists.** OpenCPN is desktop C++. AvNav is web-accessible but basic. Nothing has the UI quality of Orca with the openness of OpenCPN. There is a clear opportunity for a modern, mobile-first experience that feels more like Komoot than a traditional chartplotter.
@@ -1381,14 +1398,13 @@ Most marine apps look like they were designed in 2010. Savvy Navvy is the except
 
 ### Pricing Observations
 
-- Free tier is essential for adoption
-- $60-80/yr is the sweet spot for mid-tier
-- Premium at $100-150/yr for power users
-- Avoid Komoot's mistake of paywalling previously-free features
-- Navionics' price gouging (233% increase since Garmin acquisition) is creating an opening
-- The market has bifurcated into free (limited) and expensive ($80-150/yr) — a well-executed mid-tier is the opportunity
-- iSailor's nickel-and-dime model frustrates users — transparent pricing builds trust
+> **Update (2026-03-27):** Above Deck is **free and open-source, no paid tiers, ever.** The observations below describe the market context, not Above Deck's pricing strategy.
+
+- Navionics' price gouging (233% increase since Garmin acquisition) is creating an opening for free alternatives
+- The market has bifurcated into free (limited) and expensive ($80-150/yr) — Above Deck is fully free with no limitations
+- iSailor's nickel-and-dime model frustrates users
 - Savvy Navvy requiring a credit card to trial drives away potential users
+- Above Deck's model: tools usable without an account; account required only for save/sync/personalise
 
 ---
 

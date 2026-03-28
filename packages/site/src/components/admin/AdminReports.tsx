@@ -5,7 +5,7 @@ import { DataTable } from 'mantine-datatable';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createSupabaseClient } from '@/lib/supabase';
 import { AdminLayout } from './AdminLayout';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 
 type ReportStatus = 'pending' | 'actioned' | 'dismissed';
 

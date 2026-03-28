@@ -1,5 +1,7 @@
 # Research Synthesis — Key Findings & Next Steps
 
+> **Updated 2026-03-28:** Aligned with product vision v2 and technical architecture decisions. SignalK is an adapter, not a dependency. 6 AI crew agents (Watchman added). Hardware recommendation updated to Mac Mini/N100 mini PC.
+
 **Date:** 2026-03-24
 **Research base:** 30 documents, ~10,000 lines of analysis
 
@@ -45,7 +47,7 @@ The Axiom 2 sets the UX bar:
 
 ### 4. Tides (from tides & currents research)
 
-- **Best free global API:** WorldTides (limited free tier) or compute from FES2014 harmonics
+- **Best free global API:** WorldTides (limited free tier) or compute from FES2022 harmonics
 - **NOAA CO-OPS** is excellent but US-only
 - **Harmonic prediction** can be done client-side — 37 constituents give good accuracy
 - **Tidal gates** (when you can pass through a tidal channel) are the most practical feature
@@ -54,9 +56,9 @@ The Axiom 2 sets the UX bar:
 
 ### 5. Boat Systems (from boat systems monitoring research)
 
-- **SignalK** is the open-source data bus — connects NMEA 2000, Victron, sensors to a web API
+- **Above Deck owns its own data model and Go server** — reads from hardware gateways directly (iKonvert USB, NavLink2 WiFi, serial for NMEA 0183, Victron VE.Direct/MQTT) over TCP/UDP. SignalK is supported as an optional adapter for interoperability, not a dependency.
 - **Victron** is on 80%+ of cruising boats with solar. Their VRM cloud API and Venus OS MQTT are the easiest integration path.
-- **Progressive approach:** Start with Victron VRM cloud data (no hardware needed), then add SignalK for onboard real-time, then direct NMEA 2000.
+- **Progressive approach:** Start with Victron VRM cloud data (no hardware needed), then add direct hardware integration via the Go server's protocol adapters, with SignalK as an optional adapter for sailors who already run it.
 - **Simarine PICO** has the best battery/tank monitoring UI — study it.
 
 **Action:** Build Victron VRM integration first (cloud API, works from anywhere). Display battery SOC, solar yield, consumption. This alone is hugely valuable.
@@ -74,14 +76,16 @@ The Axiom 2 sets the UX bar:
 
 ## Build Priority (Next 6 Months)
 
-### Phase 1: Core Platform Infrastructure (Now)
+Build order is **3 -> 2 -> 1** (learning tools first, sailing tools next, platform layer last). Architect for the platform from the start, but deliver standalone value immediately.
+
+### Phase 1: Learning & Utility Tools + Infrastructure (Now)
+- [x] **VHF Radio Simulator** — built
+- [x] **Solar/Energy Planner** — built
 - [ ] **Go server** — production-ready with health checks, graceful shutdown, config management
 - [ ] **Docker deployment** — single `docker-compose up` for the full stack (Go API + frontend + DB)
 - [ ] **Auth** — Google OAuth (already have PKCE flow via Supabase), user profiles, boat profiles (keyed to MMSI)
-- [ ] **Admin tools** — user management, system health, feature flags
-- [ ] **Update system** — Docker-based auto-update, version management, rollback
 - [ ] **PWA shell** — installable on any device, offline-capable via service worker, responsive from 7" to 27"
-- [ ] **Multi-surface architecture** — same platform accessible from: Docker on the boat (MFD/local network), web browser anywhere, PWA on phone/tablet. Like Claude CLI / Desktop / Web — different surfaces, same platform.
+- [ ] **Multi-surface architecture** — same platform accessible from: Docker on the boat (MFD/local network), web browser anywhere, PWA on phone/tablet.
 - [ ] **Database** — Supabase for cloud, SQLite for offline/local. Sync between them.
 
 ### Phase 2: MFD UI + Navigation (Month 1-2)
@@ -94,7 +98,7 @@ The Axiom 2 sets the UX bar:
 
 ### Phase 3: Boat Management (Month 2-3)
 - [ ] Victron VRM cloud integration (battery, solar, consumption)
-- [ ] **Engine monitoring** — RPM, oil pressure, coolant temp, exhaust temp, fuel consumption, hours (via NMEA 2000 / SignalK)
+- [ ] **Engine monitoring** — RPM, oil pressure, coolant temp, exhaust temp, fuel consumption, hours (via NMEA 2000 protocol adapters)
 - [ ] **Tank levels** — fuel, fresh water, black/grey water, LPG
 - [ ] **Electrical overview** — shore power, alternator, inverter, total load
 - [ ] Instrument dashboard (gauges, graphs, Simarine-style)
@@ -122,18 +126,19 @@ The AI is not a feature — it IS the platform. A crew of specialized AI sailing
 | Agent | Role | Data Access |
 |-------|------|-------------|
 | **Navigator** | Route planning, weather analysis, tidal gates, departure timing | Charts, weather APIs, tide data, cruising seasons |
-| **Engineer** | Boat systems, power management, engine monitoring | SignalK, Victron, NMEA 2000 sensors |
+| **Engineer** | Boat systems, power management, engine monitoring | Victron, NMEA 2000 sensors, protocol adapters |
 | **Radio Operator** | VHF procedures, DSC, AIS interpretation | AIS feed, VHF channels, MMSI database |
 | **Bosun** | Provisioning, checklists, watch schedules, anchor watch | Crew data, inventory, GPS/anchor position |
 | **Pilot** | Local knowledge, port info, customs, marina recommendations | POI data, community reviews, port databases |
+| **Watchman** | Monitoring, alerting, anomaly detection, safety oversight | All sensor data, thresholds, alarm state |
 
 The agents collaborate — Navigator asks Engineer about fuel range, Pilot tells Navigator about port approach hazards. Like a real crew. The VHF Radio Operator is already built (PR #184).
 
 ## Design Principles (from research)
 
 1. **Offline-first** — boats are offline. Everything must work without internet.
-2. **Data over decoration** — sailors want information density, not whitespace.
+2. **Generous whitespace** — let content breathe. Clean lines, precise spacing, technical clarity.
 3. **Progressive complexity** — simple for weekend sailors, deep for ocean cruisers.
 4. **Hardware-agnostic** — any screen, any sensor, any chart source.
-5. **AI crew, not AI feature** — specialized agents that know your boat and work together.
+5. **AI crew, not AI feature** — 6 specialized agents that know your boat and work together.
 6. **Free and open source** — no commercial model, community-driven, personally funded.

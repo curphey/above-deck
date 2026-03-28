@@ -342,7 +342,7 @@ Key sources: pilot books (Imray, Reeds, NP series), Noonsite (for international 
 - **Data:** Tidal height events (HW/LW), height predictions, tidal stream data
 - **Format:** JSON via REST API
 
-#### FES2014 Global Ocean Tide Atlas
+#### FES2022 Global Ocean Tide Atlas
 
 - **URL:** https://www.aviso.altimetry.fr/en/data/products/auxiliary-products/global-tide-fes.html
 - **Coverage:** Global ocean, 1/16 degree grid (~7km)
@@ -392,7 +392,7 @@ Key sources: pilot books (Imray, Reeds, NP series), Noonsite (for international 
 
 - **URL:** https://open-meteo.com/en/docs
 - **Cost:** Free for non-commercial use
-- **Models:** GFS (0.25 deg), ECMWF (0.4 deg from open data), ICON (0.125 deg), HRRR (3km)
+- **Models:** GFS (0.25 deg), ECMWF (0.25 deg from open data), ICON (0.125 deg), HRRR (3km)
 - **Parameters:** Wind (10m, gusts), pressure, precipitation, cloud cover, visibility, temperature
 - **Forecast length:** Up to 16 days (GFS), 10 days (ECMWF)
 - **Format:** JSON, CSV
@@ -445,7 +445,7 @@ Key sources: pilot books (Imray, Reeds, NP series), Noonsite (for international 
 - **NOAA CO-OPS Currents:** Tidal current predictions at US stations (same API as tidal heights)
 - **OSCAR (Ocean Surface Current Analysis):** Satellite-derived near-surface ocean currents, global, ~1/3 degree, 5-day averages. Free from NASA/JPL
 - **Copernicus Marine Service (CMEMS):** Global ocean currents (GLORYS reanalysis, forecasts). Free registration required. High quality, ~1/12 degree
-- **FES2014:** Tidal currents globally from harmonic constituents (see above)
+- **FES2022:** Tidal currents globally from harmonic constituents (see above)
 - **S-111 (future):** IHO standard for surface current data product under S-100 framework
 
 ### 3.5 Chart Data
@@ -887,7 +887,7 @@ The smallest useful increment that delivers real value:
 
 1. **Route input:** Define departure and destination (click on chart or search). System computes a basic route avoiding land and marked hazards
 2. **Departure time optimizer:** For the next 3-5 days, compute and rank departure times considering:
-   - Tidal streams at critical points along the route (fetch from NOAA CO-OPS, Admiralty API, or FES2014)
+   - Tidal streams at critical points along the route (fetch from NOAA CO-OPS, Admiralty API, or FES2022)
    - Wind forecast along the route (GFS via Open-Meteo)
    - Wave height forecast (WW3 via Open-Meteo Marine)
    - Daylight hours at arrival
@@ -902,8 +902,8 @@ The smallest useful increment that delivers real value:
 **Data sources (all free):**
 - Charts: OpenSeaMap + NOAA ENCs
 - Weather: Open-Meteo (GFS + Marine)
-- Tides: NOAA CO-OPS (US) / Admiralty free tier (UK) / FES2014 (global)
-- Currents: FES2014 tidal currents + OSCAR ocean currents
+- Tides: NOAA CO-OPS (US) / Admiralty free tier (UK) / FES2022 (global)
+- Currents: FES2022 tidal currents + OSCAR ocean currents
 
 **What it is NOT (in MVP):**
 - Not a full weather routing engine (no polars, no isochrone optimization)
@@ -945,7 +945,7 @@ The smallest useful increment that delivers real value:
 - [NOAA - About Harmonic Constituents](https://tidesandcurrents.noaa.gov/about_harmonic_constituents.html)
 - [ADMIRALTY - Tidal Data APIs](https://www.admiralty.co.uk/access-data/apis)
 - [ADMIRALTY - EasyTide](https://www.admiralty.co.uk/access-data/tidal-data/easy-tide)
-- [FES2014 Global Ocean Tide Atlas](https://os.copernicus.org/articles/17/615/2021/)
+- [FES2022 Global Ocean Tide Atlas](https://os.copernicus.org/articles/17/615/2021/)
 - [CNES/aviso-fes (PyFES) on GitHub](https://github.com/CNES/aviso-fes)
 - [WorldTides API](https://www.worldtides.info/developer)
 - [Stormglass - Global Tide API](https://stormglass.io/global-tide-api/)

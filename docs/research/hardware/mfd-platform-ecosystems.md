@@ -1,5 +1,7 @@
 # MFD Platform Ecosystems: Walled Gardens and the Open-Source Opportunity
 
+> **Updated 2026-03-28:** Aligned with product vision v2 and technical architecture decisions. SignalK is an adapter, not a dependency — Above Deck owns its own data model and Go server.
+
 **Date:** 2026-03-24
 **Purpose:** Competitive intelligence on how Garmin, Raymarine, Simrad/B&G, and Furuno are building walled-garden platforms around their hardware, and where an open-source alternative can compete.
 
@@ -348,7 +350,7 @@ OpenCPN is the most established open-source chartplotter. It has not achieved ma
 
 ### What an Open Platform Needs to Compete
 
-The gap is not in data (Signal K solves that) or charts (free government charts exist). The gap is in:
+The gap is not in raw protocol access (Signal K and direct hardware adapters handle that) or charts (free government charts exist). The gap is in:
 
 1. **UX quality** -- must match or exceed Garmin/Raymarine in visual quality, responsiveness, and intuitiveness. This is the primary barrier. Sailors will not adopt ugly or confusing software regardless of ideology.
 
@@ -430,7 +432,7 @@ The total marine electronics market is estimated at $3-5 billion annually.
 
 ## Key Takeaways for Above Deck
 
-1. **The data layer is solved** -- Signal K handles protocol translation and data access. Do not rebuild this.
+1. **The data layer needs an owner, not a dependency.** Signal K handles protocol translation well, but Above Deck owns its own data model and Go server. The Go server reads from hardware gateways directly (iKonvert USB, NavLink2 WiFi, serial adapters) over TCP/UDP. Signal K is supported as one of many protocol adapters for interoperability with the existing open-source ecosystem.
 
 2. **The UI/UX layer is wide open** -- no open-source project has built a marine interface that matches commercial quality. This is the primary opportunity.
 
@@ -442,4 +444,4 @@ The total marine electronics market is estimated at $3-5 billion annually.
 
 6. **Do not try to replace the MFD hardware** -- that is a hardware problem (sunlight-readable, waterproof, marine-grade). Instead, be the software layer that works on any display, any tablet, any phone, alongside existing MFDs.
 
-7. **Embrace Signal K as the data backbone, then build everything above it** -- planning, monitoring, community, AI, and cross-device experiences. Be the application layer that Signal K lacks.
+7. **Build the application layer with Signal K as an adapter, not a dependency** -- planning, monitoring, community, AI, and cross-device experiences. Own the data model and Go server; offer Signal K compatibility for interoperability with the existing ecosystem.

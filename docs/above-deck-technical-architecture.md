@@ -16,6 +16,12 @@ The architecture follows a hub-and-spoke model:
 - **Spokes** — on-boat instances. Each boat runs its own OS on dedicated hardware. Works 100% offline. Syncs with the hub when connectivity is available.
 - **Apps** — run on the hub (browser), the spoke (on-boat), or both.
 
+### Do no harm
+
+The top-level requirement is that the spoke must be able to run alongside any existing marine electronics and do no harm. The spoke defaults to **observe-only mode** — it reads data from NMEA 2000 gateways, AIS receivers, and Victron devices but does not write to any bus or modify any existing system. A boat with a working Raymarine or Garmin setup can install Above Deck with zero risk to existing instruments.
+
+Write access (autopilot control, digital switching, CAN bus commands) is an explicit opt-in, per-device, after the user has verified safe operation. The system is designed to coexist, not replace — both can run in parallel indefinitely.
+
 ---
 
 ## 2. Data Stores
@@ -145,9 +151,9 @@ The composable MFD interface is a React application:
 
 ```
 packages/
-  hub/        — hub-specific frontend (community site, hosted apps)
-  spoke/      — spoke-specific frontend (MFD shell, instrument dashboard)
-  shared/     — shared theme, components, types, utilities
+  site/       — community web presence (blog, KB, forums, admin, marketing)
+  tools/      — all sailing applications (chartplotter, passage planner, weather, tides, energy planner, boat management, VHF sim, MFD shell). Run on hub (browser) and spoke (offline). Bidirectional sync.
+  shared/     — shared theme, colours, fonts, types
   api/        — Go API server (hub and spoke)
 ```
 
@@ -655,7 +661,7 @@ One command: `docker compose up` — full local development environment.
 | Hosting (API) | Fly.io (or any Docker host) | Simple, scales, hosting-agnostic |
 | Hosting (frontend) | Netlify (or Vercel/Cloudflare Pages) | CDN, edge, simple deploys |
 | Analytics | Umami (self-hosted) | Privacy-respecting |
-| Monorepo | pnpm workspaces | hub/, spoke/, shared/, api/ |
+| Monorepo | pnpm workspaces | site/ (community), tools/ (all sailing apps — hub + spoke), shared/, api/ |
 
 ---
 

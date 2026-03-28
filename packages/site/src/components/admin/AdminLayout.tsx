@@ -9,7 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MantineProvider } from '../MantineProvider';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 
 const NAV_ITEMS = [
   { label: 'Overview', href: '/admin', icon: IconDashboard },

@@ -12,25 +12,38 @@ Beyond Matter/Thread (covered in separate research doc), several technologies ar
 
 ---
 
-## 1. Raspberry Pi as the Platform Hardware
+## 1. Spoke Hardware — The Boat Computer
 
 ### Why It Matters
 
-Above Deck's Docker deployment needs to run on something. The Raspberry Pi is the de facto standard for open-source marine computers, with a mature ecosystem of marine-specific HATs.
+Above Deck's Docker deployment needs to run on something. The recommended approach is a **gateway-first architecture**: an Intel N100 mini PC (or Mac Mini) running the Go server, connecting to marine instruments via USB/WiFi gateways rather than direct CAN bus HATs.
 
-### Key Hardware
+> **Update (2026-03-27):** The settled hardware recommendation is Intel N100 mini PC (or Mac Mini) with USB/WiFi gateways (Actisense iKonvert, Digital Yacht NavLink2), NOT Raspberry Pi + CAN HAT. Gateway-first architecture avoids the complexity of direct CAN bus wiring and SocketCAN configuration, works across Linux and macOS, and is more accessible to non-Linux users.
+
+### Recommended Hardware
 
 | Product | Price | Features | Notes |
 |---------|-------|----------|-------|
-| **PICAN-M HAT** | ~$99 | NMEA 0183 (RS-422) + NMEA 2000 (CAN bus via MCP2515) + Qwiic I2C + 3A PSU from 12V | The standard. Powers Pi directly from boat 12V |
+| **Intel N100 Mini PC** | $100-200 | Fanless, 8-16GB RAM, NVMe, x86_64 | Primary recommendation. Beelink, MinisForum, GMKtec |
+| **Mac Mini (M-series)** | $500-600 | ARM64, excellent power efficiency, silent | Premium option for macOS users |
+| **Actisense iKonvert** | ~$200 | USB NMEA 2000 gateway — plug-and-play, no drivers | Recommended NMEA 2000 gateway |
+| **Digital Yacht NavLink2** | ~$200 | WiFi NMEA 0183/2000 gateway | Wireless option, no USB cable required |
+
+### Legacy: Raspberry Pi + CAN HAT
+
+The Raspberry Pi ecosystem includes marine-specific HATs (PICAN-M, MacArthur HAT, HALPI2) that provide direct CAN bus access via SocketCAN. These remain viable for Linux-experienced users who want the lowest-cost option, but the gateway-first approach is recommended for most sailors.
+
+| Product | Price | Features | Notes |
+|---------|-------|----------|-------|
+| **PICAN-M HAT** | ~$99 | NMEA 0183 (RS-422) + NMEA 2000 (CAN bus via MCP2515) + Qwiic I2C + 3A PSU from 12V | Requires Linux + SocketCAN configuration |
 | **MacArthur HAT** (OpenMarine) | ~$80 | NMEA 0183 + NMEA 2000 + SeaTalk1 + SignalK | Multi-protocol. Sold by Wegmatt |
 | **HALPI2** | ~$300+ | Raspberry Pi CM5 in waterproof aluminium enclosure. HDMI, NMEA 2000, NMEA 0183, Ethernet, 2x USB 3.0, external WiFi/BT antenna | Ruggedised, production-ready. Reviewed by Hackaday (Sept 2025) |
 
 ### Above Deck Fit
 
-The Go server runs on a Raspberry Pi with a PICAN-M or MacArthur HAT. This gives direct NMEA 0183/2000 access via SocketCAN (Linux kernel CAN interface) — no middleware needed. The Pi also provides WiFi for the local network, USB for Victron VE.Direct, and GPIO/I2C for additional sensors.
+The Go server runs on an Intel N100 mini PC (or Mac Mini), connecting to marine instruments via USB/WiFi gateways. This avoids the complexity of direct CAN bus wiring and SocketCAN configuration, works on both Linux and macOS, and provides significantly more compute headroom than a Raspberry Pi.
 
-**Recommended reference hardware:** Raspberry Pi 5 + PICAN-M HAT in a waterproof enclosure. The HALPI2 is the premium option for those who want turnkey.
+**Recommended reference hardware:** Intel N100 fanless mini PC + Actisense iKonvert (NMEA 2000) + Digital Yacht NavLink2 (NMEA 0183). The Mac Mini is the premium option for those who want silence and macOS compatibility.
 
 ### References
 
@@ -250,10 +263,10 @@ Above Deck already renders inside an MFD device frame. The natural deployment is
 │       └───────────┬───┘─────────────┘       │
 │                   │                         │
 │          ┌────────┴─────────┐               │
-│          │ Raspberry Pi     │               │
-│          │ + PICAN-M HAT    │               │
+│          │ Intel N100 /     │               │
+│          │ Mac Mini         │               │
 │          │ Go Server        │               │
-│          │ (Docker)         │               │
+│          │ + USB Gateways   │               │
 │          └──────────────────┘               │
 │                   │                         │
 │          ┌────────┴─────────┐               │
@@ -335,7 +348,7 @@ Based on Above Deck's build order (Learning Tools → Sailing Tools → Platform
 | **iPad PWA deployment** | Now | Already possible | Tools already render in MFD frame. Just needs PWA optimisation |
 | **Web Serial (NMEA 0183)** | High | With chartplotter | Zero-install instrument data. Massive "try it" factor |
 | **Web Bluetooth (Victron)** | High | With energy tools | Read solar/battery directly in browser. Enhances existing solar planner |
-| **Raspberry Pi + PICAN-M** | High | With platform layer | The recommended deployment hardware |
+| **Intel N100 + USB gateways** | High | With platform layer | The recommended deployment hardware (gateway-first) |
 | **ESP32 NMEA gateway** | High | With platform layer | Wireless NMEA bridge. Proven, cheap, well-documented |
 | **Matter/Thread** | Medium | With boat management | Consumer sensors for cabin/bilge/lighting. See separate research doc |
 | **Meshtastic/LoRa** | Medium | With anchor watch | Anchor alarm from shore. Killer feature for cruisers |
@@ -346,7 +359,7 @@ Based on Above Deck's build order (Learning Tools → Sailing Tools → Platform
 
 ## Open Questions
 
-1. **Reference hardware bundle** — should Above Deck recommend a specific hardware kit (Pi 5 + PICAN-M + ESP32-C6 + Meshtastic node)?
+1. **Reference hardware bundle** — should Above Deck recommend a specific hardware kit (N100 mini PC + iKonvert + NavLink2 + Meshtastic node)?
 2. **Web Serial on iOS** — Safari doesn't support Web Serial. Is this a dealbreaker for the "iPad at helm" use case, or does the Go server make it irrelevant?
 3. **Meshtastic Go library** — does a Go implementation exist, or would this also need to be built?
 4. **ESP32 firmware** — should Above Deck ship custom ESP32 firmware for its sensor nodes, or rely on existing projects (SensESP, Meshtastic)?

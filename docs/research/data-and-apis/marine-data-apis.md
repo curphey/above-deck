@@ -11,7 +11,7 @@ All sources evaluated for an open-source, free sailing route planner.
 ### Tier 1 - Core (all free)
 | Need | Source | Cost |
 |------|--------|------|
-| Basemap | Mapbox GL JS (50k loads/mo) or MapLibre GL JS (unlimited) | Free |
+| Basemap | MapLibre GL JS (unlimited, no API key) | Free |
 | Seamark overlay | OpenSeaMap tiles | Free |
 | Weather | Open-Meteo Marine API | Free (10k calls/day) |
 | Tides | Neaps tide-database (offline harmonics, 7,600 stations) | Free |
@@ -181,21 +181,16 @@ out body;
 - No free API. ICC-IMB has visual map only.
 - Maintain static GeoJSON of high-risk areas (Gulf of Guinea, Malacca, Gulf of Aden, Red Sea)
 
-### 11. Mapbox for Marine Use
+### 11. Map Renderer — MapLibre GL JS (Settled)
 
-**No built-in nautical chart style.** But provides:
-- New bathymetry tileset and style (ocean depth contours)
-- Custom tilesets via MTS (process NOAA bathymetry or other sources)
+> **Update (2026-03-27):** Settled decision — **MapLibre GL JS only**. No Mapbox dependency. MapLibre is the fully open-source fork (MIT license), no API key required, no usage limits.
 
 **Overlay strategy:**
-1. OpenSeaMap seamark tiles as raster source
-2. NOAA chart tiles as raster source (US waters)
-3. Custom GeoJSON for harbours, anchorages, hazard zones
-4. Weather data as custom layers from Open-Meteo
-
-**Free tier:** 50,000 web map loads/month, 25,000 mobile MAU. Very generous for open source.
-
-**Alternative:** MapLibre GL JS (fully open source fork of Mapbox GL JS, no limits, no API key)
+1. OpenStreetMap or OpenFreeMap tiles as basemap (free, no API key)
+2. OpenSeaMap seamark tiles as raster source
+3. NOAA chart tiles as raster source (US waters)
+4. Custom GeoJSON for harbours, anchorages, hazard zones
+5. Weather data as custom layers from Open-Meteo
 
 ---
 
@@ -207,11 +202,11 @@ out body;
 
 ---
 
-## Key Insight: MapLibre vs Mapbox Decision
+## Key Insight: MapLibre (Settled)
 
-Mapbox GL JS v2+ requires an API key and has usage limits. MapLibre GL JS is the community fork (MIT license) with identical API, no key required, no usage limits. For an open-source project:
+> **Update (2026-03-27):** This decision is settled. MapLibre GL JS only, no Mapbox.
 
-- **Use MapLibre GL JS** as the map renderer (free, no limits)
-- **Use Mapbox tiles** via API key for the basemap (50k loads/month free)
-- **OR use OpenStreetMap/OpenFreeMap tiles** for truly zero-cost operation
+- **Use MapLibre GL JS** as the map renderer (MIT license, free, no limits, no API key)
+- **Use OpenStreetMap/OpenFreeMap tiles** for basemap (free, no API key)
 - Marine data overlaid from free sources regardless of basemap choice
+- No Mapbox dependency anywhere in the stack

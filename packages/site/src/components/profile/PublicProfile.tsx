@@ -17,7 +17,7 @@ import { IconSailboat, IconMapPin, IconMessage } from '@tabler/icons-react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { MantineProvider } from '../MantineProvider';
 import { createSupabaseClient } from '@/lib/supabase';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 import { timeAgo } from '../community/timeAgo';
 
 interface Profile {

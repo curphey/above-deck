@@ -352,7 +352,9 @@ A CAN interface requires two components:
 | Seeed Studio 2-CH CAN | MCP2515 | MCP2551 | No | No | 2 | $25 |
 | InnoMaker USB-CAN Module | GS_USB firmware | SN65HVD230 | No | Optional | 1-2 | $20-40 |
 
-For Above Deck's Raspberry Pi deployment target, the **Waveshare 2-CH CAN FD HAT** is the best option — two isolated channels (one for NMEA 2000, one for engine/Victron bus), CAN FD ready, SocketCAN compatible, under $35.
+For direct CAN bus access on a Raspberry Pi, the **Waveshare 2-CH CAN FD HAT** is the best option — two isolated channels (one for NMEA 2000, one for engine/Victron bus), CAN FD ready, SocketCAN compatible, under $35.
+
+> **Update (2026-03-27):** Above Deck's settled architecture uses a **gateway-first approach** — USB/WiFi gateways (Actisense iKonvert, Digital Yacht NavLink2) connecting to an Intel N100 mini PC or Mac Mini, rather than direct CAN bus via Pi HATs. CAN HATs remain a viable option for advanced Linux users, but the gateway approach is recommended for most deployments as it avoids SocketCAN configuration and works across Linux and macOS.
 
 ### 5.4 USB-CAN Adapters
 
@@ -574,12 +576,17 @@ The dominant open-source marine data server today is SignalK, which is built on 
 CAN HAT → SocketCAN → actisense-serial (C) → canboatjs (Node.js) → SignalK (Node.js) → WebSocket → UI
 ```
 
-**Above Deck path (Go-native):**
+**Above Deck path (Go-native, gateway-first):**
+```
+USB Gateway (iKonvert/NavLink2) → Go server → PGN decoder (Go) → WebSocket → UI
+```
+
+**Above Deck path (Go-native, direct CAN — advanced):**
 ```
 CAN HAT → SocketCAN → einride/can-go (Go) → PGN decoder (Go) → WebSocket → UI
 ```
 
-Fewer moving parts, single binary deployment, lower memory footprint on Raspberry Pi, and no Node.js dependency.
+The gateway-first path has fewer moving parts, works on any OS (Linux, macOS), and requires no SocketCAN configuration. The direct CAN path remains available for advanced Linux users who want the lowest latency and cost.
 
 ### 8.3 CAN FD: Future-Proofing
 
@@ -590,6 +597,17 @@ By building on einride/can-go (which supports CAN FD) and choosing CAN FD-capabl
 ### 8.4 Hardware Recommendation for Development
 
 **Minimum viable CAN bus development kit for Above Deck:**
+
+**Gateway-first (recommended):**
+
+| Item | Purpose | Price |
+|------|---------|-------|
+| Intel N100 Mini PC | Go server runtime | $100-200 |
+| Actisense iKonvert | USB NMEA 2000 gateway | ~$200 |
+| Digital Yacht NavLink2 | WiFi NMEA 0183/2000 gateway | ~$200 |
+| **Total** | | **~$300-600** |
+
+**Direct CAN (advanced, Linux only):**
 
 | Item | Purpose | Price |
 |------|---------|-------|

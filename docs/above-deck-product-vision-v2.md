@@ -36,7 +36,7 @@ The architecture is hub and spoke:
 
 The platform is a complete suite but you don't have to use all of it.
 
-**Hosted online** — many tools work directly from a browser with no hardware, no install, and no account needed. Weather, tides, passage planning, energy planner, cruising almanac, VHF simulator, social features. Create an account to save data, share routes, and access community features. These tools work standalone but become smarter when connected to your boat data.
+**Hosted online** — many tools work directly from a browser with no hardware and no install. Weather, tides, passage planning, energy planner, cruising almanac, VHF simulator, social features. Create a free account to save configurations, build passage plans, sync collections, share routes, and access community features. Tools are usable without an account, but an account unlocks persistence and personalisation.
 
 **On the boat** — run the full platform on dedicated hardware, connected to instruments via gateways. This gives you everything: live chartplotter with real position, instrument displays, radar overlay, boat management, engine monitoring, tank levels, digital switching, anchor watch, safety systems, AI agents watching your systems 24/7, remote monitoring. Plus all the tools that are available online also run locally for offline use at sea.
 
@@ -66,9 +66,11 @@ Sailing is social. The platform connects sailors to each other as a core design 
 
 ### Built for sailors, not engineers
 
-The platform is designed for people who sail, not people who code. A non-technical user should be able to open an app and use it immediately without reading documentation, understanding protocols, or configuring anything. Simple, intuitive experiences by default — always. Most users will only ever see a beautiful UI and that's exactly right.
+Navigation and charting tools assume sailing competence — the user understands nautical concepts, can read a chart, and knows what a tidal gate is. These tools respect the user's intelligence and don't over-simplify.
 
-Under the hood and in power mode, the engineering is designed to be admired by technical people — clean architecture, modern stack, well-documented APIs, an SDK worth building on. But that's the iceberg below the waterline. The test for every feature: would a sailor who's never touched a computer beyond their phone understand this on first use?
+Boat management is different. A non-technical partner should be able to check tank levels, log a maintenance task, or review the energy dashboard without training. Boat management is the "anyone can use it" tier — simple, intuitive, zero learning curve.
+
+Under the hood and in power mode, the engineering is designed to be admired by technical people — clean architecture, modern stack, well-documented APIs, an SDK worth building on. But that's the iceberg below the waterline.
 
 ### Design matters
 
@@ -131,79 +133,40 @@ Not for powerboats, charter tourists, or racing.
 
 ## 5. The Landscape
 
-### Commercial Software
+The marine software market breaks into four categories. Full analysis with product-by-product detail is in `docs/research/competitive/competitive-landscape.md`.
 
-| Product | Strength | Gap |
-|---------|----------|-----|
-| Savvy Navvy | Smart autorouting with tides and weather | Expensive ($80-150/yr), no social, no multi-day, no boat management |
-| PredictWind | Best weather data, 4+ model comparison, AI polars | Steep learning curve, $249-499/yr, no POI data, no boat systems |
-| Navionics (Garmin) | Chart coverage, SonarChart crowdsourced bathymetry | Subscription model, no passage planning, no social, owned by Garmin |
-| Orca | Beautiful UI, auto-rerouting | Unsafe (ignores tidal gates), requires internet, no offline |
-| Navily | 35K locations, 350K reviews, strong community | Not navigation, European-focused, no boat management |
-| SeaPeople | Social-first, 58K users, 3.5M miles logged, novel "Hails" feature, backed by Sailing La Vagabonde + ex-Shopify CTO | Deliberately not navigation, no boat management, no charts, no instruments |
-| Noforeignland | Free, crowd-sourced cruising community, GPS tracking, sailing guides, Atlantic crossing groups, claims largest online sailing community | No navigation, no boat management, no weather routing, basic app UX |
-| 45 Degrees | Beautiful itinerary UX | Charter-focused, Croatia only, no weather/tides |
-| Keeano | 40K Mediterranean POIs, ML recommendations | Mediterranean only, small user base |
-| FastSeas | Weather routing, satellite comms integration | Routing only, no chart, no boat management |
-| Windy | Excellent weather visualisation | Weather only, not sailing-specific |
+### Commercial Navigation & Weather
 
-No competitor occupies the intersection of strong navigation + strong community + AI-assisted + boat management + free.
+Savvy Navvy, PredictWind, Navionics (Garmin), Orca, FastSeas, Windy. Each does one thing well — routing, weather, or charts — at $80-500/year. None offer boat management, AI agents, offline-first operation, or instrument integration. No single product covers navigation + weather + passage planning + boat systems.
+
+### Community & Social
+
+Navily, SeaPeople, Noforeignland, 45 Degrees, Keeano. Strong on POIs, reviews, and social tracking. None offer navigation, charting, or boat management. The social and the tools live in separate worlds.
 
 ### Open Source
 
-| Project | Strength | Gap |
-|---------|----------|-----|
-| OpenCPN | Powerful chartplotter, large plugin ecosystem | 2010 UI, desktop-first, no mobile, no cloud, no AI, no social |
-| SignalK | Open data standard, connects NMEA to web APIs | Node.js dependency, fragile on Raspberry Pi, complex setup |
-| OpenPlotter | Raspberry Pi marine integration | Complex, DIY-focused, not user-friendly |
-| Freeboard | SignalK web dashboard | Limited features, unmaintained |
+OpenCPN (chartplotter, 2010 UI, desktop-only), SignalK (data standard, Node.js, fragile on Pi), OpenPlotter (Pi integration, DIY), YachtOS (emerging boat OS). Capable but dated tools. None offer a modern, unified, AI-first platform.
 
-The open-source marine space has capable but dated tools. None offer a modern, unified, AI-first platform.
+### Hardware MFDs
 
-### Hardware Platforms
-
-| Vendor | Platform | Gap |
-|--------|----------|-----|
-| Raymarine | LightHouse 4 / Axiom 2 | Beautiful UX (our design inspiration) but $2-5K hardware, locked ecosystem |
-| Garmin | OneHelm | Most open to third-party apps but still hardware-locked |
-| Simrad/B&G | Navico | Professional-grade but expensive, closed |
-| Furuno | NavNet TZtouch | Commercial/fishing focus, closed ecosystem |
-
-Every vendor builds a walled garden. Above Deck builds the platform layer that makes the hardware irrelevant.
+Raymarine (Axiom 2 — our UX inspiration), Garmin (OneHelm), Simrad/B&G (Navico), Furuno (NavNet). Beautiful hardware at $2-5K per display, each a walled garden locked to one vendor's ecosystem. Above Deck builds the platform layer that makes the hardware irrelevant.
 
 ### Hardware Gateways & Sensors
 
-| Device | Function | Price | Integration Value |
-|--------|----------|-------|-------------------|
-| Digital Yacht iKonvert USB | NMEA 2000 to USB, open protocol on GitHub, SignalK/CANBoat compatible | £186 | Critical — primary gateway |
-| Digital Yacht NavLink2 | NMEA 2000 to WiFi (TCP/UDP), bidirectional | £240 | High — wireless data access |
-| Digital Yacht veLink | Victron BLE to NMEA 2000 (up to 8 devices) | £210 | Very high — bridges entire Victron ecosystem |
-| Digital Yacht NAVLink Blue | BLE sensor hub to NMEA 2000, SDK on GitHub | £240 | Very high — RuuviTags, tank sensors, wind |
-| Digital Yacht iKommunicate | NMEA 0183/2000 to SignalK (HTTP/WebSocket) | £299 | High — dedicated SignalK gateway |
-| Digital Yacht NavAlert | Configurable NMEA 2000 alarm engine | £300 | Reference — our software replaces this |
-| Digital Yacht NjordLINK+ | Cloud monitoring, anchor watch, remote access | £360 | Competitor — walled garden, we do this open |
-| Digital Yacht NET Protect | NMEA 2000 cyber security | £300 | Reference — our software does this better |
-| Digital Yacht iKreate | NMEA 2000 simulator for development | £240 | Essential — development without a boat |
-| Yacht Devices YDWG-02 | NMEA 2000 to WiFi, open RAW protocol | $249 | High — alternative gateway |
-| Yacht Devices YDNR-02 | Full NMEA 2000/0183/SeaTalk router | $349 | High — complex network support |
-| Actisense W2K-2 | NMEA 2000 to WiFi, IP67, SD logging | ~$300 | High — most rugged option |
-| Hat Labs SH-wg | NMEA 2000 to WiFi, open hardware/firmware (ESP32) | ~$150 | Medium — open source reference |
-| Quark-elec QK-A034 | NMEA 2000/0183/SeaTalk multiplexer with WiFi | ~$180 | Medium — budget option |
-| Victron Cerbo GX | Power system hub, MQTT/Modbus/VRM cloud | ~$300 | High — power system integration |
-| RTL-SDR v4 | Software defined radio dongle | ~$30 | Medium — AIS, weather fax, NAVTEX, DSC reception |
+Off-the-shelf gateways from Digital Yacht, Yacht Devices, Actisense, Hat Labs, and others bridge NMEA 2000, Victron, BLE sensors, and SDR receivers to TCP/UDP. Prices range from ~$30 (RTL-SDR) to ~$350 (full NMEA router). The OS is designed to work with any of them. Full gateway inventory and integration notes in `docs/research/hardware/hardware-connectivity-technologies.md` and `docs/research/hardware/sailor-hardware-landscape.md`.
 
 ### What's Missing
 
 No existing tool — commercial, open source, or hardware — provides:
 
-1. A unified platform that connects navigation, boat management, energy, safety, social, and AI
+1. **A platform OS** — unified authentication, shared data model, cross-tool data sharing, plugin architecture, and AI runtime as foundational services that all apps consume
 2. An AI crew that reasons across all boat data and proactively assists
 3. Modern UX with the quality of Raymarine Axiom but running on any screen
 4. Offline-first operation with seamless cloud sync
 5. Free and open source with no vendor lock-in
 6. Community-driven data (routes, anchorages, hazards) integrated into every tool
 
-Above Deck builds all of this.
+Every existing product is either a single-purpose app or a hardware-locked ecosystem. Nobody has built the operating system layer — the shared infrastructure of auth, data model, AI agents, offline sync, and plugin architecture that connects everything. Above Deck builds that layer.
 
 ---
 
@@ -316,6 +279,8 @@ Above Deck builds all of this.
 - Animal quarantine rules (for boats with pets)
 - Firearms declaration requirements by country
 - Medication/prescription rules by country
+- Insurance requirements per country/region — mandatory coverage types, minimum limits, accepted providers
+- Insurance certificate tracking — policy details, expiry dates, renewal reminders, proof-of-insurance documents
 - Agent/handler recommendations per port
 - Community-contributed updates — regulations change frequently, sailors report current reality
 - Integration with passage planner — surface entry requirements for destination country
@@ -847,40 +812,40 @@ Beautiful hardware MFDs that cost $2-5K, are locked to one screen, one vendor's 
 Detailed research supporting this vision is available in the project repository:
 
 ### Competitive & Market
-- `docs/research/competitive-landscape.md` — 25+ competitors, market gaps, positioning
-- `docs/research/savvy-navvy-deep-dive.md` — Savvy Navvy analysis
-- `docs/research/predictwind-orca-navily-opencpn-analysis.md` — PredictWind, Orca, Navily, OpenCPN
-- `docs/research/keeano-deep-dive.md` — Keeano analysis
-- `docs/research/apps-and-github-projects.md` — 25+ apps, 30+ GitHub projects
+- `docs/research/competitive/competitive-landscape.md` — 25+ competitors, market gaps, positioning
+- `docs/research/competitive/savvy-navvy-deep-dive.md` — Savvy Navvy analysis
+- `docs/research/competitive/predictwind-orca-navily-opencpn-analysis.md` — PredictWind, Orca, Navily, OpenCPN
+- `docs/research/competitive/keeano-deep-dive.md` — Keeano analysis
+- `docs/research/competitive/apps-and-github-projects.md` — 25+ apps, 30+ GitHub projects
 
 ### Technical & Data
-- `docs/research/marine-data-apis.md` — 40+ free marine data endpoints
-- `docs/research/data-source-licenses.md` — Licensing matrix
-- `docs/research/fastseas-and-weather-routing-research.md` — Weather routing algorithms
-- `docs/research/marine-weather-deep-dive.md` — Weather data sources and patterns
-- `docs/research/tides-and-currents.md` — Tidal prediction methods and data
-- `docs/research/passage-planning-workflows.md` — APEM framework and planning patterns
-- `docs/research/deployment-architecture.md` — Deployment patterns
+- `docs/research/data-and-apis/marine-data-apis.md` — 40+ free marine data endpoints
+- `docs/research/data-and-apis/data-source-licenses.md` — Licensing matrix
+- `docs/research/navigation-and-weather/fastseas-and-weather-routing-research.md` — Weather routing algorithms
+- `docs/research/navigation-and-weather/marine-weather-deep-dive.md` — Weather data sources and patterns
+- `docs/research/navigation-and-weather/tides-and-currents.md` — Tidal prediction methods and data
+- `docs/research/navigation-and-weather/passage-planning-workflows.md` — APEM framework and planning patterns
+- `docs/research/platform-and-architecture/deployment-architecture.md` — Deployment patterns
 
 ### Hardware & Connectivity
-- `docs/research/sailor-hardware-landscape.md` — Hardware survey
-- `docs/research/hardware-connectivity-technologies.md` — RPi, ESP32, LoRa, BLE
-- `docs/research/marine-mfd-platforms-and-integrations.md` — MFD vendor platforms
-- `docs/research/can-bus-technology.md` — CAN bus and NMEA 2000
-- `docs/research/mfd-platform-ecosystems.md` — MFD ecosystem comparison
-- `docs/research/raymarine-axiom2-deep-dive.md` — Axiom 2 UX patterns
-- `docs/research/carplay-marine-analogy.md` — Multi-surface architecture patterns
+- `docs/research/hardware/sailor-hardware-landscape.md` — Hardware survey
+- `docs/research/hardware/hardware-connectivity-technologies.md` — RPi, ESP32, LoRa, BLE
+- `docs/research/hardware/marine-mfd-platforms-and-integrations.md` — MFD vendor platforms
+- `docs/research/hardware/can-bus-technology.md` — CAN bus and NMEA 2000
+- `docs/research/hardware/mfd-platform-ecosystems.md` — MFD ecosystem comparison
+- `docs/research/hardware/raymarine-axiom2-deep-dive.md` — Axiom 2 UX patterns
+- `docs/research/platform-and-architecture/carplay-marine-analogy.md` — Multi-surface architecture patterns
 
 ### Domain-Specific
-- `docs/research/mapping-and-chart-technology.md` — Chart rendering and data
-- `docs/research/solar-energy-research.md` — Solar system fundamentals
-- `docs/research/boat-systems-monitoring.md` — Boat systems and monitoring
-- `docs/research/community-platform-patterns.md` — Community platform patterns
-- `docs/research/visual-design-patterns.md` — Design patterns and inspiration
-- `docs/research/vessel-registration-systems.md` — MMSI and vessel identity
-- `docs/research/chartplotter-ui-patterns.md` — Chartplotter UI research
-- `docs/research/smart-home-and-pwa-integration.md` — Smart home and PWA patterns
-- `docs/research/d3kos-and-marine-os-deep-dive.md` — Marine OS platforms
+- `docs/research/navigation-and-weather/mapping-and-chart-technology.md` — Chart rendering and data
+- `docs/research/data-and-apis/solar-energy-research.md` — Solar system fundamentals
+- `docs/research/domain/boat-systems-monitoring.md` — Boat systems and monitoring
+- `docs/research/ux-and-design/community-platform-patterns.md` — Community platform patterns
+- `docs/research/ux-and-design/visual-design-patterns.md` — Design patterns and inspiration
+- `docs/research/data-and-apis/vessel-registration-systems.md` — MMSI and vessel identity
+- `docs/research/ux-and-design/chartplotter-ui-patterns.md` — Chartplotter UI research
+- `docs/research/hardware/smart-home-and-pwa-integration.md` — Smart home and PWA patterns
+- `docs/research/competitive/d3kos-and-marine-os-deep-dive.md` — Marine OS platforms
 
 ---
 

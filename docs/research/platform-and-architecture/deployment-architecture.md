@@ -16,7 +16,9 @@ The core architectural principle: **the boat is the source of truth for its own 
 
 ## 1. Hardware Options Beyond Raspberry Pi
 
-The Raspberry Pi (covered in [hardware-connectivity-technologies.md](./hardware-connectivity-technologies.md)) remains the default recommendation due to its ecosystem of marine HATs (PICAN-M, MacArthur HAT, HALPI2). But it is not the only option, and some deployments benefit from more capable or more ruggedised hardware.
+The settled recommendation is an **Intel N100 mini PC (or Mac Mini)** with USB/WiFi gateways (gateway-first architecture). The Raspberry Pi ecosystem (covered in [hardware-connectivity-technologies.md](./hardware-connectivity-technologies.md)) remains viable for advanced Linux users, but the gateway-first approach is recommended for most deployments.
+
+> **Update (2026-03-27):** Hardware recommendation updated from Raspberry Pi + CAN HAT to Intel N100 / Mac Mini + USB/WiFi gateways. See hardware-connectivity-technologies.md for details.
 
 ### 1.1 Hardware Comparison
 
@@ -310,7 +312,7 @@ The cloud deployment uses Supabase (hosted) for:
 - **Auth:** Google OAuth (PKCE flow) for cloud accounts.
 - **Real-time:** Supabase Realtime for live updates to the community site (new KB articles, forum posts).
 - **Storage:** User uploads (photos, documents) via Supabase Storage.
-- **Edge Functions:** Sync endpoint, webhook processing.
+- **Edge Functions:** ~~Sync endpoint, webhook processing.~~ **Update (2026-03-27): Settled decision — sync and webhook processing handled by the Go API server (packages/api/), not Supabase Edge Functions. No Node.js/Deno dependencies.**
 
 The boat's Go server talks to Supabase's REST API (or direct Postgres connection) during sync windows. No Supabase client SDK needed on the Go server — standard HTTP calls to the PostgREST API.
 
@@ -686,7 +688,7 @@ You arrive in Portofino. Your chartplotter shows 2 friends already there. You se
 1. **Cloud twin sync protocol** — WebSocket push from boat? Supabase real-time? MQTT? What's the most bandwidth-efficient approach for Starlink?
 2. **Social feature privacy compliance** — GDPR implications of storing other boats' positions on a shared instance?
 3. **Meshtastic → cloud bridge** — can a Meshtastic node forward data to the cloud twin when cellular/Starlink is available but the boat server is down?
-4. **SQLite vs. embedded Postgres (embedded-postgres-go)?** SQLite is simpler but lacks PostGIS for geographic queries on the boat. If route/waypoint geographic queries are needed locally, consider embedded Postgres or spatialite.
+4. ~~**SQLite vs. embedded Postgres (embedded-postgres-go)?**~~ **Settled (2026-03-27): SQLite.** The boat uses SQLite (WAL mode, pure-Go driver). Geographic queries handled with Spatialite or application-level haversine calculations. No embedded Postgres.
 2. **HaLOS app store integration:** Should Above Deck be a first-class HaLOS app? This would simplify deployment on HALPI2 significantly.
 3. **SignalK integration model:** Does the Go server consume SignalK's WebSocket API, or does it talk directly to NMEA hardware? The former is more portable; the latter eliminates a dependency.
 4. **PWA on local network:** The Service Worker requirement for HTTPS is the biggest UX friction point for offline PWA on a local network. Needs a clear recommendation and setup guide.

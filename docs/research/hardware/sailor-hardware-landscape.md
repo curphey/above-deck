@@ -1,5 +1,7 @@
 # Cruising Sailor Hardware & Electronics Landscape
 
+> **Updated 2026-03-28:** Aligned with product vision v2 and technical architecture decisions. SignalK is an adapter, not a dependency.
+
 **Date:** 2026-03-20
 **Purpose:** Understand what hardware and electronics typical cruising sailors already have installed, to inform Above Deck integration planning.
 **Audience:** Above Deck development team
@@ -470,7 +472,7 @@ Based on prevalence and data accessibility:
 [AIS transponder] ─────────┘          or Go server)        iPad/tablet)
 ```
 
-SignalK is the natural integration hub. It already handles NMEA 0183, NMEA 2000, Victron, and dozens of other data sources. Above Deck should consume SignalK's REST/WebSocket API rather than implementing individual protocol parsers.
+Above Deck's Go server reads from hardware gateways directly (iKonvert USB for NMEA 2000, NavLink2 WiFi, serial for NMEA 0183, Victron VE.Direct/MQTT) over TCP/UDP. SignalK is supported as one of many protocol adapters for sailors who already run a SignalK server, but Above Deck owns its own data model and does not depend on SignalK as a runtime dependency.
 
 ---
 

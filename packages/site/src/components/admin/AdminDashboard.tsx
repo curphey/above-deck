@@ -2,7 +2,7 @@ import { SimpleGrid, Paper, Text, Title, Anchor, Loader, Center } from '@mantine
 import { useQuery } from '@tanstack/react-query';
 import { createSupabaseClient } from '@/lib/supabase';
 import { AdminLayout } from './AdminLayout';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 
 interface StatCardProps {
   label: string;

@@ -45,12 +45,12 @@
 
 ```
 .claude/rules/       # Architecture patterns (glob-matched, loaded when touching relevant files)
-packages/site/       # Community site — blog, KB, community, admin, auth
-packages/tools/      # Standalone sailing tools — VHF sim, solar planner, MFD shell
+packages/site/       # Community web presence — blog, KB, forums, admin, marketing
+packages/tools/      # All sailing apps — chartplotter, weather, tides, passage planner, energy planner, boat mgmt, VHF sim, MFD shell. Run on hub + spoke, bidirectional sync.
 packages/shared/     # Shared theme, colors, fonts, types
 packages/api/        # Go API server
-research/            # Research documents
-docs/plans/          # Implementation plans
+research/            # Research documents (7 subfolders by topic)
+docs/superpowers/specs/ # Active design specs
 wireframes/html/     # Wireframes
 tasks/todo.md        # Work tracking (GitHub Issues is source of truth)
 tasks/lessons.md     # Lessons learned from past mistakes

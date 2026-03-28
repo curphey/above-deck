@@ -1,4 +1,4 @@
-import { MantineProvider as BaseMantineProvider, ColorSchemeScript } from '@mantine/core';
+import { MantineProvider as BaseMantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { theme } from '@above-deck/shared/theme/theme';
 
@@ -9,5 +9,3 @@ export function MantineProvider({ children }: { children: React.ReactNode }) {
     </BaseMantineProvider>
   );
 }
-
-export { ColorSchemeScript };
