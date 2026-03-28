@@ -290,7 +290,7 @@ Proxied services: weather (Open-Meteo, ECMWF), tides (NOAA CO-OPS), AIS (aisstre
 
 ## 7. Spoke (On-Boat) Deployment
 
-### Decision: Single Docker container, Intel N100 mini PC, HALPI2, or similar hardware
+### Decision: Single Docker container on any suitable hardware
 
 **The spoke is a single Docker container** containing:
 - Go binary (API server, protocol adapters, monitoring, agents, sync, security)
@@ -300,14 +300,21 @@ Proxied services: weather (Open-Meteo, ECMWF), tides (NOAA CO-OPS), AIS (aisstre
 
 `docker run abovedeck/spoke` — one command, everything starts.
 
-**Hardware:**
+**Hardware — three first-class options:**
 
-Primary recommendation: HALPI2 (marine-specific CM5 computer with built-in NMEA ports, IP65, 10-32V DC) or Intel N100 mini PC (e.g., MeLE Quieter4C — fanless, native 12V DC, $140-250). Mac Mini is suitable for development but not recommended for boat deployment due to lack of 12V DC input and Docker running in a VM on macOS. See docs/research/hardware/industrial-sbc-and-docker-research.md for detailed hardware comparison.
+| Option | Price | Power (idle) | 12V DC | Docker | Best for |
+|--------|-------|-------------|--------|--------|----------|
+| **Mac Mini M4** | $599 + ~$200 12V conversion | 4-6W | Via Mikegyver conversion service | OrbStack (VM, ~400MB overhead) | Best power efficiency, proven on boats, excellent connectivity |
+| **Intel N100 mini PC** (e.g., MeLE Quieter4C) | $140-250 | 6-12W | Native 12V DC input | Native Linux Docker | Best value, fanless, zero conversion needed |
+| **HALPI2** (Hat Labs CM5) | EUR 250-594 | 5-8W | Native 10-32V DC | Native Linux Docker | Marine-purpose-built, IP65, built-in NMEA 2000/0183 ports |
+
+All three are fanless or effectively silent under spoke workloads (Go binary + SQLite + web UI). The Mac Mini M4's fan does not spin under light loads. 12V DC conversion for Mac Mini is available as a commercial service (Mikegyver). Docker on macOS runs via a lightweight VM (OrbStack recommended over Docker Desktop — 400MB vs 2GB RAM overhead). See `docs/research/hardware/industrial-sbc-and-docker-research.md` for detailed comparison.
+
+Common requirements:
 - Low power (3-15W idle)
-- Fanless options available
-- Runs Docker natively
 - Connected to display(s) via HDMI
 - Connected to gateways via USB/WiFi/Ethernet
+- Mount in a ventilated cabin area, not a hot engine room (all options spec 35°C max ambient)
 
 **Networking on the boat:**
 

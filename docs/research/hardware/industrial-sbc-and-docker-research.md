@@ -324,6 +324,50 @@ For the Above Deck spoke (single Go binary + SQLite), the N100 is more than suff
 
 ---
 
+## 2.5 Apple Mac Mini M4 (2024)
+
+> **Updated 2026-03-28:** Mac Mini M4 promoted to first-class deployment option after detailed research.
+
+The M4 Mac Mini is a viable and proven marine deployment option, despite not being a traditional embedded/industrial computer.
+
+**Specs:**
+- CPU: Apple M4 (10-core CPU, 10-core GPU)
+- RAM: 16GB unified memory
+- Storage: 256GB SSD (base)
+- Power: 4-6W idle, 10-15W light load, 65W max (real-world, not spec)
+- Ports: 2x USB-A, 3x Thunderbolt 4 (USB-C), 1x HDMI, 1x Gigabit Ethernet, WiFi 6
+- Price: $599
+
+**Fan:** The M4 Mac Mini has a single fan but it is **effectively silent under spoke workloads** (Go binary + SQLite + web server). Users consistently report the device is "completely silent" during normal use. The fan only activates under sustained heavy load (video encoding, compiling).
+
+**12V DC power:** Not native. Commercial 12V DC conversion available via [Mikegyver](https://mikegyver.com/products/upgrade-service-12v-apple-mac-mini-m1-m2-m4-in-your-car-rv-boat) (~$150-300). Alternative: small marine inverter ($50-150) with ~10-15% efficiency loss. Real boats have been running Mac Minis on 12V since the Intel era — this is proven.
+
+**Docker on macOS:** Docker Desktop runs containers in a Linux VM. Use **OrbStack** instead — 400MB idle RAM (vs Docker Desktop's 2GB), 2-10x faster file I/O, drop-in Docker CLI compatible. Free for personal use, $8/month commercial.
+
+**Headless operation:** Works but requires disabling sleep mode (macOS sleep has documented issues on M4 in headless mode). Run with display off, `caffeinate` or energy saver settings to prevent sleep. Power difference between sleep (3W) and display-off awake (4-6W) is negligible.
+
+**Temperature:** Operating range 10-35°C ambient. Not suitable for hot engine rooms in tropical climates. Mount in a ventilated cabin space.
+
+**Marine track record:** Mac Minis have been used on cruising sailboats since the Intel era. Documented installations on Cruisers Forum, MacSailing.net, and sailing blogs. The M4 generation offers significantly better power efficiency than older models.
+
+**Strengths vs alternatives:**
+- Lowest idle power of any option (4-6W vs N100's 6-12W)
+- Superior build quality (aluminium unibody)
+- macOS ecosystem (native app support alongside Docker)
+- Excellent connectivity (USB-A + Ethernet + WiFi + Thunderbolt)
+- Familiar to many sailors (Mac users over-represented in sailing community)
+
+**Weaknesses:**
+- $599 base price (vs $140-250 for N100, $250 for HALPI2)
+- Requires 12V conversion service or inverter
+- Docker runs in VM (OrbStack mitigates, but not native Linux containers)
+- 35°C max ambient (marginal in tropics)
+- No native NMEA ports (unlike HALPI2)
+
+**Verdict:** First-class spoke hardware option. Best power efficiency, proven on boats, excellent build quality. Higher cost and Docker VM overhead are the trade-offs. Ideal for sailors who already own or prefer Mac hardware.
+
+---
+
 ## 3. Docker on Linux for Marine/Embedded
 
 ### 3.1 Linux Distribution Comparison
