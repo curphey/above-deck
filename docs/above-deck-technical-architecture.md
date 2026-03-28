@@ -34,7 +34,7 @@ Write access (autopilot control, digital switching, CAN bus commands) is an expl
 - **Geospatial** — PostGIS extension. POI locations, route geometries, anchorage positions, geofencing
 - **Vector search** — pgvector extension. RAG embeddings for almanac, pilot books, manufacturer data, regulations
 - **Time-series** — TimescaleDB extension (add when needed). Historical instrument data uploaded from spokes, weather data, analytics
-- **Auth** — Supabase Auth. Google, Apple, social providers. JWT tokens.
+- **Auth** — Supabase Auth. Google OAuth at launch. Apple Sign In added post-launch. JWT tokens.
 - **Real-time** — Supabase Realtime. Live position sharing, messaging, fleet coordination.
 - **Storage** — Supabase Storage (S3-compatible). Charts, images, documents, GRIB files, PDFs.
 
@@ -84,7 +84,7 @@ A single Go binary that embeds the frontend static assets and provides all backe
 | **Data model** | Unified representation of all boat systems. In-memory state + SQLite persistence. |
 | **Monitoring service** | Watches data streams, evaluates threshold rules, triggers alerts. Spoke only. |
 | **Alert engine** | Multi-channel alerting — local, push, SMS, email. Escalation rules. |
-| **AI agent runtime** | Hosts the six specialist agents. Manages lifecycle, data subscriptions, tool registry, inter-agent communication. |
+| **AI agent runtime** | Hosts the five specialist agents plus the Watchman orchestrator. Manages lifecycle, data subscriptions, tool registry, inter-agent communication. |
 | **RAG pipeline** | Embedding generation, vector search, context assembly for AI agents. |
 | **Sync engine** | Hub-spoke data synchronisation. Conflict resolution, offline queue, incremental sync. |
 | **Security scanner** | NMEA 2000 network audit, WiFi scan, device fingerprinting. Spoke only. |
@@ -166,7 +166,7 @@ packages/
 **Why not an off-the-shelf agent framework:**
 
 - Most agent frameworks are Python/TypeScript — we're in Go
-- Our agent model is domain-specific (6 agents, marine context, real-time data streams)
+- Our agent model is domain-specific (5 specialist agents plus the Watchman orchestrator, marine context, real-time data streams)
 - We need tight integration with the data model and monitoring services
 - Simpler to build exactly what we need than adapt a general framework
 
@@ -264,7 +264,7 @@ Supabase can be self-hosted if needed (docker-compose). No vendor lock-in.
 
 **Auth:**
 
-- Supabase Auth — Google, Apple, social providers
+- Supabase Auth — Google OAuth at launch. Apple Sign In added post-launch.
 - JWT tokens — verified by both hub and spoke
 - API keys — for third-party access, tied to user accounts, rate limited
 - Spoke auth — JWT validated locally when offline (cached public key)
@@ -290,7 +290,7 @@ Proxied services: weather (Open-Meteo, ECMWF), tides (NOAA CO-OPS), AIS (aisstre
 
 ## 7. Spoke (On-Boat) Deployment
 
-### Decision: Single Docker container, Mac Mini or similar hardware
+### Decision: Single Docker container, Intel N100 mini PC, HALPI2, or similar hardware
 
 **The spoke is a single Docker container** containing:
 - Go binary (API server, protocol adapters, monitoring, agents, sync, security)
@@ -302,7 +302,7 @@ Proxied services: weather (Open-Meteo, ECMWF), tides (NOAA CO-OPS), AIS (aisstre
 
 **Hardware:**
 
-Primary recommendation: Mac Mini or equivalent (Intel N100 mini PC, HALPI2).
+Primary recommendation: HALPI2 (marine-specific CM5 computer with built-in NMEA ports, IP65, 10-32V DC) or Intel N100 mini PC (e.g., MeLE Quieter4C — fanless, native 12V DC, $140-250). Mac Mini is suitable for development but not recommended for boat deployment due to lack of 12V DC input and Docker running in a VM on macOS. See docs/research/hardware/industrial-sbc-and-docker-research.md for detailed hardware comparison.
 - Low power (3-15W idle)
 - Fanless options available
 - Runs Docker natively
@@ -340,7 +340,7 @@ IP cameras ──── Ethernet/WiFi ──── Spoke
 | Resource | Budget |
 |----------|--------|
 | RAM | ~512MB-1GB for Go binary + SQLite + embedded frontend |
-| Disk | ~2-10GB for SQLite + cached charts + GRIB files |
+| Disk | ~5-20GB for SQLite + cached charts + GRIB files + RAG data |
 | CPU | Minimal idle. Spikes during RAG queries, chart rendering, protocol parsing |
 | Network | Local only (boat LAN). Internet optional for sync. |
 
@@ -375,6 +375,8 @@ When the spoke has no internet:
 - **Hub-wins** for community data (almanac entries, moderation decisions)
 - **Spoke-wins** for instrument data (boat knows its own state)
 - **Flag for manual resolution** for anything ambiguous (rare)
+- **Hybrid logical clocks (HLC)** for change ordering — boat system clocks can drift or be wrong, so wall-clock timestamps alone are unreliable. HLCs combine physical time with a logical counter to produce causally consistent ordering even when clocks disagree.
+- **Litestream** as a complementary backup tool — continuously replicates spoke SQLite to S3-compatible storage (or local USB) as a disaster-recovery layer, independent of the hub sync mechanism
 
 **Bandwidth awareness:**
 
@@ -389,7 +391,7 @@ When the spoke has no internet:
 
 ### Auth and access control
 
-- Social auth (Google, Apple) via Supabase Auth
+- Social auth via Supabase Auth — Google OAuth at launch. Apple Sign In added post-launch.
 - JWT tokens with short expiry, refresh tokens
 - Role-based access — user, moderator, admin
 - Boat-level access — owner, crew (read/write), guest (read-only)
@@ -667,10 +669,10 @@ One command: `docker compose up` — full local development environment.
 
 ## 16. Open Questions (for future resolution)
 
-- **LLM for offline agents** — when spoke has no internet, should agents use a smaller local model (e.g. Ollama + Llama) for basic queries? Or just queue questions for when connectivity returns?
-- **Chart tile serving** — self-hosted tile server on spoke for offline charts, or pre-download tile packages per region?
+- **LLM for offline agents** — when spoke has no internet, should agents use a smaller local model (e.g. Ollama + Llama) for basic queries? Or just queue questions for when connectivity returns? *Partially resolved — Ollama + nomic-embed-text for local embeddings on spoke. Full agent reasoning still requires connectivity.*
+- **Chart tile serving** — self-hosted tile server on spoke for offline charts, or pre-download tile packages per region? *Partially resolved — PMTiles approach recommended. See docs/research/navigation-and-weather/s57-enc-chart-rendering.md*
 - **Multi-display** — how does the MFD shell handle multiple simultaneous displays (helm + nav station)? Shared state with independent views?
 - **Voice interface** — "Engineer, turn off the watermaker" — speech recognition on-device or cloud?
 - **Matter/Thread** — when to add smart home protocol support? What devices are actually useful on boats?
-- **Radar data** — Navico/Furuno/Raymarine all use different protocols. How much reverse engineering is needed?
+- **Radar data** — Navico/Furuno/Raymarine all use different protocols. How much reverse engineering is needed? *Deferred — vendor protocols are locked down. See docs/research/navigation-and-weather/weather-routing-radar-autopilot-deep-dive.md*
 - **NMEA 2000 certification** — do we need to certify as an NMEA 2000 product, or is read-only via gateways sufficient?

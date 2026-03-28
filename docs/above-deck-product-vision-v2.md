@@ -1,7 +1,7 @@
 # Above Deck — Product Vision & Design
 
 **Date:** 2026-03-26
-**Status:** Draft v1
+**Status:** Draft v2
 **License:** GPL — foundation-owned, community-driven
 
 ---
@@ -28,7 +28,7 @@ The architecture is hub and spoke:
 
 **The Spokes (On-Board OS)** — each boat runs its own instance of the OS on dedicated hardware (Mac Mini or similar). Hardware abstraction, unified data model, monitoring services, alert engine, communications, security, plugin system. Works 100% offline. Syncs with the hub when internet is available — pulling down RAG updates, almanac changes, weather data, and pushing up logbook entries, community contributions, position reports.
 
-**Apps** — chartplotter, passage planner, energy planner, VHF radio simulator, anchor watch, instrument dashboard, logbook, engine monitor, AI agents, and more. Each app runs inside a composable MFD shell (inspired by Raymarine Axiom 2). Apps include reusable components — notably the AI crew (six specialist agents with both visual dashboards and chat interfaces). Apps run on the hub (browser access), on the spoke (on-board), or both.
+**Apps** — chartplotter, passage planner, energy planner, VHF radio simulator, anchor watch, instrument dashboard, logbook, engine monitor, AI agents, and more. Each app runs inside a composable MFD shell (inspired by Raymarine Axiom 2). Apps include reusable components — notably the AI crew (five specialist agents with both visual dashboards and chat interfaces, plus the Watchman orchestrator that manages agent lifecycle and inter-agent routing). Apps run on the hub (browser access), on the spoke (on-board), or both.
 
 **Community Site** — the public-facing web presence. Marketing, blog, knowledge base, community forums and chat. Consumes the hub for auth and data but is otherwise a separate concern.
 
@@ -94,7 +94,7 @@ One platform, not five apps. Sailors currently cobble together separate tools fo
 - **Own data model** — full control over the schema, optimised for our tools and AI queries. SignalK compatibility as an adapter for interoperability.
 - **Plugin architecture** — open plugin system for MFD screens, protocol adapters, data model extensions, and AI capabilities. MCP server exposes the entire platform data model to external AI systems and third-party tools.
 - **Single-binary backend** — no runtime dependencies, excellent concurrency for real-time instrument data, minimal operational overhead.
-- **Social authentication** — sign in with Google, Apple, or other social providers. No passwords to manage.
+- **Social authentication** — sign in with Google (Apple Sign In added post-launch). No passwords to manage.
 - **Multi-surface** — same platform accessible from dedicated MFD display, laptop, tablet, phone. Different form factors, same platform.
 - **Performance and reliability** — modern architecture throughout, built for real-time instrument data and 24/7 unattended operation on the boat.
 - **SDK** — public SDK for developers to build apps, plugins, and integrations on the platform.
@@ -115,6 +115,8 @@ One platform, not five apps. Sailors currently cobble together separate tools fo
 ## 4. Who It's For
 
 Coastal cruisers and bluewater sailors on monohulls and catamarans. People planning circumnavigations, multi-year ocean exploration, retirement voyages — not just weekend day trips.
+
+This also includes aspirational sailors 6-18 months before departure — people researching obsessively, planning circumnavigations or multi-year trips, buying equipment, and preparing. They're the "dream" entry point: they use the online tools (passage planner, energy sizer, cruising almanac) long before they leave the dock.
 
 These sailors:
 
@@ -146,6 +148,10 @@ Navily, SeaPeople, Noforeignland, 45 Degrees, Keeano. Strong on POIs, reviews, a
 ### Open Source
 
 OpenCPN (chartplotter, 2010 UI, desktop-only), SignalK (data standard, Node.js, fragile on Pi), OpenPlotter (Pi integration, DIY), YachtOS (emerging boat OS). Capable but dated tools. None offer a modern, unified, AI-first platform.
+
+### Unified Boat OS
+
+Zora by iNav4U — unified boat OS for yachts 40ft+, hardware + software, shipping April 2026, ~$650. Closest to Above Deck's vision but hardware-locked and not open source.
 
 ### Hardware MFDs
 
@@ -545,7 +551,7 @@ The boat is a home. Treat it like one.
 
 #### 6.24 AI Agents
 
-Six specialist agents, each an OS-level service with both a visual dashboard and a chat interface:
+Five specialist agents, each an OS-level service with both a visual dashboard and a chat interface, plus the Watchman orchestrator which manages agent lifecycle and inter-agent routing (not a user-facing chat agent):
 
 **Watchman (Orchestrator)** — 24-hour watch. Coordinates other agents. Monitors all data streams, triages alerts, escalates to specialists. The agent you talk to when you don't know which agent to ask. Routes questions to the right specialist.
 
@@ -557,7 +563,7 @@ Six specialist agents, each an OS-level service with both a visual dashboard and
 
 **Bosun** — provisioning, checklists, watch schedules, anchor watch, inventory management. Data access: crew data, inventory, GPS/anchor position, stores.
 
-**Pilot** — local knowledge, port info, customs procedures, marina recommendations, approach notes. Data access: POI database, community reviews, port databases, cruising guides.
+**Pilot** — local knowledge, port info, customs procedures, marina recommendations, approach notes. Data access: POI database, community reviews, port databases, cruising guides, insurance requirements.
 
 Agents collaborate — Navigator asks Engineer about fuel range, Pilot tells Navigator about port approach hazards. Each agent has:
 
@@ -660,7 +666,7 @@ Handles messaging between users, boats, groups, and agents. Bridges on-board com
 
 ### Security Service
 
-NMEA 2000 network monitoring, device fingerprinting, anomaly detection, audit logging. Watches all traffic flowing through the hardware abstraction layer. See section 6.16 for detailed features.
+NMEA 2000 network monitoring, device fingerprinting, anomaly detection, audit logging. Watches all traffic flowing through the hardware abstraction layer. See section 6.18 for detailed features.
 
 ### AI Agent Runtime
 
@@ -851,4 +857,4 @@ Detailed research supporting this vision is available in the project repository:
 
 ## Appendix B: Related Documents
 
-**Technical Architecture** — a separate document covering implementation decisions: data stores (vector DB for RAG, relational DB for structured data, time-series for instruments), backend services, frontend stack, AI/agent framework, deployment topology, offline/sync architecture, hardware abstraction interfaces, and security. API authentication tied to user accounts — the platform is free but APIs require auth to prevent commercial companies scraping community-curated data (almanac, POIs, routes, reviews). To be produced after this vision document is finalised.
+**Technical Architecture** — a separate document covering implementation decisions: data stores (vector DB for RAG, relational DB for structured data, time-series for instruments), backend services, frontend stack, AI/agent framework, deployment topology, offline/sync architecture, hardware abstraction interfaces, and security. API authentication tied to user accounts — the platform is free but APIs require auth to prevent commercial companies scraping community-curated data (almanac, POIs, routes, reviews). See companion document: above-deck-technical-architecture.md
