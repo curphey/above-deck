@@ -2,6 +2,7 @@
 import KBLayout from '../../layouts/KBLayout.astro';
 import JsonLd from '../../components/seo/JsonLd.astro';
 import { KBEditor } from '../../components/knowledge/KBEditor';
+import { KBCommentRail } from '../../components/knowledge/KBCommentRail';
 import { getCollection, render } from 'astro:content';
 import { prettifyName } from '../../lib/kb';
 
@@ -111,13 +112,19 @@ const breadcrumbSchema = {
     <span>{parts[0]}</span>
   </div>
 
-  <!-- Article content -->
-  <article class="kb-article-body">
-    <Content />
-  </article>
+  <!-- Article content + comment rail -->
+  <div class="kb-content-with-rail">
+    <div class="kb-content-main">
+      <article class="kb-article-body">
+        <Content />
+      </article>
 
-  <div class="kb-back-link">
-    <a href="/knowledge">&larr; Back to Knowledge Base</a>
+      <div class="kb-back-link">
+        <a href="/knowledge">&larr; Back to Knowledge Base</a>
+      </div>
+    </div>
+
+    <KBCommentRail slug={slug} client:load />
   </div>
 </KBLayout>
 
@@ -179,6 +186,22 @@ const breadcrumbSchema = {
     gap: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+  }
+
+  .kb-content-with-rail {
+    display: flex;
+    gap: 0;
+  }
+
+  .kb-content-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .kb-content-with-rail {
+      flex-direction: column;
+    }
   }
 
   .kb-back-link {
