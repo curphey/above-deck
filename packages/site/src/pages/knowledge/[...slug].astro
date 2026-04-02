@@ -1,6 +1,7 @@
 ---
 import KBLayout from '../../layouts/KBLayout.astro';
 import JsonLd from '../../components/seo/JsonLd.astro';
+import { KBEditor } from '../../components/knowledge/KBEditor';
 import { getCollection, render } from 'astro:content';
 import { prettifyName } from '../../lib/kb';
 
@@ -95,7 +96,10 @@ const breadcrumbSchema = {
   </nav>
 
   <!-- Article header -->
-  <h1 class="kb-article-title">{title}</h1>
+  <div class="kb-article-header">
+    <h1 class="kb-article-title">{title}</h1>
+    <KBEditor slug={slug} client:load />
+  </div>
 
   {doc.data.summary && (
     <p class="kb-article-summary">{doc.data.summary}</p>
@@ -138,6 +142,13 @@ const breadcrumbSchema = {
   .kb-breadcrumb-sep {
     margin: 0 6px;
     color: #c0c0c0;
+  }
+
+  .kb-article-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
   }
 
   .kb-article-title {
