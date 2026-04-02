@@ -25,6 +25,9 @@ Thumbs.db
 # Screenshots (use tmp/screenshots/ only)
 tmp/
 
+# KB trash (soft-deleted articles)
+docs/.trash/
+
 # Test coverage
 coverage/
 
