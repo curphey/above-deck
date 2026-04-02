@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knowledge Base — Personalized — Above Deck (Wireframe)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── Design tokens ─── */
+    :root {
+      --bg:            #1a1a2e;
+      --surface:       #16213e;
+      --surface-2:     #1e2a45;
+      --text:          #e0e0e0;
+      --text-muted:    #8b8b9e;
+      --border:        #2d2d4a;
+      --border-subtle: rgba(45, 45, 74, 0.55);
+      --hover:         rgba(96, 165, 250, 0.05);
+      --green:         #4ade80;
+      --blue:          #60a5fa;
+      --coral:         #f87171;
+      --font-heading:  'Space Mono', monospace;
+      --font-body:     'Inter', sans-serif;
+      --font-code:     'Fira Code', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; }
+
+    /* ─────────────────────────────────────────
+       TOP NAV
+    ───────────────────────────────────────── */
+    .nav {
+      height: 60px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo-mark {
+      width: 24px;
+      height: 24px;
+      border: 1.5px solid var(--blue);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      color: var(--blue);
+      font-family: var(--font-code);
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      transition: color 0.1s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.active { color: var(--blue); }
+
+    .nav-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-family: var(--font-code);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.1s;
+    }
+    .nav-avatar:hover { border-color: var(--blue); }
+
+    /* ─────────────────────────────────────────
+       PAGE SHELL
+    ───────────────────────────────────────── */
+    .page {
+      display: flex;
+      min-height: calc(100vh - 60px);
+    }
+
+    /* ─────────────────────────────────────────
+       SIDEBAR
+    ───────────────────────────────────────── */
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      position: sticky;
+      top: 60px;
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .sidebar-section {
+      padding: 0 1rem 1rem;
+    }
+
+    .sidebar-label {
+      font-family: var(--font-code);
+      font-size: 0.62rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.5rem 0.75rem 0.5rem 2rem;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus { border-color: var(--blue); }
+
+    /* Difficulty pills */
+    .pill-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-family: var(--font-code);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 9px;
+      border-radius: 3px;
+      border: 1px solid;
+      background: transparent;
+      transition: all 0.12s;
+      color: inherit;
+    }
+    .pill-green { border-color: var(--green); color: var(--green); }
+    .pill-green.active { background: var(--green); color: #1a1a2e; }
+    .pill-blue  { border-color: var(--blue);  color: var(--blue);  }
+    .pill-blue.active  { background: var(--blue);  color: #1a1a2e; }
+    .pill-coral { border-color: var(--coral); color: var(--coral); }
+    .pill-coral.active { background: var(--coral); color: #1a1a2e; }
+
+    /* Tags section */
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .sidebar-tag {
+      font-family: var(--font-code);
+      font-size: 0.58rem;
+      text-transform: lowercase;
+      padding: 3px 7px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      background: transparent;
+      transition: all 0.1s;
+    }
+    .sidebar-tag:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* Divider */
+    .sidebar-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0.5rem 1rem;
+    }
+
+    /* Category nav */
+    .cat-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 0.45rem 0.75rem;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-left: 2px solid transparent;
+      border-radius: 0 4px 4px 0;
+      transition: all 0.1s;
+      text-align: left;
+    }
+    .cat-btn:hover {
+      color: var(--text);
+      background: rgba(96, 165, 250, 0.04);
+    }
+    .cat-btn.active {
+      color: var(--blue);
+      background: rgba(96, 165, 250, 0.08);
+      border-left-color: var(--blue);
+    }
+
+    .cat-icon {
+      font-family: var(--font-code);
+      font-size: 0.75rem;
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .cat-label { flex: 1; }
+    .cat-count {
+      font-family: var(--font-code);
+      font-size: 0.62rem;
+      opacity: 0.45;
+    }
+
+    /* Sidebar footer stats */
+    .sidebar-stats {
+      padding: 1rem 1rem 0;
+      font-family: var(--font-code);
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    /* ─────────────────────────────────────────
+       MAIN CONTENT
+    ───────────────────────────────────────── */
+    .main {
+      flex: 1;
+      padding: 1.5rem 2rem 4rem;
+      max-width: 860px;
+      min-width: 0;
+    }
+
+    /* ─────────────────────────────────────────
+       MY BOAT BANNER — Authenticated
+    ───────────────────────────────────────── */
+    .boat-banner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.25rem 0.875rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .boat-banner-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .boat-banner-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.625rem;
+    }
+
+    .boat-icon {
+      color: var(--blue);
+      font-size: 1rem;
+      line-height: 1;
+      padding-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .boat-banner-heading {
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 3px;
+    }
+
+    .boat-banner-sub {
+      font-family: var(--font-code);
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    .boat-banner-edit {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      color: var(--blue);
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    .boat-banner-edit:hover { text-decoration: underline; }
+
+    /* Recommended cards row */
+    .rec-scroll {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+      /* Show partial fourth card to hint at scrollability */
+      -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+      mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    }
+
+    .rec-card {
+      flex-shrink: 0;
+      width: 200px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.75rem;
+      transition: border-color 0.1s;
+    }
+    .rec-card:hover { border-color: rgba(96, 165, 250, 0.4); }
+
+    .rec-card-title {
+      font-family: var(--font-heading);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 5px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .rec-card-summary {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .rec-match-tag {
+      font-family: var(--font-code);
+      font-size: 0.55rem;
+      color: var(--green);
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      background: rgba(74, 222, 128, 0.06);
+      border-radius: 2px;
+      padding: 2px 5px;
+      display: inline-block;
+    }
+
+    /* ─────────────────────────────────────────
+       MY BOAT BANNER — Empty state
+    ───────────────────────────────────────── */
+    .boat-banner-empty {
+      background: var(--surface);
+      border: 1px dashed rgba(45, 45, 74, 0.9);
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .boat-empty-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .boat-empty-icon {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .boat-empty-text {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .boat-empty-text strong {
+      display: block;
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .btn-setup {
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--blue);
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      background: rgba(96, 165, 250, 0.06);
+      border-radius: 4px;
+      padding: 0.45rem 0.875rem;
+      flex-shrink: 0;
+      transition: all 0.12s;
+    }
+    .btn-setup:hover {
+      background: rgba(96, 165, 250, 0.12);
+      border-color: var(--blue);
+    }
+
+    /* ─────────────────────────────────────────
+       PAGE HEADER
+    ───────────────────────────────────────── */
+    .page-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 0.25rem;
+    }
+
+    .page-title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.2rem, 2.5vw, 1.45rem);
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .article-count {
+      font-family: var(--font-code);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .header-rule {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0.35rem 0 1.5rem;
+    }
+
+    /* ─────────────────────────────────────────
+       CATEGORY GROUPS
+    ───────────────────────────────────────── */
+    .kb-group {
+      margin-bottom: 2rem;
+    }
+
+    .group-header {
+      font-family: var(--font-heading);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .group-icon {
+      font-family: var(--font-code);
+      font-size: 0.78rem;
+      opacity: 0.45;
+    }
+
+    /* ─────────────────────────────────────────
+       ARTICLE ROWS
+    ───────────────────────────────────────── */
+    .article-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+      padding: 0.875rem 1rem;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid var(--border-subtle);
+      border-top: none;
+      transition: background-color 0.1s;
+      cursor: pointer;
+    }
+    .article-row:first-of-type { border-top: 1px solid var(--border-subtle); }
+    .article-row:hover { background: var(--hover); }
+
+    /* Bookmark icon column */
+    .bookmark-col {
+      flex-shrink: 0;
+      padding-top: 3px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1;
+      width: 16px;
+      text-align: center;
+      transition: color 0.1s;
+    }
+    .bookmark-col.saved { color: var(--blue); }
+
+    /* Body column */
+    .article-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .article-title {
+      font-family: var(--font-heading);
+      font-size: 0.83rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .article-summary {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin: 4px 0 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .article-tags {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 7px;
+    }
+
+    .art-tag {
+      font-family: var(--font-code);
+      font-size: 0.55rem;
+      text-transform: lowercase;
+      padding: 2px 6px;
+      border-radius: 2px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+    }
+
+    /* Meta column */
+    .article-meta {
+      flex-shrink: 0;
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+      padding-top: 3px;
+    }
+
+    .difficulty {
+      font-family: var(--font-code);
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .diff-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .diff-beginner     { color: var(--green); }
+    .diff-dot-beginner { background: var(--green); }
+    .diff-intermediate { color: var(--blue);  }
+    .diff-dot-intermediate { background: var(--blue);  }
+    .diff-advanced     { color: var(--coral); }
+    .diff-dot-advanced { background: var(--coral); }
+
+    .read-time {
+      font-family: var(--font-code);
+      font-size: 0.58rem;
+      color: var(--text-muted);
+    }
+
+    /* ─────────────────────────────────────────
+       SECTION LABELS
+    ───────────────────────────────────────── */
+    .section-label {
+      font-family: var(--font-code);
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    /* ─────────────────────────────────────────
+       WIREFRAME STATE TOGGLE (prototype helper)
+    ───────────────────────────────────────── */
+    .state-toggle {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 200;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-family: var(--font-code);
+      font-size: 0.62rem;
+    }
+
+    .state-toggle-label {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .state-toggle-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .toggle-btn {
+      font-family: var(--font-code);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.1s;
+    }
+    .toggle-btn.active {
+      background: rgba(96, 165, 250, 0.1);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+    .toggle-btn:hover { color: var(--text); border-color: var(--text-muted); }
+
+    /* ─────────────────────────────────────────
+       MOBILE
+    ───────────────────────────────────────── */
+    .mobile-sidebar-toggle {
+      display: none;
+      width: 100%;
+      padding: 0.6rem 1rem;
+      font-family: var(--font-code);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--surface);
+      border: none;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      text-align: left;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .page { flex-direction: column; }
+
+      .sidebar {
+        width: 100%;
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 0;
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+      }
+      .sidebar.mobile-open {
+        max-height: 800px;
+        padding: 1rem 0;
+      }
+
+      .mobile-sidebar-toggle { display: flex; }
+
+      .main { padding: 1rem 1rem 3rem; }
+
+      .nav-links a:not(.active):not(:last-child) { display: none; }
+
+      .boat-banner-empty {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .rec-scroll {
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
+
+      .state-toggle { bottom: 1rem; right: 1rem; }
+    }
+
+    /* ─────────────────────────────────────────
+       SCROLLBAR (webkit)
+    ───────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3d3d5a; }
+  </style>
+</head>
+<body>
+
+  <!-- ─── TOP NAV ─── -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-mark">AD</div>
+      Above Deck
+    </a>
+    <div class="nav-links">
+      <a href="#">Tools</a>
+      <a href="#" class="active">Knowledge</a>
+      <a href="#">Blog</a>
+      <a href="#">Community</a>
+      <div class="nav-avatar">JC</div>
+    </div>
+  </nav>
+
+  <!-- ─── MOBILE SIDEBAR TOGGLE ─── -->
+  <button class="mobile-sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">
+    <span>Filters &amp; Categories</span>
+    <span id="toggle-chevron">▾</span>
+  </button>
+
+  <!-- ─── PAGE SHELL ─── -->
+  <div class="page">
+
+    <!-- ─── LEFT SIDEBAR ─── -->
+    <nav class="sidebar" id="sidebar">
+
+      <!-- Search -->
+      <div class="sidebar-section">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input class="search-input" type="text" placeholder="Search articles...">
+        </div>
+      </div>
+
+      <!-- Difficulty filter -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">Difficulty</div>
+        <div class="pill-row">
+          <button class="pill pill-green active" onclick="togglePill(this)">Beginner</button>
+          <button class="pill pill-blue" onclick="togglePill(this)">Intermediate</button>
+          <button class="pill pill-coral" onclick="togglePill(this)">Advanced</button>
+        </div>
+      </div>
+
+      <hr class="sidebar-divider">
+
+      <!-- Popular tags -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">Popular Tags</div>
+        <div class="tag-cloud">
+          <button class="sidebar-tag">victron</button>
+          <button class="sidebar-tag">yanmar</button>
+          <button class="sidebar-tag">solar</button>
+          <button class="sidebar-tag">nmea 2000</button>
+          <button class="sidebar-tag">lithium</button>
+          <button class="sidebar-tag">passage planning</button>
+          <button class="sidebar-tag">grib</button>
+          <button class="sidebar-tag">watermaker</button>
+          <button class="sidebar-tag">signalk</button>
+          <button class="sidebar-tag">ais</button>
+        </div>
+      </div>
+
+      <hr class="sidebar-divider">
+
+      <!-- Categories -->
+      <div style="padding: 0 0.5rem;">
+        <div class="sidebar-label" style="padding: 0 0.5rem; margin-bottom: 4px;">Categories</div>
+
+        <button class="cat-btn active" onclick="selectCat(this)">
+          <span class="cat-icon">☰</span>
+          <span class="cat-label">All Articles</span>
+          <span class="cat-count">15</span>
+        </button>
+
+        <button class="cat-btn" onclick="selectCat(this)">
+          <span class="cat-icon">⊕</span>
+          <span class="cat-label">Navigation &amp; Weather</span>
+          <span class="cat-count">5</span>
+        </button>
+
+        <button class="cat-btn" onclick="selectCat(this)">
+          <span class="cat-icon">⚡</span>
+          <span class="cat-label">Electrical Systems</span>
+          <span class="cat-count">2</span>
+        </button>
+
+        <button class="cat-btn" onclick="selectCat(this)">
+          <span class="cat-icon">⚙</span>
+          <span class="cat-label">Engine &amp; Mechanical</span>
+          <span class="cat-count">1</span>
+        </button>
+
+        <button class="cat-btn" onclick="selectCat(this)">
+          <span class="cat-icon">◎</span>
+          <span class="cat-label">Plumbing &amp; Water</span>
+          <span class="cat-count">1</span>
+        </button>
+
+        <button class="cat-btn" onclick="selectCat(this)">
+          <span class="cat-icon">△</span>
+          <span class="cat-label">Safety &amp; Emergency</span>
+          <span class="cat-count">1</span>
+        </button>
+
+        <button class="cat-btn" onclick="selectCat(this)">
+          <span class="cat-icon">▣</span>
+          <span class="cat-label">Provisioning &amp; Living</span>
+          <span class="cat-count">1</span>
+        </button>
+
+        <button class="cat-btn" onclick="selectCat(this)">
+          <span class="cat-icon">◇</span>
+          <span class="cat-label">Destinations &amp; Cruising</span>
+          <span class="cat-count">1</span>
+        </button>
+
+        <button class="cat-btn" onclick="selectCat(this)">
+          <span class="cat-icon">⬡</span>
+          <span class="cat-label">Technology &amp; Platform</span>
+          <span class="cat-count">3</span>
+        </button>
+      </div>
+
+      <!-- Stats footer -->
+      <div class="sidebar-stats">
+        <hr class="sidebar-divider" style="margin: 0 0 0.5rem;">
+        15 articles · 8 categories
+      </div>
+
+    </nav>
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <main class="main">
+
+      <!-- ══════════════════════════════════════
+           MY BOAT BANNER — AUTHENTICATED STATE
+           (shown by default, toggle below)
+      ══════════════════════════════════════ -->
+      <div class="boat-banner" id="banner-auth">
+        <div class="boat-banner-header">
+          <div class="boat-banner-left">
+            <div class="boat-icon">
+              <!-- Minimal boat SVG -->
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 2V12" stroke="#60a5fa" stroke-width="1.25" stroke-linecap="round"/>
+                <path d="M9 3L15 9H9V3Z" fill="rgba(96,165,250,0.18)" stroke="#60a5fa" stroke-width="1.25" stroke-linejoin="round"/>
+                <path d="M3 13H15L13 16H5L3 13Z" stroke="#60a5fa" stroke-width="1.25" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <p class="boat-banner-heading">Recommended for your boat</p>
+              <span class="boat-banner-sub">Lagoon 42 &nbsp;·&nbsp; Yanmar 4JH45 &nbsp;·&nbsp; Victron Solar</span>
+            </div>
+          </div>
+          <a href="#" class="boat-banner-edit">Edit Profile →</a>
+        </div>
+
+        <!-- Recommended article cards -->
+        <div class="rec-scroll">
+
+          <a href="#" class="rec-card">
+            <div class="rec-card-title">Diesel Engine Maintenance Essentials</div>
+            <div class="rec-card-summary">Oil changes, impeller checks, and the inspections that keep a Yanmar running passage after passage.</div>
+            <span class="rec-match-tag">Matches: Yanmar 4JH45</span>
+          </a>
+
+          <a href="#" class="rec-card">
+            <div class="rec-card-title">Sizing Your Solar System</div>
+            <div class="rec-card-summary">How to calculate panel capacity, battery bank size, and MPPT rating for your specific boat profile.</div>
+            <span class="rec-match-tag">Matches: Victron Solar</span>
+          </a>
+
+          <a href="#" class="rec-card">
+            <div class="rec-card-title">Understanding 12V Electrical Systems</div>
+            <div class="rec-card-summary">Battery banks, alternators, solar, and how it all connects on a cruising catamaran.</div>
+            <span class="rec-match-tag">Matches: Victron Solar</span>
+          </a>
+
+          <a href="#" class="rec-card">
+            <div class="rec-card-title">NMEA 2000 Explained for Cruisers</div>
+            <div class="rec-card-summary">How the backbone works, what devices connect to it, and how to troubleshoot a noisy network.</div>
+            <span class="rec-match-tag">Matches: Lagoon 42</span>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           MY BOAT BANNER — EMPTY STATE
+           (hidden by default, toggle below)
+      ══════════════════════════════════════ -->
+      <div class="boat-banner-empty" id="banner-empty" style="display: none;">
+        <div class="boat-empty-left">
+          <div class="boat-empty-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 3V13" stroke="#8b8b9e" stroke-width="1.25" stroke-linecap="round"/>
+              <path d="M10 4L16.5 10H10V4Z" stroke="#8b8b9e" stroke-width="1.25" stroke-linejoin="round"/>
+              <path d="M4 14H16L14 17.5H6L4 14Z" stroke="#8b8b9e" stroke-width="1.25" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="boat-empty-text">
+            <strong>Personalize your reading list</strong>
+            Add your boat details to get article recommendations matched to your engine, electrical setup, and boat type.
+          </div>
+        </div>
+        <button class="btn-setup">Set Up My Boat →</button>
+      </div>
+
+      <!-- ─── PAGE HEADER ─── -->
+      <div class="page-header">
+        <h1 class="page-title">Knowledge Base</h1>
+        <span class="article-count">15 articles</span>
+      </div>
+      <hr class="header-rule">
+
+      <!-- ══════════════════════════════════════
+           CATEGORY: Navigation & Weather
+      ══════════════════════════════════════ -->
+      <div class="kb-group">
+        <div class="group-header">
+          <span class="group-icon">⊕</span>
+          Navigation &amp; Weather
+        </div>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <!-- Outline bookmark -->
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">Understanding Marine Weather Data</h3>
+            <p class="article-summary">GFS, ECMWF, and AROME compared — what each model excels at, its update cadence, and how to read GRIB files in your passage planning workflow.</p>
+            <div class="article-tags">
+              <span class="art-tag">gfs</span>
+              <span class="art-tag">ecmwf</span>
+              <span class="art-tag">grib</span>
+              <span class="art-tag">weather-models</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-intermediate">
+              <span class="diff-dot diff-dot-intermediate"></span>
+              Intermediate
+            </span>
+            <span class="read-time">⏱ 5m</span>
+          </div>
+        </a>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">How Tidal Predictions Work</h3>
+            <p class="article-summary">Tidal harmonics, the difference between spring and neap tides, and how prediction services like NOAA turn historical data into accurate local forecasts.</p>
+            <div class="article-tags">
+              <span class="art-tag">tides</span>
+              <span class="art-tag">harmonics</span>
+              <span class="art-tag">spring-tides</span>
+              <span class="art-tag">noaa</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 6m</span>
+          </div>
+        </a>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">Passage Planning: The APEM Framework</h3>
+            <p class="article-summary">A structured approach to offshore passage planning — Assess, Plan, Execute, Monitor — and how to build weather windows into each stage.</p>
+            <div class="article-tags">
+              <span class="art-tag">passage-planning</span>
+              <span class="art-tag">apem</span>
+              <span class="art-tag">weather-windows</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 6m</span>
+          </div>
+        </a>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">Understanding Electronic Nautical Charts</h3>
+            <p class="article-summary">The difference between raster and vector charts, how the S-57 standard structures data, and what ENC cell licences actually buy you.</p>
+            <div class="article-tags">
+              <span class="art-tag">enc</span>
+              <span class="art-tag">s-57</span>
+              <span class="art-tag">vector-charts</span>
+              <span class="art-tag">noaa</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-intermediate">
+              <span class="diff-dot diff-dot-intermediate"></span>
+              Intermediate
+            </span>
+            <span class="read-time">⏱ 6m</span>
+          </div>
+        </a>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">AIS: What It Is and Why It Matters</h3>
+            <p class="article-summary">Class A vs Class B transponders, what data is broadcast, range limitations, and why AIS alone is not a collision avoidance system.</p>
+            <div class="article-tags">
+              <span class="art-tag">ais</span>
+              <span class="art-tag">class-b</span>
+              <span class="art-tag">transponder</span>
+              <span class="art-tag">collision-avoidance</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 5m</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           CATEGORY: Electrical Systems
+      ══════════════════════════════════════ -->
+      <div class="kb-group">
+        <div class="group-header">
+          <span class="group-icon">⚡</span>
+          Electrical Systems
+        </div>
+
+        <!-- SAVED article — filled bookmark -->
+        <a href="#" class="article-row">
+          <div class="bookmark-col saved">
+            <!-- Filled bookmark -->
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" fill="#60a5fa" stroke="#60a5fa" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">Understanding 12V Electrical Systems</h3>
+            <p class="article-summary">How battery banks, alternators, solar chargers, and loads fit together on a cruising boat — with practical sizing rules and common wiring mistakes to avoid.</p>
+            <div class="article-tags">
+              <span class="art-tag">12v-dc</span>
+              <span class="art-tag">battery-bank</span>
+              <span class="art-tag">alternator</span>
+              <span class="art-tag">solar</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 4m</span>
+          </div>
+        </a>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">Sizing Your Solar System</h3>
+            <p class="article-summary">Peak sun hours, panel efficiency, shade derating, and how to calculate the MPPT controller size you actually need for living aboard in the tropics.</p>
+            <div class="article-tags">
+              <span class="art-tag">victron</span>
+              <span class="art-tag">solar</span>
+              <span class="art-tag">mppt</span>
+              <span class="art-tag">peak-sun-hours</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 5m</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           CATEGORY: Engine & Mechanical
+      ══════════════════════════════════════ -->
+      <div class="kb-group">
+        <div class="group-header">
+          <span class="group-icon">⚙</span>
+          Engine &amp; Mechanical
+        </div>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">Diesel Engine Maintenance Essentials</h3>
+            <p class="article-summary">The maintenance schedule every cruiser should follow — oil and filter intervals, raw water impeller replacement, fuel polishing, and zincs.</p>
+            <div class="article-tags">
+              <span class="art-tag">yanmar</span>
+              <span class="art-tag">diesel</span>
+              <span class="art-tag">oil-change</span>
+              <span class="art-tag">impeller</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 5m</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           CATEGORY: Plumbing & Water
+      ══════════════════════════════════════ -->
+      <div class="kb-group">
+        <div class="group-header">
+          <span class="group-icon">◎</span>
+          Plumbing &amp; Water
+        </div>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">Watermaker Basics for Cruisers</h3>
+            <p class="article-summary">How reverse osmosis works, sizing a watermaker for your consumption, membrane maintenance, and pickling for extended storage at anchor.</p>
+            <div class="article-tags">
+              <span class="art-tag">watermaker</span>
+              <span class="art-tag">reverse-osmosis</span>
+              <span class="art-tag">membrane</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 5m</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           CATEGORY: Safety & Emergency
+      ══════════════════════════════════════ -->
+      <div class="kb-group">
+        <div class="group-header">
+          <span class="group-icon">△</span>
+          Safety &amp; Emergency
+        </div>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">EPIRBs, PLBs, and DSC: What to Carry</h3>
+            <p class="article-summary">The distress signalling equipment that actually saves lives offshore — how each technology works, registration requirements, and when to activate.</p>
+            <div class="article-tags">
+              <span class="art-tag">epirb</span>
+              <span class="art-tag">plb</span>
+              <span class="art-tag">dsc</span>
+              <span class="art-tag">mayday</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 6m</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           CATEGORY: Provisioning & Living
+      ══════════════════════════════════════ -->
+      <div class="kb-group">
+        <div class="group-header">
+          <span class="group-icon">▣</span>
+          Provisioning &amp; Living
+        </div>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">Provisioning for a Bluewater Passage</h3>
+            <p class="article-summary">How to calculate calories, storage, and provisioning quantities for an ocean crossing — including dry goods, canned staples, and managing a freezer underway.</p>
+            <div class="article-tags">
+              <span class="art-tag">provisioning</span>
+              <span class="art-tag">passages</span>
+              <span class="art-tag">food-storage</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 7m</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           CATEGORY: Destinations & Cruising
+      ══════════════════════════════════════ -->
+      <div class="kb-group">
+        <div class="group-header">
+          <span class="group-icon">◇</span>
+          Destinations &amp; Cruising
+        </div>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">The Atlantic Circuit: Routes and Timing</h3>
+            <p class="article-summary">The established downwind circuit from Europe to the Caribbean and back — trade wind timing, anchorage sequences, and the key waypoints most cruisers follow.</p>
+            <div class="article-tags">
+              <span class="art-tag">atlantic</span>
+              <span class="art-tag">trade-winds</span>
+              <span class="art-tag">arc</span>
+              <span class="art-tag">routing</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 8m</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           CATEGORY: Technology & Platform
+      ══════════════════════════════════════ -->
+      <div class="kb-group">
+        <div class="group-header">
+          <span class="group-icon">⬡</span>
+          Technology &amp; Platform
+        </div>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">NMEA 2000 Explained for Cruisers</h3>
+            <p class="article-summary">How the CAN bus backbone works, what devices communicate on it, and how SignalK bridges your NMEA 2000 network to modern software.</p>
+            <div class="article-tags">
+              <span class="art-tag">nmea-2000</span>
+              <span class="art-tag">can-bus</span>
+              <span class="art-tag">signalk</span>
+              <span class="art-tag">digital-yacht</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 6m</span>
+          </div>
+        </a>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">Choosing a Computer for Your Boat</h3>
+            <p class="article-summary">Mac Mini M4, Intel N100 mini-PCs, and Raspberry Pi compared for 12V operation, heat, Docker workloads, and running marine software reliably offshore.</p>
+            <div class="article-tags">
+              <span class="art-tag">mac-mini</span>
+              <span class="art-tag">intel-n100</span>
+              <span class="art-tag">docker</span>
+              <span class="art-tag">12v</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-intermediate">
+              <span class="diff-dot diff-dot-intermediate"></span>
+              Intermediate
+            </span>
+            <span class="read-time">⏱ 6m</span>
+          </div>
+        </a>
+
+        <a href="#" class="article-row">
+          <div class="bookmark-col">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 1.5H10.5V12.5L6 9.5L1.5 12.5V1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="article-body">
+            <h3 class="article-title">The State of Marine Software in 2026</h3>
+            <p class="article-summary">OpenCPN, SignalK, PredictWind, Navionics, and Savvy Navvy — an honest map of what the marine software landscape looks like today and where the gaps are.</p>
+            <div class="article-tags">
+              <span class="art-tag">opencpn</span>
+              <span class="art-tag">signalk</span>
+              <span class="art-tag">predictwind</span>
+              <span class="art-tag">savvy-navvy</span>
+            </div>
+          </div>
+          <div class="article-meta">
+            <span class="difficulty diff-beginner">
+              <span class="diff-dot diff-dot-beginner"></span>
+              Beginner
+            </span>
+            <span class="read-time">⏱ 5m</span>
+          </div>
+        </a>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ─── PROTOTYPE STATE TOGGLE ─── -->
+  <div class="state-toggle">
+    <div class="state-toggle-label">Prototype state</div>
+    <div class="state-toggle-btns">
+      <button class="toggle-btn active" id="btn-auth" onclick="setBannerState('auth')">Logged in</button>
+      <button class="toggle-btn" id="btn-empty" onclick="setBannerState('empty')">No profile</button>
+    </div>
+  </div>
+
+  <script>
+    // ─── Banner state toggle ───
+    function setBannerState(state) {
+      var auth  = document.getElementById('banner-auth');
+      var empty = document.getElementById('banner-empty');
+      var btnAuth  = document.getElementById('btn-auth');
+      var btnEmpty = document.getElementById('btn-empty');
+
+      if (state === 'auth') {
+        auth.style.display  = 'block';
+        empty.style.display = 'none';
+        btnAuth.classList.add('active');
+        btnEmpty.classList.remove('active');
+      } else {
+        auth.style.display  = 'none';
+        empty.style.display = 'flex';
+        btnAuth.classList.remove('active');
+        btnEmpty.classList.add('active');
+      }
+    }
+
+    // ─── Difficulty pill toggle ───
+    function togglePill(pill) {
+      // Allow only one active per color group — or deactivate if already active
+      if (pill.classList.contains('active')) {
+        pill.classList.remove('active');
+      } else {
+        // Deactivate siblings
+        var siblings = pill.parentElement.querySelectorAll('.pill');
+        siblings.forEach(function(s) { s.classList.remove('active'); });
+        pill.classList.add('active');
+      }
+    }
+
+    // ─── Category nav ───
+    function selectCat(btn) {
+      var all = document.querySelectorAll('.cat-btn');
+      all.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+
+    // ─── Mobile sidebar toggle ───
+    function toggleSidebar() {
+      var sidebar  = document.getElementById('sidebar');
+      var chevron  = document.getElementById('toggle-chevron');
+      var isOpen   = sidebar.classList.contains('mobile-open');
+      if (isOpen) {
+        sidebar.classList.remove('mobile-open');
+        chevron.textContent = '▾';
+      } else {
+        sidebar.classList.add('mobile-open');
+        chevron.textContent = '▴';
+      }
+    }
+
+    // ─── Tag hover (visual only, no filter logic in wireframe) ───
+    document.querySelectorAll('.sidebar-tag').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        this.style.borderColor = this.style.borderColor === 'var(--blue)' ? '' : 'var(--blue)';
+        this.style.color = this.style.color === 'var(--blue)' ? '' : 'var(--blue)';
+      });
+    });
+  </script>
+
+</body>
+</html>

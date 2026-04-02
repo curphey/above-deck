@@ -73,7 +73,11 @@
 - The AI is not a feature, it's the platform identity. A crew of specialized agents (Navigator, Engineer, Radio Op, Bosun, Pilot).
 - Phase 1 is infrastructure (Docker, auth, sync, PWA), not UI. Get the plumbing right first.
 - Multi-surface = Docker on the boat + web anywhere + PWA on phone. Like Claude CLI/Desktop/Web.
-- This is 100% free and open source. No commercial model. Remove any premium/paywall language from docs.
+- This is 100% free and open source. No commercial model, ever. NEVER suggest monetization, pricing tiers, paid features, subscription models, or revenue strategies for Above Deck in any document — research, vision, architecture, or otherwise. Analysing competitor pricing is fine for competitive context, but never propose how Above Deck itself could charge money. This has been corrected multiple times.
+
+## Tech Stack
+
+- UI is Tailwind CSS + Ant Design 5 (antd), NOT Mantine or shadcn/ui. Icons are @ant-design/icons. User has changed component library twice — always use the current choice (Ant Design) in all docs and code.
 
 ## User's Editor
 

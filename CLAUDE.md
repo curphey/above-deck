@@ -33,7 +33,7 @@
 
 ## Tech Stack
 
-- **Frontend:** Astro 5 (SSR via `@astrojs/node`), React 19 islands, Mantine v7
+- **Frontend:** Astro 5 (SSR via `@astrojs/node`), React 19 islands, Tailwind CSS, Ant Design 5
 - **State:** Zustand 5 (persisted), TanStack Query 5
 - **Backend:** Supabase (auth, DB, RLS), Google OAuth only (PKCE flow)
 - **Charts:** Recharts 2
@@ -106,4 +106,4 @@ Tools are independently buildable and self-hostable without the content site. Sh
 
 **Logo:** TBD — should feel like a maker's mark or technical stamp, not a corporate logo
 
-**Icons:** Tabler Icons (Mantine's default set) — consistent line weight, minimal style
+**Icons:** Ant Design Icons (@ant-design/icons) — consistent style, extensive set
