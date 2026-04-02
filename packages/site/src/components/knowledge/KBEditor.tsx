@@ -109,13 +109,37 @@ export function KBEditor({ slug }: Props) {
     }, 0);
   };
 
+  const deleteArticle = async () => {
+    if (!confirm('Move this article to trash?')) return;
+    try {
+      const res = await fetch('/api/kb/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug }),
+      });
+      if (res.ok) {
+        window.location.href = '/knowledge';
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Delete failed');
+      }
+    } catch {
+      setError('Network error');
+    }
+  };
+
   if (loading || !isAdmin) return null;
 
   if (mode === 'reading') {
     return (
-      <button onClick={startEditing} style={styles.editButton}>
-        Edit
-      </button>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <button onClick={startEditing} style={styles.editButton}>
+          Edit
+        </button>
+        <button onClick={deleteArticle} style={styles.deleteButton}>
+          Delete
+        </button>
+      </div>
     );
   }
 
@@ -165,6 +189,19 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#60a5fa',
     background: 'transparent',
     border: '1px solid #60a5fa',
+    borderRadius: '4px',
+    padding: '4px 12px',
+    cursor: 'pointer',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  },
+  deleteButton: {
+    fontFamily: "'Space Mono', monospace",
+    fontSize: '11px',
+    fontWeight: 500,
+    color: '#f87171',
+    background: 'transparent',
+    border: '1px solid #f87171',
     borderRadius: '4px',
     padding: '4px 12px',
     cursor: 'pointer',
