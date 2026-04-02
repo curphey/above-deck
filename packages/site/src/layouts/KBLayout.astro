@@ -1,7 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
 import { buildTree, prettifyName } from '../lib/kb';
+import { getUser } from '../lib/auth';
 import KBSidebar from '../components/knowledge/KBSidebar';
+import { KBUserMenu } from '../components/knowledge/KBUserMenu';
 
 interface Props {
   title: string;
@@ -11,6 +13,15 @@ interface Props {
 
 const { title, description = 'Research, guides, and documentation for the Above Deck project', currentSlug } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// Server-side auth check
+let isAdmin = false;
+try {
+  const user = await getUser(Astro.cookies, Astro.request);
+  isAdmin = user?.role === 'admin';
+} catch {
+  // Not authenticated — that's fine
+}
 
 // Build tree from docs collection
 const allDocs = await getCollection('docs');
@@ -45,7 +56,7 @@ const tree = buildTree(articles);
   <meta property="og:url" content={canonicalURL} />
   <slot name="head" />
 </head>
-<body>
+<body data-admin={isAdmin ? 'true' : undefined}>
   <div class="kb-shell">
     <header class="kb-header">
       <div class="kb-header-left">
@@ -58,10 +69,13 @@ const tree = buildTree(articles);
         </button>
         <a href="/" class="kb-header-logo">ABOVE DECK</a>
       </div>
-      <nav class="kb-header-nav">
-        <a href="/">Home</a>
-        <a href="/knowledge" class="active">Knowledge</a>
-      </nav>
+      <div class="kb-header-right">
+        <nav class="kb-header-nav">
+          <a href="/">Home</a>
+          <a href="/knowledge" class="active">Knowledge</a>
+        </nav>
+        <KBUserMenu client:load />
+      </div>
     </header>
     <div class="kb-main">
       <div class="kb-sidebar-backdrop" id="kb-sidebar-backdrop"></div>
@@ -148,6 +162,12 @@ const tree = buildTree(articles);
     color: #2d2d3a;
     letter-spacing: 1px;
     text-decoration: none;
+  }
+
+  .kb-header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
   }
 
   .kb-header-nav {
