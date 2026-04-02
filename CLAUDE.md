@@ -33,7 +33,7 @@
 
 ## Tech Stack
 
-- **Frontend:** Astro 5 (SSR via `@astrojs/node`), React 19 islands, Mantine v7
+- **Frontend:** Astro 5 (SSR via `@astrojs/node`), React 19 islands, Tailwind CSS, Ant Design 5
 - **State:** Zustand 5 (persisted), TanStack Query 5
 - **Backend:** Supabase (auth, DB, RLS), Google OAuth only (PKCE flow)
 - **Charts:** Recharts 2
@@ -45,12 +45,12 @@
 
 ```
 .claude/rules/       # Architecture patterns (glob-matched, loaded when touching relevant files)
-packages/site/       # Community site — blog, KB, community, admin, auth
-packages/tools/      # Standalone sailing tools — VHF sim, solar planner, MFD shell
+packages/site/       # Community web presence — blog, KB, forums, admin, marketing
+packages/tools/      # All sailing apps — chartplotter, weather, tides, passage planner, energy planner, boat mgmt, VHF sim, MFD shell. Run on hub + spoke, bidirectional sync.
 packages/shared/     # Shared theme, colors, fonts, types
 packages/api/        # Go API server
-research/            # Research documents
-docs/plans/          # Implementation plans
+research/            # Research documents (7 subfolders by topic)
+docs/superpowers/specs/ # Active design specs
 wireframes/html/     # Wireframes
 tasks/todo.md        # Work tracking (GitHub Issues is source of truth)
 tasks/lessons.md     # Lessons learned from past mistakes
@@ -106,4 +106,4 @@ Tools are independently buildable and self-hostable without the content site. Sh
 
 **Logo:** TBD — should feel like a maker's mark or technical stamp, not a corporate logo
 
-**Icons:** Tabler Icons (Mantine's default set) — consistent line weight, minimal style
+**Icons:** Ant Design Icons (@ant-design/icons) — consistent style, extensive set

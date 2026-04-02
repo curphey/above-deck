@@ -5,7 +5,7 @@ import { DataTable } from 'mantine-datatable';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminLayout } from './AdminLayout';
 import { BlogEditor, type BlogPost } from './BlogEditor';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 
 type View = { mode: 'list' } | { mode: 'create' } | { mode: 'edit'; post: BlogPost };
 

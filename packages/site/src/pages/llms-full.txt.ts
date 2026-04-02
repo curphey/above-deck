@@ -4,18 +4,20 @@ import { getCollection } from 'astro:content';
 export const prerender = true;
 
 export const GET: APIRoute = async () => {
-  const articles = await getCollection('knowledge', ({ data }) => !data.draft);
+  const articles = await getCollection('docs', ({ data }) => !data.draft);
 
   const articleSummaries = articles
-    .sort((a, b) => a.data.sortOrder - b.data.sortOrder)
-    .map(
-      (a) =>
-        `### ${a.data.title}
-- Category: ${a.data.category}
-- Difficulty: ${a.data.difficulty}
-- Summary: ${a.data.summary}
-- URL: /knowledge/${a.id}`,
-    )
+    .map((a) => {
+      const slug = a.id.replace(/\.md$/, '');
+      const parts = slug.split('/');
+      const category = parts[0];
+      const title = a.data.title || parts[parts.length - 1];
+      const summary = a.data.summary || '';
+      return `### ${title}
+- Category: ${category}
+- Summary: ${summary}
+- URL: /knowledge/${slug}`;
+    })
     .join('\n\n');
 
   const body = `# Above Deck

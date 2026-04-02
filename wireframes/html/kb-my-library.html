@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Library — Above Deck Knowledge Base</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── Base ─── */
+    html { font-size: 16px; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { color: #60a5fa; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ─── Nav ─── */
+    .nav {
+      height: 60px;
+      background: #16213e;
+      border-bottom: 1px solid #2d2d4a;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      gap: 32px;
+    }
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #e0e0e0;
+      letter-spacing: -0.5px;
+      white-space: nowrap;
+    }
+    .nav-logo span { color: #60a5fa; }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+      flex: 1;
+    }
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #8b8b9e;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: #e0e0e0; text-decoration: none; }
+    .nav-links a.active {
+      color: #60a5fa;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto;
+    }
+    .nav-avatar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #e0e0e0;
+    }
+    .avatar-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #2d2d4a;
+      border: 1.5px solid #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #60a5fa;
+    }
+
+    /* ─── Page container ─── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    /* ─── Breadcrumb ─── */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: #8b8b9e;
+      margin-bottom: 20px;
+    }
+    .breadcrumb-sep {
+      color: #2d2d4a;
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .breadcrumb span { color: #8b8b9e; }
+
+    /* ─── Page header ─── */
+    .page-header {
+      margin-bottom: 28px;
+    }
+    .page-header h1 {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 1.75rem;
+      color: #e0e0e0;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .page-header .subtitle {
+      font-size: 0.9rem;
+      color: #8b8b9e;
+      margin-bottom: 10px;
+    }
+    .boat-line {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: #8b8b9e;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .boat-line .edit-link {
+      color: #60a5fa;
+      font-size: 0.7rem;
+      margin-left: 8px;
+    }
+
+    /* ─── Tab bar ─── */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #2d2d4a;
+      margin-bottom: 28px;
+    }
+    .tab {
+      padding: 10px 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #8b8b9e;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+    }
+    .tab:hover { color: #e0e0e0; }
+    .tab.active {
+      color: #60a5fa;
+      border-bottom-color: #60a5fa;
+    }
+    .tab-count {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      color: #8b8b9e;
+    }
+    .tab.active .tab-count { color: #60a5fa; }
+    .tab-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      display: inline-block;
+    }
+
+    /* ─── Section label (for wireframe sections) ─── */
+    .section-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: #60a5fa;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border: 1px solid #2d2d4a;
+      border-left: 3px solid #60a5fa;
+      background: rgba(96, 165, 250, 0.05);
+      padding: 4px 10px;
+      margin: 36px 0 20px;
+      display: inline-block;
+    }
+
+    /* ─── Sort control ─── */
+    .list-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .list-info {
+      font-size: 0.8rem;
+      color: #8b8b9e;
+    }
+    .sort-control {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: #8b8b9e;
+      background: none;
+      border: 1px solid #2d2d4a;
+      color: #8b8b9e;
+      padding: 5px 10px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .sort-control:hover { border-color: #60a5fa; color: #e0e0e0; }
+
+    /* ─── Article row ─── */
+    .article-list {
+      border: 1px solid #2d2d4a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .article-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 16px;
+      background: #16213e;
+      border-bottom: 1px solid #2d2d4a;
+      transition: background 0.12s;
+    }
+    .article-row:last-child { border-bottom: none; }
+    .article-row:hover { background: #1c2a4a; }
+    .bookmark-icon {
+      color: #60a5fa;
+      font-size: 1rem;
+      flex-shrink: 0;
+      width: 18px;
+      text-align: center;
+      line-height: 1;
+    }
+    .article-title {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: #e0e0e0;
+      flex: 1;
+      min-width: 0;
+      cursor: pointer;
+    }
+    .article-title:hover { color: #60a5fa; }
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .category-badge {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.6rem;
+      font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 3px;
+      border: 1px solid #2d2d4a;
+      color: #8b8b9e;
+      background: rgba(45, 45, 74, 0.5);
+      white-space: nowrap;
+    }
+    .diff-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .diff-beginner { background: #4ade80; }
+    .diff-intermediate { background: #60a5fa; }
+    .diff-advanced { background: #f87171; }
+    .read-time {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.65rem;
+      color: #8b8b9e;
+      white-space: nowrap;
+    }
+    .saved-time {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.65rem;
+      color: #8b8b9e;
+      white-space: nowrap;
+      min-width: 72px;
+      text-align: right;
+    }
+    .overflow-btn {
+      background: none;
+      border: none;
+      color: #8b8b9e;
+      font-size: 1.1rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color 0.12s, background 0.12s;
+    }
+    .overflow-btn:hover { color: #e0e0e0; background: #2d2d4a; }
+
+    /* ─── Collections tab ─── */
+    .collections-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .collections-count {
+      font-size: 0.8rem;
+      color: #8b8b9e;
+    }
+    .btn-new {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #60a5fa;
+      background: rgba(96, 165, 250, 0.08);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      padding: 6px 14px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-new:hover { background: rgba(96, 165, 250, 0.14); border-color: #60a5fa; }
+    .collection-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .collection-card {
+      background: #16213e;
+      border: 1px solid #2d2d4a;
+      border-radius: 6px;
+      padding: 18px;
+      transition: border-color 0.15s;
+      cursor: pointer;
+    }
+    .collection-card:hover { border-color: #60a5fa; }
+    .collection-card-title {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #e0e0e0;
+      margin-bottom: 6px;
+    }
+    .collection-card-desc {
+      font-size: 0.8rem;
+      color: #8b8b9e;
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+    .collection-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .collection-article-count {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      color: #60a5fa;
+    }
+    .collection-updated {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.63rem;
+      color: #8b8b9e;
+    }
+    .collection-preview {
+      border-top: 1px solid #2d2d4a;
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .collection-preview-item {
+      font-size: 0.75rem;
+      color: #8b8b9e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .collection-preview-item::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: #2d2d4a;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ─── Collection detail ─── */
+    .collection-detail {
+      background: #16213e;
+      border: 1px solid #2d2d4a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .collection-detail-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #2d2d4a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .collection-detail-title {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #e0e0e0;
+    }
+    .collection-detail-desc-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-bottom: 1px solid #2d2d4a;
+      background: rgba(45, 45, 74, 0.2);
+    }
+    .collection-detail-desc-text {
+      font-size: 0.8rem;
+      color: #8b8b9e;
+      flex: 1;
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      color: #8b8b9e;
+      font-size: 0.75rem;
+      padding: 2px 5px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: color 0.12s;
+    }
+    .icon-btn:hover { color: #60a5fa; }
+    .detail-article-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 20px;
+      border-bottom: 1px solid #2d2d4a;
+      transition: background 0.12s;
+    }
+    .detail-article-row:last-of-type { border-bottom: none; }
+    .detail-article-row:hover { background: rgba(96, 165, 250, 0.04); }
+    .drag-handle {
+      color: #2d2d4a;
+      font-size: 0.85rem;
+      cursor: grab;
+      flex-shrink: 0;
+      line-height: 1;
+      transition: color 0.12s;
+    }
+    .drag-handle:hover { color: #8b8b9e; }
+    .detail-article-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #e0e0e0;
+      flex: 1;
+    }
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #2d2d4a;
+      font-size: 1rem;
+      padding: 2px 6px;
+      cursor: pointer;
+      border-radius: 3px;
+      line-height: 1;
+      transition: color 0.12s, background 0.12s;
+    }
+    .remove-btn:hover { color: #f87171; background: rgba(248, 113, 113, 0.08); }
+    .add-articles-link {
+      display: block;
+      padding: 12px 20px;
+      font-size: 0.8rem;
+      color: #60a5fa;
+      border-top: 1px solid #2d2d4a;
+      background: rgba(96, 165, 250, 0.03);
+      transition: background 0.12s;
+    }
+    .add-articles-link:hover { background: rgba(96, 165, 250, 0.07); text-decoration: none; }
+
+    /* ─── My Boat tab ─── */
+    .boat-profile-card {
+      background: #16213e;
+      border: 1px solid #2d2d4a;
+      border-radius: 6px;
+      padding: 20px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 28px;
+    }
+    .boat-icon-col {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      background: rgba(45, 45, 74, 0.5);
+      border: 1px solid #2d2d4a;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      color: #8b8b9e;
+    }
+    .boat-info { flex: 1; }
+    .boat-name {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #e0e0e0;
+      margin-bottom: 12px;
+    }
+    .equipment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 24px;
+      margin-bottom: 12px;
+    }
+    .equipment-item {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: #8b8b9e;
+      display: flex;
+      gap: 6px;
+    }
+    .equipment-label { color: #60a5fa; }
+    .edit-equipment-link {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: #60a5fa;
+    }
+
+    /* ─── Recommendations section ─── */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .section-title {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: #e0e0e0;
+    }
+    .section-count {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      color: #8b8b9e;
+    }
+    .section-sub {
+      font-size: 0.78rem;
+      color: #8b8b9e;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .rec-list {
+      border: 1px solid #2d2d4a;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .rec-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #16213e;
+      border-bottom: 1px solid #2d2d4a;
+      transition: background 0.12s;
+    }
+    .rec-row:last-child { border-bottom: none; }
+    .rec-row:hover { background: #1c2a4a; }
+    .rec-bookmark {
+      font-size: 0.95rem;
+      flex-shrink: 0;
+      width: 18px;
+      text-align: center;
+      line-height: 1;
+    }
+    .rec-bookmark.saved { color: #60a5fa; }
+    .rec-bookmark.unsaved { color: #2d2d4a; }
+    .rec-body { flex: 1; min-width: 0; }
+    .rec-title {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #e0e0e0;
+      margin-bottom: 4px;
+      cursor: pointer;
+    }
+    .rec-title:hover { color: #60a5fa; }
+    .match-pill {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.6rem;
+      font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: rgba(74, 222, 128, 0.08);
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      color: #4ade80;
+      white-space: nowrap;
+    }
+
+    /* ─── Expand section ─── */
+    .expand-section {
+      background: rgba(45, 45, 74, 0.2);
+      border: 1px solid #2d2d4a;
+      border-radius: 6px;
+      padding: 18px 20px;
+    }
+    .expand-title {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: #8b8b9e;
+      margin-bottom: 12px;
+    }
+    .expand-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .expand-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: #8b8b9e;
+      cursor: pointer;
+      transition: color 0.12s;
+    }
+    .expand-item:hover { color: #e0e0e0; }
+    .expand-item::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #2d2d4a;
+      border: 1px solid #8b8b9e;
+      flex-shrink: 0;
+    }
+    .expand-save-btn {
+      background: none;
+      border: 1px solid #2d2d4a;
+      color: #8b8b9e;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.6rem;
+      padding: 2px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      margin-left: auto;
+      transition: border-color 0.12s, color 0.12s;
+    }
+    .expand-save-btn:hover { border-color: #60a5fa; color: #60a5fa; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      .container { padding: 20px 16px 60px; }
+      .collection-grid { grid-template-columns: 1fr; }
+      .equipment-grid { grid-template-columns: 1fr; }
+      .article-meta .read-time,
+      .article-meta .category-badge { display: none; }
+      .boat-profile-card { flex-direction: column; }
+      .boat-icon-col { width: 60px; height: 60px; }
+    }
+    @media (max-width: 480px) {
+      .page-header h1 { font-size: 1.35rem; }
+      .rec-row { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Navigation ─── -->
+  <nav class="nav">
+    <div class="nav-logo">Above<span>Deck</span></div>
+    <ul class="nav-links">
+      <li><a href="#">Tools</a></li>
+      <li><a href="#" class="active">Knowledge Base</a></li>
+      <li><a href="#">Community</a></li>
+      <li><a href="#">Blog</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-avatar">
+        <div class="avatar-circle">M</div>
+        <span>Mark</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── Main ─── -->
+  <div class="container">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="#">Knowledge Base</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>My Library</span>
+    </div>
+
+    <!-- Page header -->
+    <div class="page-header">
+      <h1>My Library</h1>
+      <p class="subtitle">Your saved articles and collections</p>
+      <div class="boat-line">
+        Lagoon 42 &nbsp;·&nbsp; Yanmar 4JH45 &nbsp;·&nbsp; Victron MPPT 150/35 &nbsp;·&nbsp; Raymarine
+        <a href="#" class="edit-link">Edit →</a>
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab active">All Saved <span class="tab-count">(7)</span></button>
+      <button class="tab">Collections <span class="tab-count">(3)</span></button>
+      <button class="tab">My Boat <span class="tab-dot"></span></button>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- TAB 1: ALL SAVED                                    -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="section-label">Tab 1 — All Saved (active)</div>
+
+    <div class="list-toolbar">
+      <span class="list-info">7 saved articles</span>
+      <button class="sort-control">Sort: Recently saved ▾</button>
+    </div>
+
+    <div class="article-list">
+
+      <!-- Row 1 -->
+      <div class="article-row">
+        <span class="bookmark-icon">&#9646;</span>
+        <span class="article-title">Understanding 12V Electrical Systems</span>
+        <div class="article-meta">
+          <span class="category-badge">Electrical</span>
+          <span class="diff-dot diff-beginner" title="Beginner"></span>
+          <span class="read-time">4m</span>
+          <span class="saved-time">Saved 2d ago</span>
+          <button class="overflow-btn">⋯</button>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="article-row">
+        <span class="bookmark-icon">&#9646;</span>
+        <span class="article-title">Sizing Your Solar System</span>
+        <div class="article-meta">
+          <span class="category-badge">Electrical</span>
+          <span class="diff-dot diff-beginner" title="Beginner"></span>
+          <span class="read-time">5m</span>
+          <span class="saved-time">Saved 2d ago</span>
+          <button class="overflow-btn">⋯</button>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="article-row">
+        <span class="bookmark-icon">&#9646;</span>
+        <span class="article-title">Diesel Engine Maintenance Essentials</span>
+        <div class="article-meta">
+          <span class="category-badge">Engine</span>
+          <span class="diff-dot diff-beginner" title="Beginner"></span>
+          <span class="read-time">5m</span>
+          <span class="saved-time">Saved 5d ago</span>
+          <button class="overflow-btn">⋯</button>
+        </div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="article-row">
+        <span class="bookmark-icon">&#9646;</span>
+        <span class="article-title">NMEA 2000 Explained for Cruisers</span>
+        <div class="article-meta">
+          <span class="category-badge">Technology</span>
+          <span class="diff-dot diff-beginner" title="Beginner"></span>
+          <span class="read-time">6m</span>
+          <span class="saved-time">Saved 1w ago</span>
+          <button class="overflow-btn">⋯</button>
+        </div>
+      </div>
+
+      <!-- Row 5 -->
+      <div class="article-row">
+        <span class="bookmark-icon">&#9646;</span>
+        <span class="article-title">Passage Planning: The APEM Framework</span>
+        <div class="article-meta">
+          <span class="category-badge">Navigation</span>
+          <span class="diff-dot diff-beginner" title="Beginner"></span>
+          <span class="read-time">6m</span>
+          <span class="saved-time">Saved 1w ago</span>
+          <button class="overflow-btn">⋯</button>
+        </div>
+      </div>
+
+      <!-- Row 6 -->
+      <div class="article-row">
+        <span class="bookmark-icon">&#9646;</span>
+        <span class="article-title">Watermaker Basics for Cruisers</span>
+        <div class="article-meta">
+          <span class="category-badge">Plumbing</span>
+          <span class="diff-dot diff-intermediate" title="Intermediate"></span>
+          <span class="read-time">5m</span>
+          <span class="saved-time">Saved 2w ago</span>
+          <button class="overflow-btn">⋯</button>
+        </div>
+      </div>
+
+      <!-- Row 7 -->
+      <div class="article-row">
+        <span class="bookmark-icon">&#9646;</span>
+        <span class="article-title">AIS: What It Is and Why It Matters</span>
+        <div class="article-meta">
+          <span class="category-badge">Navigation</span>
+          <span class="diff-dot diff-beginner" title="Beginner"></span>
+          <span class="read-time">5m</span>
+          <span class="saved-time">Saved 3w ago</span>
+          <button class="overflow-btn">⋯</button>
+        </div>
+      </div>
+
+    </div>
+    <!-- /article-list -->
+
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- TAB 2: COLLECTIONS                                  -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="section-label">Tab 2 — Collections</div>
+
+    <div class="collections-toolbar">
+      <span class="collections-count">3 collections</span>
+      <button class="btn-new">+ New Collection</button>
+    </div>
+
+    <div class="collection-grid">
+
+      <!-- Card 1 -->
+      <div class="collection-card">
+        <div class="collection-card-title">Pre-Departure Checklist</div>
+        <div class="collection-card-desc">Articles to review before any passage</div>
+        <div class="collection-card-meta">
+          <span class="collection-article-count">4 articles</span>
+          <span class="collection-updated">Updated 3d ago</span>
+        </div>
+        <div class="collection-preview">
+          <span class="collection-preview-item">Passage Planning: The APEM Framework</span>
+          <span class="collection-preview-item">AIS: What It Is and Why It Matters</span>
+          <span class="collection-preview-item">Understanding Electronic Nautical Charts</span>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="collection-card">
+        <div class="collection-card-title">Winter Refit 2026</div>
+        <div class="collection-card-desc">Systems to understand before the haul-out</div>
+        <div class="collection-card-meta">
+          <span class="collection-article-count">3 articles</span>
+          <span class="collection-updated">Updated 1w ago</span>
+        </div>
+        <div class="collection-preview">
+          <span class="collection-preview-item">Diesel Engine Maintenance Essentials</span>
+          <span class="collection-preview-item">Watermaker Basics for Cruisers</span>
+          <span class="collection-preview-item">Understanding 12V Electrical Systems</span>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="collection-card">
+        <div class="collection-card-title">Electrical Deep Dive</div>
+        <div class="collection-card-desc">Everything about our 12V/solar setup</div>
+        <div class="collection-card-meta">
+          <span class="collection-article-count">2 articles</span>
+          <span class="collection-updated">Updated 2w ago</span>
+        </div>
+        <div class="collection-preview">
+          <span class="collection-preview-item">Sizing Your Solar System</span>
+          <span class="collection-preview-item">Understanding 12V Electrical Systems</span>
+        </div>
+      </div>
+
+    </div>
+    <!-- /collection-grid -->
+
+    <!-- Collection detail view -->
+    <div class="collection-detail">
+      <div class="collection-detail-header">
+        <span class="collection-detail-title">Pre-Departure Checklist</span>
+        <span class="collection-updated" style="font-family:'Fira Code',monospace;font-size:0.63rem;color:#8b8b9e;">4 articles &nbsp;·&nbsp; Updated 3d ago</span>
+      </div>
+      <div class="collection-detail-desc-row">
+        <span class="collection-detail-desc-text">Articles to review before any passage</span>
+        <button class="icon-btn" title="Edit description">✎ Edit</button>
+      </div>
+
+      <!-- Article rows with drag handles -->
+      <div class="detail-article-row">
+        <span class="drag-handle">≡</span>
+        <span class="detail-article-title">Passage Planning: The APEM Framework</span>
+        <span class="category-badge" style="flex-shrink:0;">Navigation</span>
+        <button class="remove-btn" title="Remove from collection">×</button>
+      </div>
+      <div class="detail-article-row">
+        <span class="drag-handle">≡</span>
+        <span class="detail-article-title">AIS: What It Is and Why It Matters</span>
+        <span class="category-badge" style="flex-shrink:0;">Navigation</span>
+        <button class="remove-btn" title="Remove from collection">×</button>
+      </div>
+      <div class="detail-article-row">
+        <span class="drag-handle">≡</span>
+        <span class="detail-article-title">Understanding Electronic Nautical Charts</span>
+        <span class="category-badge" style="flex-shrink:0;">Navigation</span>
+        <button class="remove-btn" title="Remove from collection">×</button>
+      </div>
+      <div class="detail-article-row">
+        <span class="drag-handle">≡</span>
+        <span class="detail-article-title">Diesel Engine Maintenance Essentials</span>
+        <span class="category-badge" style="flex-shrink:0;">Engine</span>
+        <button class="remove-btn" title="Remove from collection">×</button>
+      </div>
+
+      <a href="#" class="add-articles-link">+ Add articles</a>
+    </div>
+    <!-- /collection-detail -->
+
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- TAB 3: MY BOAT                                      -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="section-label">Tab 3 — My Boat</div>
+
+    <!-- Boat profile card -->
+    <div class="boat-profile-card">
+      <div class="boat-icon-col">&#9973;</div>
+      <div class="boat-info">
+        <div class="boat-name">Lagoon 42</div>
+        <div class="equipment-grid">
+          <div class="equipment-item"><span class="equipment-label">Engine:</span> Yanmar 4JH45</div>
+          <div class="equipment-item"><span class="equipment-label">Electronics:</span> Raymarine Axiom+</div>
+          <div class="equipment-item"><span class="equipment-label">Solar:</span> Victron SmartSolar 150/35</div>
+          <div class="equipment-item"><span class="equipment-label">Batteries:</span> 400Ah LiFePO4</div>
+          <div class="equipment-item"><span class="equipment-label">Watermaker:</span> Schenker Zen 30</div>
+          <div class="equipment-item"><span class="equipment-label">Autopilot:</span> Raymarine EV-200</div>
+        </div>
+        <a href="#" class="edit-equipment-link">Edit Equipment →</a>
+      </div>
+    </div>
+
+    <!-- Recommended articles -->
+    <div class="section-header">
+      <span class="section-title">Recommended for your setup</span>
+      <span class="section-count">8 articles</span>
+    </div>
+    <p class="section-sub">Based on your Lagoon 42, Yanmar engine, Victron solar, and Raymarine electronics</p>
+
+    <div class="rec-list">
+
+      <!-- 1 - saved -->
+      <div class="rec-row">
+        <span class="rec-bookmark saved" title="Saved">&#9646;</span>
+        <div class="rec-body">
+          <div class="rec-title">Sizing Your Solar System</div>
+          <span class="match-pill">Matches: Victron, solar, MPPT</span>
+        </div>
+      </div>
+
+      <!-- 2 - saved -->
+      <div class="rec-row">
+        <span class="rec-bookmark saved" title="Saved">&#9646;</span>
+        <div class="rec-body">
+          <div class="rec-title">Understanding 12V Electrical Systems</div>
+          <span class="match-pill">Matches: battery bank, solar, electrical</span>
+        </div>
+      </div>
+
+      <!-- 3 - saved -->
+      <div class="rec-row">
+        <span class="rec-bookmark saved" title="Saved">&#9646;</span>
+        <div class="rec-body">
+          <div class="rec-title">Diesel Engine Maintenance Essentials</div>
+          <span class="match-pill">Matches: Yanmar engine</span>
+        </div>
+      </div>
+
+      <!-- 4 - saved -->
+      <div class="rec-row">
+        <span class="rec-bookmark saved" title="Saved">&#9646;</span>
+        <div class="rec-body">
+          <div class="rec-title">NMEA 2000 Explained for Cruisers</div>
+          <span class="match-pill">Matches: Raymarine, NMEA 2000</span>
+        </div>
+      </div>
+
+      <!-- 5 - saved -->
+      <div class="rec-row">
+        <span class="rec-bookmark saved" title="Saved">&#9646;</span>
+        <div class="rec-body">
+          <div class="rec-title">Watermaker Basics for Cruisers</div>
+          <span class="match-pill">Matches: Schenker, watermaker</span>
+        </div>
+      </div>
+
+      <!-- 6 - not saved -->
+      <div class="rec-row">
+        <span class="rec-bookmark unsaved" title="Save article">&#9647;</span>
+        <div class="rec-body">
+          <div class="rec-title">Choosing a Computer for Your Boat</div>
+          <span class="match-pill">Matches: boat computer, Docker</span>
+        </div>
+      </div>
+
+      <!-- 7 - not saved -->
+      <div class="rec-row">
+        <span class="rec-bookmark unsaved" title="Save article">&#9647;</span>
+        <div class="rec-body">
+          <div class="rec-title">Understanding Electronic Nautical Charts</div>
+          <span class="match-pill">Matches: navigation, Raymarine</span>
+        </div>
+      </div>
+
+      <!-- 8 - not saved -->
+      <div class="rec-row">
+        <span class="rec-bookmark unsaved" title="Save article">&#9647;</span>
+        <div class="rec-body">
+          <div class="rec-title">AIS: What It Is and Why It Matters</div>
+          <span class="match-pill">Matches: AIS, collision avoidance</span>
+        </div>
+      </div>
+
+    </div>
+    <!-- /rec-list -->
+
+    <!-- Expand your knowledge -->
+    <div class="expand-section">
+      <div class="expand-title">Articles outside your current setup</div>
+      <ul class="expand-list">
+        <li class="expand-item">
+          <span style="flex:1;">Caribbean Cruising: An Eastern Caribbean Overview</span>
+          <button class="expand-save-btn">+ Save</button>
+        </li>
+        <li class="expand-item">
+          <span style="flex:1;">Provisioning for Offshore Passages</span>
+          <button class="expand-save-btn">+ Save</button>
+        </li>
+        <li class="expand-item">
+          <span style="flex:1;">Essential Safety Equipment Checklist</span>
+          <button class="expand-save-btn">+ Save</button>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+  <!-- /container -->
+
+</body>
+</html>

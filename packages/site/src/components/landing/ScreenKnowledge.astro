@@ -1,0 +1,189 @@
+---
+// ScreenKnowledge.astro — Knowledge Base preview card for landing page
+import { getCollection } from 'astro:content';
+import { prettifyName } from '../../lib/kb';
+
+const allDocs = await getCollection('docs', ({ data }) => !data.draft);
+
+// Derive category from entry id (first path segment)
+const categoryLabels: Record<string, { label: string; icon: string; order: number }> = {
+  'learning': { label: 'Learning & Guides', icon: '🎓', order: 1 },
+  'research': { label: 'Research', icon: '🔬', order: 2 },
+  'market': { label: 'Market & Competitors', icon: '📊', order: 3 },
+  'product': { label: 'Product', icon: '📐', order: 4 },
+  'engineering': { label: 'Engineering', icon: '⚙️', order: 5 },
+};
+
+// Count articles per category (derived from first path segment)
+const categoryCounts = Object.entries(categoryLabels)
+  .map(([key, meta]) => ({
+    key,
+    ...meta,
+    count: allDocs.filter(a => a.id.split('/')[0] === key).length,
+  }))
+  .filter(c => c.count > 0)
+  .sort((a, b) => a.order - b.order);
+
+// Recent articles (take 5)
+const recentArticles = allDocs.slice(0, 5).map(a => {
+  const parts = a.id.replace(/\.md$/, '').split('/');
+  const category = parts[0];
+  const title = a.data.title || prettifyName(parts[parts.length - 1]);
+  return { id: a.id.replace(/\.md$/, ''), title, category };
+});
+
+const totalArticles = allDocs.length;
+const totalCategories = categoryCounts.length;
+---
+<div class="screen solar-screen" id="screen-knowledge">
+  <div class="schematic-header">
+    <div>
+      <div class="schematic-title">Knowledge Base</div>
+      <div class="schematic-subtitle">{totalArticles} articles across {totalCategories} categories</div>
+    </div>
+    <button class="back-btn" onclick="window.showScreen('home')">← Home</button>
+  </div>
+
+  <div class="kb-preview">
+    <p class="kb-description">Research, guides, and documentation.</p>
+
+    <div class="kb-section-label">Categories</div>
+    <div class="kb-categories">
+      {categoryCounts.map(cat => (
+        <a href={`/knowledge`} class="kb-category-row">
+          <span class="kb-category-icon">{cat.icon}</span>
+          <span class="kb-category-name">{cat.label}</span>
+          <span class="kb-category-count">{cat.count}</span>
+        </a>
+      ))}
+    </div>
+
+    <div class="kb-section-label">Recent Articles</div>
+    <div class="kb-recent">
+      {recentArticles.map(article => (
+        <a href={`/knowledge/${article.id}`} class="kb-recent-row">
+          <span class="kb-recent-title">{article.title}</span>
+          <span class="kb-recent-badge">{categoryLabels[article.category]?.label.split(' &')[0] || article.category}</span>
+        </a>
+      ))}
+    </div>
+
+    <a href="/knowledge" class="kb-browse-btn">Browse Knowledge Base →</a>
+  </div>
+</div>
+
+<style>
+  .kb-preview {
+    padding: 16px 20px;
+    overflow-y: auto;
+    height: calc(100% - 60px);
+  }
+
+  .kb-description {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .kb-section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8b8b9e;
+    margin-bottom: 8px;
+  }
+
+  .kb-categories {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+
+  .kb-category-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .kb-category-row:last-child { border-bottom: none; }
+  .kb-category-row:hover .kb-category-name { color: #60a5fa; }
+
+  .kb-category-icon { font-size: 14px; width: 20px; text-align: center; }
+
+  .kb-category-name {
+    flex: 1;
+    font-size: 13px;
+    color: #2d2d3a;
+    transition: color 0.1s;
+  }
+
+  .kb-category-count {
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    color: #8b8b9e;
+  }
+
+  .kb-recent {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+  }
+
+  .kb-recent-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .kb-recent-row:last-child { border-bottom: none; }
+  .kb-recent-row:hover .kb-recent-title { color: #60a5fa; }
+
+  .kb-recent-title {
+    flex: 1;
+    font-size: 13px;
+    color: #2d2d3a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.1s;
+  }
+
+  .kb-recent-badge {
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    padding: 2px 6px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: rgba(0,0,0,0.04);
+    color: #8b8b9e;
+  }
+
+  .kb-browse-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: #60a5fa;
+    background: rgba(96,165,250,0.06);
+    border: 1px solid rgba(96,165,250,0.2);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+
+  .kb-browse-btn:hover {
+    background: rgba(96,165,250,0.12);
+    border-color: rgba(96,165,250,0.4);
+  }
+</style>

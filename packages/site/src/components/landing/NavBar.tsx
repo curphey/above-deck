@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { id: 'vhf', icon: '📻', label: 'VHF' },
   { id: 'passage', icon: '⚓', label: 'Passage' },
   { id: 'weather', icon: '◉', label: 'Weather' },
+  { id: 'knowledge', icon: '📚', label: 'Knowledge' },
   { id: 'log', icon: '☰', label: 'Log' },
   { id: 'about', icon: 'ⓘ', label: 'About' },
 ] as const;

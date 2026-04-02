@@ -1,0 +1,9 @@
+---
+import KBLayout from '../../layouts/KBLayout.astro';
+import { KBNewArticle } from '../../components/knowledge/KBNewArticle';
+
+export const prerender = false;
+---
+<KBLayout title="New Article" currentSlug="">
+  <KBNewArticle client:load />
+</KBLayout>

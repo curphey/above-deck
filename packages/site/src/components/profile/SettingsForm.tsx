@@ -17,7 +17,7 @@ import {
 import { QueryClient, QueryClientProvider, useQuery, useMutation } from '@tanstack/react-query';
 import { MantineProvider } from '../MantineProvider';
 import { createSupabaseClient } from '@/lib/supabase';
-import { HEADING_FONT } from '@/theme/fonts';
+import { HEADING_FONT } from '@above-deck/shared/theme/fonts';
 
 interface ProfileData {
   bio: string | null;

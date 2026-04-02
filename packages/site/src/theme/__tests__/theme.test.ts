@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { theme } from '../theme';
-import { COLORS } from '../colors';
+import { theme } from '@above-deck/shared/theme/theme';
+import { COLORS } from '@above-deck/shared/theme/colors';
 
 describe('theme', () => {
   it('has dark mode as default color scheme', () => {

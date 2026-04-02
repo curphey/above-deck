@@ -30,6 +30,11 @@
 - Variable dependency arrays in `useEffect` cause it to fire every render. Serialize deps with `JSON.stringify` for a stable comparison key.
 - Create Supabase client as a singleton (module-level cache) to avoid re-instantiation on every render.
 
+## KB API Security
+
+- Path traversal prevention: `slug.replace(/\.\./g, '')` leaves multiple slashes (e.g. `../../etc/passwd` → `//etc/passwd`). Must use `/^\/+/` (strip ALL leading slashes), not `/^\//` (strip one). The `startsWith(DOCS_BASE)` check is a safety net, but normalization should be correct too.
+- Writing tests for path validation immediately caught this bug — TDD would have prevented it from being committed in the first place.
+
 ## Code Quality
 
 - Always import `HEADING_FONT` from `@/theme/fonts` — never declare local copies. Local constants drift from the source of truth.
@@ -73,7 +78,11 @@
 - The AI is not a feature, it's the platform identity. A crew of specialized agents (Navigator, Engineer, Radio Op, Bosun, Pilot).
 - Phase 1 is infrastructure (Docker, auth, sync, PWA), not UI. Get the plumbing right first.
 - Multi-surface = Docker on the boat + web anywhere + PWA on phone. Like Claude CLI/Desktop/Web.
-- This is 100% free and open source. No commercial model. Remove any premium/paywall language from docs.
+- This is 100% free and open source. No commercial model, ever. NEVER suggest monetization, pricing tiers, paid features, subscription models, or revenue strategies for Above Deck in any document — research, vision, architecture, or otherwise. Analysing competitor pricing is fine for competitive context, but never propose how Above Deck itself could charge money. This has been corrected multiple times.
+
+## Tech Stack
+
+- UI is Tailwind CSS + Ant Design 5 (antd), NOT Mantine or shadcn/ui. Icons are @ant-design/icons. User has changed component library twice — always use the current choice (Ant Design) in all docs and code.
 
 ## User's Editor
 

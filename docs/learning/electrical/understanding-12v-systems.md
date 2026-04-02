@@ -1,0 +1,54 @@
+---
+title: "Understanding 12V Electrical Systems"
+summary: "A practical introduction to the 12V DC electrical system on your boat — how it works, what the key components are, and why it matters for cruising."
+---
+
+## Why 12V Matters on a Boat
+
+Every cruising boat runs on direct current (DC) electricity, typically at 12 volts. This is fundamentally different from the 120V or 240V alternating current (AC) you use at home. Understanding this distinction is the first step to managing your boat's electrical system confidently.
+
+At home, you have an essentially unlimited supply of electricity from the grid. On a boat, every amp-hour is finite. Your battery bank is your reservoir, and everything you run — from navigation lights to the refrigerator compressor — draws from it. Managing that reservoir is one of the most important skills in cruising.
+
+## DC vs. AC: The Basics
+
+**Direct current (DC)** flows in one direction, from the positive terminal of your battery to the negative. This is what your boat's core systems run on: instruments, lights, pumps, radios, and autopilots.
+
+**Alternating current (AC)** oscillates back and forth and is what shore power and generators produce. You may have AC appliances on board (a microwave, air conditioning), but these require either shore power, a generator, or an inverter to convert DC to AC.
+
+Most cruisers aim to minimise AC loads and run as much as possible on DC. It is simpler, more efficient, and does not require running a generator or being plugged in at a marina.
+
+## The Battery Bank
+
+Your battery bank is the heart of the 12V system. There are three common battery chemistries you will encounter:
+
+- **Flooded lead-acid** — The oldest and cheapest option. Requires regular topping up with distilled water and proper ventilation. Typically should only be discharged to 50% state of charge to preserve lifespan.
+- **AGM (Absorbed Glass Mat)** — Sealed, maintenance-free, and more tolerant of deeper discharges. A solid mid-range choice that has been the default for many cruising boats.
+- **Lithium iron phosphate (LiFePO4)** — The modern standard for serious cruisers. Usable capacity is 80-90% of rated capacity, they charge faster, weigh roughly half as much as lead-acid for the same usable energy, and last thousands of cycles. The upfront cost is higher, but the lifetime cost is often lower.
+
+Battery capacity is measured in amp-hours (Ah). A 200Ah lithium bank gives you roughly 180Ah of usable energy. A 200Ah lead-acid bank gives you about 100Ah before you risk shortening its life.
+
+## Charging Sources
+
+Batteries do not fill themselves. On a cruising boat, you typically have three ways to charge:
+
+### Solar Panels
+Solar is the quietest and most hands-off charging source. Panels on an arch, bimini, or deck produce power whenever the sun is out. A well-sized solar array can cover your daily consumption in good conditions, meaning the engine stays off. Expect roughly 4-6 peak sun hours per day in the tropics, less at higher latitudes or in overcast conditions.
+
+### The Engine Alternator
+Your engine's alternator charges the batteries whenever the engine runs. Stock alternators on most sailboat engines are undersized for serious battery charging — often only 50-80 amps. Many cruisers upgrade to a high-output alternator (120-200 amps) with an external smart regulator, which can push significantly more energy into the bank during daily motoring or battery top-up runs.
+
+### Shore Power and Generators
+When plugged in at a marina, a battery charger converts AC shore power to DC and charges your bank. A generator does the same thing but makes its own AC. Most long-term cruisers avoid depending on either, preferring the independence of solar and alternator charging.
+
+## 12V vs. 24V Systems
+
+Larger boats (roughly 45 feet and above) often run 24V systems instead of 12V. The reason is simple physics: at higher voltage, you can push the same power through thinner wires with less loss. A 24V system halves the current for the same wattage, which means smaller wire gauges, less voltage drop over long runs, and lighter cable.
+
+If you are buying or refitting a boat under 40 feet, 12V is the standard and there is no compelling reason to change. Above 45 feet, or if you are building from scratch with high electrical loads, 24V is worth considering.
+
+## Practical Takeaways
+
+- **Know your daily consumption.** Add up the amp-hours each device draws per day. This is the number your charging sources need to replace.
+- **Size your battery bank for your needs.** A common rule of thumb: your usable battery capacity should cover at least two days of consumption without charging, giving you a buffer for cloudy days.
+- **Invest in monitoring.** A battery monitor (like a Victron SmartShunt or similar) tells you exactly how much energy is in your bank and how fast it is being used. Without one, you are guessing.
+- **Keep connections clean and tight.** More electrical problems on boats come from corroded or loose connections than from failed components. Inspect your terminals regularly.

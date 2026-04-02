@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Boat & Equipment — Above Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── Base ─── */
+    html { font-size: 16px; }
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ─── Typography tokens ─── */
+    .font-mono    { font-family: 'Space Mono', monospace; }
+    .font-code    { font-family: 'Fira Code', monospace; }
+    .text-muted   { color: #8b8b9e; }
+    .text-green   { color: #4ade80; }
+    .text-blue    { color: #60a5fa; }
+    .text-coral   { color: #f87171; }
+    .text-sm      { font-size: 12px; }
+    .text-xs      { font-size: 11px; }
+
+    /* ─── Nav ─── */
+    .nav {
+      height: 60px;
+      background: #16213e;
+      border-bottom: 1px solid #2d2d4a;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      gap: 0;
+    }
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 15px;
+      color: #e0e0e0;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .nav-logo span { color: #4ade80; }
+    .nav-links {
+      display: flex;
+      gap: 4px;
+      margin-left: 32px;
+      flex: 1;
+    }
+    .nav-link {
+      font-size: 13px;
+      color: #8b8b9e;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+    .nav-link:hover { color: #e0e0e0; }
+    .nav-link.active {
+      color: #e0e0e0;
+      background: #2d2d4a;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #2d2d4a;
+      border: 1px solid #4ade80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #4ade80;
+      cursor: pointer;
+    }
+    .nav-settings-link {
+      font-size: 12px;
+      color: #8b8b9e;
+      text-decoration: none;
+    }
+
+    /* ─── Page shell ─── */
+    .page-shell {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 24px 120px;
+    }
+
+    /* ─── Breadcrumb ─── */
+    .breadcrumb {
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      color: #8b8b9e;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .breadcrumb a {
+      color: #8b8b9e;
+      text-decoration: none;
+    }
+    .breadcrumb a:hover { color: #60a5fa; }
+    .breadcrumb-sep { color: #2d2d4a; }
+    .breadcrumb-current { color: #e0e0e0; }
+
+    /* ─── Page header ─── */
+    .page-header { margin-bottom: 40px; }
+    .page-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: #e0e0e0;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .page-subtitle {
+      font-size: 14px;
+      color: #8b8b9e;
+      max-width: 520px;
+      line-height: 1.5;
+    }
+
+    /* ─── Section ─── */
+    .section { margin-bottom: 36px; }
+    .section-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8b8b9e;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #2d2d4a;
+    }
+
+    /* ─── Cards / surfaces ─── */
+    .card {
+      background: #16213e;
+      border: 1px solid #2d2d4a;
+      border-radius: 6px;
+      padding: 20px;
+    }
+
+    /* ─── Experience level toggle ─── */
+    .exp-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .exp-btn {
+      background: #16213e;
+      border: 1px solid #2d2d4a;
+      border-radius: 5px;
+      padding: 14px 16px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+    }
+    .exp-btn:hover { border-color: #3d3d5a; }
+    .exp-btn.active-green {
+      border-color: #4ade80;
+      background: rgba(74, 222, 128, 0.04);
+    }
+    .exp-btn.active-blue {
+      border-color: #60a5fa;
+      background: rgba(96, 165, 250, 0.06);
+    }
+    .exp-btn.active-coral {
+      border-color: #f87171;
+      background: rgba(248, 113, 113, 0.04);
+    }
+    .exp-btn-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #e0e0e0;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .exp-btn.active-green .exp-btn-label { color: #4ade80; }
+    .exp-btn.active-blue .exp-btn-label  { color: #60a5fa; }
+    .exp-btn.active-coral .exp-btn-label { color: #f87171; }
+    .exp-btn-desc {
+      font-size: 11px;
+      color: #8b8b9e;
+      line-height: 1.4;
+    }
+    .exp-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+    .active-blue .exp-dot { background: #60a5fa; }
+    .active-green .exp-dot { background: #4ade80; }
+    .active-coral .exp-dot { background: #f87171; }
+
+    /* ─── Form inputs ─── */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .form-row.single { grid-template-columns: 1fr; }
+    .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: #8b8b9e;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .form-input,
+    .form-select {
+      background: #1a1a2e;
+      border: 1px solid #2d2d4a;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #e0e0e0;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .form-input:focus,
+    .form-select:focus { border-color: #60a5fa; }
+    .form-select-wrap {
+      position: relative;
+    }
+    .form-select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #8b8b9e;
+      font-size: 11px;
+      pointer-events: none;
+    }
+    .form-hint {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: #8b8b9e;
+      margin-top: 2px;
+    }
+    .form-hint.green { color: #4ade80; }
+
+    /* ─── Typeahead ─── */
+    .typeahead-wrap { position: relative; }
+    .typeahead-dropdown {
+      position: absolute;
+      top: calc(100% + 3px);
+      left: 0;
+      right: 0;
+      background: #16213e;
+      border: 1px solid #60a5fa;
+      border-radius: 4px;
+      overflow: hidden;
+      z-index: 10;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .typeahead-item {
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #8b8b9e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .typeahead-item:hover { background: #1a1a2e; color: #e0e0e0; }
+    .typeahead-item.selected {
+      background: rgba(96, 165, 250, 0.1);
+      color: #60a5fa;
+    }
+    .typeahead-check {
+      font-size: 11px;
+      color: #60a5fa;
+      margin-left: auto;
+    }
+    .boat-meta {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: rgba(96, 165, 250, 0.06);
+      border: 1px solid rgba(96, 165, 250, 0.15);
+      border-radius: 4px;
+    }
+    .boat-meta-line {
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      color: #8b8b9e;
+      margin-bottom: 4px;
+    }
+    .boat-meta-line:last-child { margin-bottom: 0; }
+    .boat-meta-autofill {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: #4ade80;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .autofill-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #4ade80;
+      flex-shrink: 0;
+    }
+
+    /* ─── Equipment slots ─── */
+    .equipment-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .equip-slot {
+      background: #16213e;
+      border: 1px solid #2d2d4a;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .equip-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      cursor: pointer;
+      gap: 10px;
+      user-select: none;
+      transition: background 0.12s;
+    }
+    .equip-header:hover { background: rgba(255,255,255,0.02); }
+    .equip-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      background: #2d2d4a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .equip-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #e0e0e0;
+      flex-shrink: 0;
+      min-width: 100px;
+    }
+    .equip-summary {
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      color: #8b8b9e;
+      flex: 1;
+    }
+    .equip-summary .configured { color: #60a5fa; }
+    .equip-summary .not-configured { color: #3d3d5a; font-style: italic; }
+    .equip-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+    .add-link {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: #60a5fa;
+      text-decoration: none;
+      border: 1px solid rgba(96,165,250,0.3);
+      padding: 3px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .add-link:hover { background: rgba(96,165,250,0.08); }
+    .chevron {
+      font-size: 10px;
+      color: #8b8b9e;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .chevron.open { transform: rotate(180deg); }
+
+    .equip-body {
+      padding: 0 16px 16px;
+      border-top: 1px solid #2d2d4a;
+    }
+    .equip-body-inner { padding-top: 14px; }
+
+    .equip-note {
+      margin-top: 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: #8b8b9e;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .equip-note::before {
+      content: '//';
+      color: #3d3d5a;
+      flex-shrink: 0;
+    }
+    .equip-autofill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 9px;
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.08);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      padding: 2px 7px;
+      border-radius: 3px;
+      margin-top: 8px;
+    }
+
+    /* ─── Chemistry toggle ─── */
+    .chem-group {
+      display: flex;
+      gap: 6px;
+    }
+    .chem-btn {
+      background: #1a1a2e;
+      border: 1px solid #2d2d4a;
+      border-radius: 4px;
+      padding: 6px 14px;
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      color: #8b8b9e;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .chem-btn.active {
+      border-color: #60a5fa;
+      background: rgba(96,165,250,0.08);
+      color: #60a5fa;
+    }
+    .chem-btn:hover:not(.active) { border-color: #3d3d5a; color: #c0c0cc; }
+
+    /* ─── Add equipment button ─── */
+    .add-equip-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px dashed #2d2d4a;
+      border-radius: 5px;
+      padding: 12px;
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      color: #8b8b9e;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 6px;
+      transition: all 0.15s;
+    }
+    .add-equip-btn:hover {
+      border-color: #60a5fa;
+      color: #60a5fa;
+      background: rgba(96,165,250,0.04);
+    }
+
+    /* ─── Preview / unlock section ─── */
+    .unlock-card {
+      background: #16213e;
+      border: 1px solid #2d2d4a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .unlock-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #2d2d4a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .unlock-desc {
+      padding: 14px 20px;
+      font-size: 12px;
+      color: #8b8b9e;
+      border-bottom: 1px solid #2d2d4a;
+    }
+    .unlock-desc strong { color: #e0e0e0; font-weight: 500; }
+    .article-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: #2d2d4a;
+    }
+    .article-tile {
+      background: #16213e;
+      padding: 12px 14px;
+      transition: background 0.12s;
+      cursor: pointer;
+    }
+    .article-tile:hover { background: #1e2d4e; }
+    .article-tile-icon {
+      font-size: 16px;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .article-tile-title {
+      font-size: 12px;
+      color: #e0e0e0;
+      font-weight: 500;
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+    .article-tile-tags {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: #8b8b9e;
+    }
+    .unlock-footer {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #2d2d4a;
+    }
+    .match-count {
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      color: #4ade80;
+    }
+    .match-total {
+      color: #8b8b9e;
+    }
+    .view-library-link {
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      color: #60a5fa;
+      text-decoration: none;
+      transition: color 0.12s;
+    }
+    .view-library-link:hover { color: #93c5fd; }
+
+    /* ─── Save bar ─── */
+    .save-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #16213e;
+      border-top: 1px solid #2d2d4a;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 20px;
+      z-index: 50;
+    }
+    .save-status {
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      color: #4ade80;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .save-status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #4ade80;
+    }
+    .save-btn {
+      background: #60a5fa;
+      color: #1a1a2e;
+      border: none;
+      border-radius: 5px;
+      padding: 9px 22px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+    .save-btn:hover { background: #93c5fd; }
+    .save-btn:active { transform: scale(0.98); }
+
+    /* ─── Divider ─── */
+    .divider {
+      height: 1px;
+      background: #2d2d4a;
+      margin: 6px 0;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 600px) {
+      .page-shell { padding: 20px 16px 100px; }
+      .nav-links { display: none; }
+      .exp-group { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .form-row.triple { grid-template-columns: 1fr 1fr; }
+      .article-grid { grid-template-columns: repeat(2, 1fr); }
+      .save-bar { padding: 12px 16px; }
+      .equip-name { min-width: 80px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Nav ─── -->
+  <nav class="nav">
+    <span class="nav-logo">ABOVE<span>DECK</span></span>
+    <div class="nav-links">
+      <a href="#" class="nav-link">Knowledge Base</a>
+      <a href="#" class="nav-link">Tools</a>
+      <a href="#" class="nav-link">Community</a>
+      <a href="#" class="nav-link active">Settings</a>
+    </div>
+    <div class="nav-right">
+      <a href="#" class="nav-settings-link font-code text-xs">Settings</a>
+      <div class="avatar">MK</div>
+    </div>
+  </nav>
+
+  <!-- ─── Page ─── -->
+  <main class="page-shell">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="#">Settings</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">My Boat &amp; Equipment</span>
+    </div>
+
+    <!-- Page header -->
+    <div class="page-header">
+      <h1 class="page-title">My Boat &amp; Equipment</h1>
+      <p class="page-subtitle text-muted">Tell us about your boat to get personalized recommendations in the Knowledge Base</p>
+    </div>
+
+    <!-- ─── Experience Level ─── -->
+    <div class="section">
+      <div class="section-label">Experience Level</div>
+      <div class="exp-group">
+        <button class="exp-btn active-green">
+          <div class="exp-dot"></div>
+          <span class="exp-btn-label">Beginner</span>
+          <span class="exp-btn-desc">New to sailing or boat ownership</span>
+        </button>
+        <button class="exp-btn active-blue">
+          <div class="exp-dot"></div>
+          <span class="exp-btn-label">Intermediate</span>
+          <span class="exp-btn-desc">Comfortable with basic systems</span>
+        </button>
+        <button class="exp-btn">
+          <span class="exp-btn-label" style="color:#8b8b9e;">Advanced</span>
+          <span class="exp-btn-desc">Experienced cruiser / liveaboard</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── Boat Model ─── -->
+    <div class="section">
+      <div class="section-label">Boat</div>
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Boat Model</label>
+          <div class="typeahead-wrap">
+            <input class="form-input" type="text" value="Lagoon 42" style="border-color:#60a5fa;">
+            <div class="typeahead-dropdown">
+              <div class="typeahead-item">Lagoon 380</div>
+              <div class="typeahead-item selected">Lagoon 42 <span class="typeahead-check">&#10003;</span></div>
+              <div class="typeahead-item">Lagoon 450</div>
+              <div class="typeahead-item">Lagoon 46</div>
+            </div>
+          </div>
+          <!-- space to push below dropdown -->
+          <div style="margin-top: 136px;">
+            <div class="boat-meta">
+              <div class="boat-meta-line">Selected: <span style="color:#e0e0e0;">Lagoon 42</span> (2016–present) &middot; Catamaran &middot; 42ft</div>
+              <div class="boat-meta-autofill">
+                <span class="autofill-dot"></span>
+                Auto-filled from template: Yanmar 4JH45 engine, 12V system, 200W factory solar
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Installed Equipment ─── -->
+    <div class="section">
+      <div class="section-label">Installed Equipment</div>
+      <div class="equipment-list">
+
+        <!-- Engine — expanded -->
+        <div class="equip-slot">
+          <div class="equip-header">
+            <div class="equip-icon">&#9881;</div>
+            <span class="equip-name">Engine</span>
+            <span class="equip-summary"><span class="configured">Yanmar &middot; 4JH45</span></span>
+            <div class="equip-actions">
+              <span class="chevron open">&#9650;</span>
+            </div>
+          </div>
+          <div class="equip-body">
+            <div class="equip-body-inner">
+              <div class="equip-autofill-badge">
+                <span>&#9670;</span> auto-filled from boat template
+              </div>
+              <div class="form-row" style="margin-top: 12px;">
+                <div class="form-group">
+                  <label class="form-label">Make</label>
+                  <input class="form-input" type="text" value="Yanmar">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Model</label>
+                  <input class="form-input" type="text" value="4JH45">
+                </div>
+              </div>
+              <div class="equip-note">This helps us recommend engine maintenance articles</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Electronics — expanded -->
+        <div class="equip-slot">
+          <div class="equip-header">
+            <div class="equip-icon">&#128225;</div>
+            <span class="equip-name">Electronics</span>
+            <span class="equip-summary"><span class="configured">Raymarine &middot; Axiom+ 9</span></span>
+            <div class="equip-actions">
+              <span class="chevron open">&#9650;</span>
+            </div>
+          </div>
+          <div class="equip-body">
+            <div class="equip-body-inner">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Primary Brand</label>
+                  <div class="form-select-wrap">
+                    <select class="form-select">
+                      <option selected>Raymarine</option>
+                      <option>Garmin</option>
+                      <option>B&amp;G</option>
+                      <option>Simrad</option>
+                      <option>Furuno</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Model (optional)</label>
+                  <input class="form-input" type="text" value="Axiom+ 9">
+                </div>
+              </div>
+              <div class="equip-note">Raymarine articles, NMEA 2000 integration guides</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Solar — expanded -->
+        <div class="equip-slot">
+          <div class="equip-header">
+            <div class="equip-icon">&#9728;</div>
+            <span class="equip-name">Solar</span>
+            <span class="equip-summary"><span class="configured">Victron SmartSolar &middot; 600W</span></span>
+            <div class="equip-actions">
+              <span class="chevron open">&#9650;</span>
+            </div>
+          </div>
+          <div class="equip-body">
+            <div class="equip-body-inner">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Controller Brand</label>
+                  <input class="form-input" type="text" value="Victron">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Controller Model</label>
+                  <input class="form-input" type="text" value="SmartSolar 150/35">
+                </div>
+              </div>
+              <div class="form-row single">
+                <div class="form-group">
+                  <label class="form-label">Total Panel Wattage</label>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <input class="form-input" type="number" value="600" style="max-width:120px;">
+                    <span class="text-muted font-code text-xs">W</span>
+                  </div>
+                </div>
+              </div>
+              <div class="equip-note">Matched to 2 articles about solar sizing and MPPT</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Batteries — expanded -->
+        <div class="equip-slot">
+          <div class="equip-header">
+            <div class="equip-icon">&#128267;</div>
+            <span class="equip-name">Batteries</span>
+            <span class="equip-summary"><span class="configured">Victron LiFePO4 &middot; 400Ah &middot; 12V</span></span>
+            <div class="equip-actions">
+              <span class="chevron open">&#9650;</span>
+            </div>
+          </div>
+          <div class="equip-body">
+            <div class="equip-body-inner">
+              <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label" style="margin-bottom:6px;">Chemistry</label>
+                <div class="chem-group">
+                  <button class="chem-btn">AGM</button>
+                  <button class="chem-btn active">LiFePO4</button>
+                  <button class="chem-btn">Lead Acid</button>
+                </div>
+              </div>
+              <div class="form-row triple">
+                <div class="form-group">
+                  <label class="form-label">Brand</label>
+                  <input class="form-input" type="text" value="Victron">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Total Capacity</label>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <input class="form-input" type="number" value="400">
+                    <span class="text-muted font-code text-xs">Ah</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">System Voltage</label>
+                  <div class="form-select-wrap">
+                    <select class="form-select">
+                      <option selected>12V</option>
+                      <option>24V</option>
+                      <option>48V</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Watermaker — collapsed -->
+        <div class="equip-slot">
+          <div class="equip-header">
+            <div class="equip-icon">&#128167;</div>
+            <span class="equip-name">Watermaker</span>
+            <span class="equip-summary"><span class="configured">Schenker &middot; Zen 30</span></span>
+            <div class="equip-actions">
+              <span class="chevron">&#9650;</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Autopilot — collapsed -->
+        <div class="equip-slot">
+          <div class="equip-header">
+            <div class="equip-icon">&#127745;</div>
+            <span class="equip-name">Autopilot</span>
+            <span class="equip-summary"><span class="configured">Raymarine &middot; EV-200</span></span>
+            <div class="equip-actions">
+              <span class="chevron">&#9650;</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AIS — empty -->
+        <div class="equip-slot">
+          <div class="equip-header">
+            <div class="equip-icon" style="color:#3d3d5a;">&#9783;</div>
+            <span class="equip-name">AIS</span>
+            <span class="equip-summary"><span class="not-configured">Not configured</span></span>
+            <div class="equip-actions">
+              <span class="add-link">+ Add</span>
+              <span class="chevron">&#9650;</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Communication — empty -->
+        <div class="equip-slot">
+          <div class="equip-header">
+            <div class="equip-icon" style="color:#3d3d5a;">&#128251;</div>
+            <span class="equip-name">Communication</span>
+            <span class="equip-summary"><span class="not-configured">Not configured</span></span>
+            <div class="equip-actions">
+              <span class="add-link">+ Add</span>
+              <span class="chevron">&#9650;</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <button class="add-equip-btn">+ Add Other Equipment</button>
+    </div>
+
+    <!-- ─── Profile Unlocks ─── -->
+    <div class="section">
+      <div class="section-label">Your Profile Unlocks</div>
+      <div class="unlock-card">
+        <div class="unlock-desc">
+          Based on your <strong>Lagoon 42</strong> with <strong>Yanmar</strong>, <strong>Victron</strong>, <strong>Raymarine</strong>, and <strong>Schenker</strong> equipment:
+        </div>
+        <div class="article-grid">
+          <div class="article-tile">
+            <span class="article-tile-icon">&#128196;</span>
+            <div class="article-tile-title">Sizing Your Solar System</div>
+            <div class="article-tile-tags text-muted">victron, mppt</div>
+          </div>
+          <div class="article-tile">
+            <span class="article-tile-icon">&#128196;</span>
+            <div class="article-tile-title">Diesel Engine Maintenance</div>
+            <div class="article-tile-tags text-muted">yanmar, diesel</div>
+          </div>
+          <div class="article-tile">
+            <span class="article-tile-icon">&#128196;</span>
+            <div class="article-tile-title">NMEA 2000 Explained</div>
+            <div class="article-tile-tags text-muted">raymarine, nmea-2000</div>
+          </div>
+          <div class="article-tile">
+            <span class="article-tile-icon">&#128196;</span>
+            <div class="article-tile-title">Watermaker Basics</div>
+            <div class="article-tile-tags text-muted">schenker, watermaker</div>
+          </div>
+          <div class="article-tile">
+            <span class="article-tile-icon">&#128196;</span>
+            <div class="article-tile-title">Understanding 12V Systems</div>
+            <div class="article-tile-tags text-muted">battery, solar</div>
+          </div>
+          <div class="article-tile">
+            <span class="article-tile-icon">&#128196;</span>
+            <div class="article-tile-title">Choosing a Boat Computer</div>
+            <div class="article-tile-tags text-muted">docker, 12v</div>
+          </div>
+        </div>
+        <div class="unlock-footer">
+          <span class="match-count">6 <span class="match-total">of 15 articles match your setup</span></span>
+          <a href="#" class="view-library-link">View My Library &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ─── Fixed save bar ─── -->
+  <div class="save-bar">
+    <span class="save-status">
+      <span class="save-status-dot"></span>
+      Last saved: 2 minutes ago
+    </span>
+    <button class="save-btn">Save Equipment Profile</button>
+  </div>
+
+</body>
+</html>

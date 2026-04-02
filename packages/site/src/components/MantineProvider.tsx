@@ -1,6 +1,6 @@
 import { MantineProvider as BaseMantineProvider, ColorSchemeScript } from '@mantine/core';
 import '@mantine/core/styles.css';
-import { theme } from '../theme/theme';
+import { theme } from '@above-deck/shared/theme/theme';
 
 export function MantineProvider({ children }: { children: React.ReactNode }) {
   return (

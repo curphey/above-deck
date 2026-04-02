@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sizing Your Solar System — Knowledge Base — Above Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── Design tokens ─── */
+    :root {
+      --bg:            #1a1a2e;
+      --surface:       #16213e;
+      --surface-2:     #1e2a45;
+      --surface-3:     #243050;
+      --text:          #e0e0e0;
+      --text-muted:    #8b8b9e;
+      --border:        #2d2d4a;
+      --border-subtle: rgba(45, 45, 74, 0.6);
+      --green:         #4ade80;
+      --blue:          #60a5fa;
+      --coral:         #f87171;
+      --font-heading:  'Space Mono', monospace;
+      --font-body:     'Inter', sans-serif;
+      --font-code:     'Fira Code', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+      min-height: 100vh;
+    }
+
+    a { text-decoration: none; color: var(--blue); }
+    a:hover { text-decoration: underline; }
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+
+    /* ─────────────────────────────────────────
+       TOP NAV
+    ───────────────────────────────────────── */
+    .nav {
+      height: 60px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo-mark {
+      width: 26px;
+      height: 26px;
+      border: 1.5px solid var(--blue);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .nav-logo-mark svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--blue);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      list-style: none;
+      flex: 1;
+    }
+
+    .nav-links a {
+      font-size: 0.825rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.12s;
+    }
+
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-links a.active { color: var(--blue); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-left: auto;
+    }
+
+    .nav-avatar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.825rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .avatar-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--surface-3);
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-code);
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: border-color 0.12s;
+    }
+
+    .avatar-circle:hover { border-color: var(--blue); }
+
+    /* ─────────────────────────────────────────
+       PAGE LAYOUT
+    ───────────────────────────────────────── */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ─────────────────────────────────────────
+       BREADCRUMB
+    ───────────────────────────────────────── */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-code);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+      flex-wrap: wrap;
+    }
+
+    .breadcrumb a {
+      color: var(--blue);
+      transition: opacity 0.12s;
+    }
+
+    .breadcrumb a:hover { opacity: 0.8; text-decoration: none; }
+
+    .breadcrumb-sep {
+      color: var(--border);
+      font-size: 0.75rem;
+    }
+
+    .breadcrumb-current {
+      color: var(--text-muted);
+    }
+
+    /* ─────────────────────────────────────────
+       ARTICLE HEADER
+    ───────────────────────────────────────── */
+    .article-meta-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .meta-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    /* Category badge */
+    .badge {
+      font-family: var(--font-code);
+      font-size: 0.625rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 8px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .badge-category {
+      border: 1px solid var(--blue);
+      color: var(--blue);
+      background: rgba(96, 165, 250, 0.06);
+    }
+
+    /* Difficulty badge */
+    .badge-difficulty {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      background: transparent;
+    }
+
+    .difficulty-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    /* Read time */
+    .read-time {
+      font-family: var(--font-code);
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 0;
+    }
+
+    /* Bookmark button area */
+    .bookmark-area {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-bookmark {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-code);
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: var(--blue);
+      background: rgba(96, 165, 250, 0.08);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 4px;
+      padding: 5px 10px;
+      transition: background 0.12s, border-color 0.12s;
+    }
+
+    .btn-bookmark:hover {
+      background: rgba(96, 165, 250, 0.14);
+      border-color: var(--blue);
+    }
+
+    .btn-bookmark svg {
+      width: 13px;
+      height: 13px;
+      fill: var(--blue);
+      stroke: var(--blue);
+      stroke-width: 1.5;
+      flex-shrink: 0;
+    }
+
+    .bookmark-collection {
+      font-family: var(--font-code);
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bookmark-collection-name {
+      color: var(--blue);
+    }
+
+    .btn-add-collection {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      font-family: var(--font-code);
+      transition: border-color 0.12s, color 0.12s;
+      flex-shrink: 0;
+    }
+
+    .btn-add-collection:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* Article title */
+    .article-title {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: clamp(1.25rem, 4vw, 1.75rem);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 0.85rem;
+    }
+
+    /* Article summary */
+    .article-summary {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ─────────────────────────────────────────
+       TAG PILLS
+    ───────────────────────────────────────── */
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 1.75rem;
+    }
+
+    .tag {
+      font-family: var(--font-code);
+      font-size: 0.625rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: border-color 0.12s, color 0.12s, background 0.12s;
+      white-space: nowrap;
+    }
+
+    .tag-prefix {
+      font-size: 0.55rem;
+      opacity: 0.6;
+      letter-spacing: 0.02em;
+    }
+
+    /* Tag type variants */
+    .tag-brand {
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      color: var(--coral);
+      background: rgba(248, 113, 113, 0.05);
+    }
+    .tag-brand:hover {
+      border-color: var(--coral);
+      background: rgba(248, 113, 113, 0.1);
+    }
+
+    .tag-system {
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      color: var(--blue);
+      background: rgba(96, 165, 250, 0.05);
+    }
+    .tag-system:hover {
+      border-color: var(--blue);
+      background: rgba(96, 165, 250, 0.1);
+    }
+
+    .tag-equipment {
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      color: var(--green);
+      background: rgba(74, 222, 128, 0.05);
+    }
+    .tag-equipment:hover {
+      border-color: var(--green);
+      background: rgba(74, 222, 128, 0.1);
+    }
+
+    .tag-topic {
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      background: transparent;
+    }
+    .tag-topic:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: rgba(96, 165, 250, 0.05);
+    }
+
+    /* ─────────────────────────────────────────
+       DIVIDER
+    ───────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
+      opacity: 0.6;
+    }
+
+    /* ─────────────────────────────────────────
+       ARTICLE BODY
+    ───────────────────────────────────────── */
+    .article-body {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .article-body h2 {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin: 2rem 0 0.85rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .article-body p {
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    .article-body p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-family: var(--font-code);
+      font-size: 0.72rem;
+    }
+
+    .data-table th {
+      font-family: var(--font-heading);
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: left;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .data-table td {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    .data-table tr:hover td {
+      background: rgba(96, 165, 250, 0.03);
+    }
+
+    /* Code / formula block */
+    .formula-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--blue);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-family: var(--font-code);
+      font-size: 0.78rem;
+      color: var(--blue);
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+
+    /* Blockquote callout */
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--green);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.9rem;
+      font-style: italic;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .callout::before {
+      content: '"';
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      color: var(--green);
+      opacity: 0.5;
+      display: block;
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+
+    /* ─────────────────────────────────────────
+       ADD TO COLLECTION PANEL
+    ───────────────────────────────────────── */
+    .collection-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+
+    .collection-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    .collection-panel-title {
+      font-family: var(--font-heading);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .collection-panel-toggle {
+      font-family: var(--font-code);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .collection-list {
+      padding: 0.5rem 0;
+    }
+
+    .collection-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.55rem 1.25rem;
+      transition: background 0.1s;
+      cursor: pointer;
+    }
+
+    .collection-item:hover { background: rgba(96, 165, 250, 0.04); }
+
+    .collection-checkbox {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.12s, background 0.12s;
+    }
+
+    .collection-checkbox.checked {
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+
+    .collection-checkbox.checked::after {
+      content: '';
+      width: 8px;
+      height: 5px;
+      border-left: 1.5px solid var(--bg);
+      border-bottom: 1.5px solid var(--bg);
+      transform: rotate(-45deg) translateY(-1px);
+      display: block;
+    }
+
+    .collection-name {
+      font-size: 0.825rem;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .collection-item.active .collection-name { color: var(--blue); }
+
+    .collection-count {
+      font-family: var(--font-code);
+      font-size: 0.6rem;
+      color: var(--text-muted);
+    }
+
+    .collection-panel-footer {
+      padding: 0.65rem 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+    }
+
+    .btn-new-collection {
+      font-family: var(--font-code);
+      font-size: 0.65rem;
+      color: var(--blue);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: opacity 0.12s;
+    }
+
+    .btn-new-collection:hover { opacity: 0.75; text-decoration: none; }
+
+    .btn-done {
+      font-family: var(--font-code);
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: var(--bg);
+      background: var(--blue);
+      border: none;
+      border-radius: 3px;
+      padding: 4px 14px;
+      cursor: pointer;
+      transition: opacity 0.12s;
+    }
+
+    .btn-done:hover { opacity: 0.85; }
+
+    /* ─────────────────────────────────────────
+       RELATED ARTICLES
+    ───────────────────────────────────────── */
+    .related-section {
+      margin-top: 2.5rem;
+    }
+
+    .related-header {
+      margin-bottom: 0.4rem;
+    }
+
+    .related-title {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+
+    .related-subtitle {
+      font-family: var(--font-code);
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .related-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.12s, background 0.12s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .related-card:hover {
+      border-color: rgba(96, 165, 250, 0.4);
+      background: var(--surface-2);
+    }
+
+    .related-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .related-card-title {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: var(--text);
+      line-height: 1.35;
+      flex: 1;
+    }
+
+    .btn-bookmark-sm {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 3px;
+      transition: background 0.12s;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .btn-bookmark-sm:hover { background: rgba(96, 165, 250, 0.1); }
+
+    .btn-bookmark-sm svg {
+      width: 13px;
+      height: 13px;
+      stroke-width: 1.75;
+    }
+
+    .btn-bookmark-sm.outline svg {
+      fill: none;
+      stroke: var(--text-muted);
+    }
+
+    .btn-bookmark-sm.saved svg {
+      fill: var(--blue);
+      stroke: var(--blue);
+    }
+
+    .related-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-code);
+      font-size: 0.6rem;
+      color: var(--text-muted);
+    }
+
+    .meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
+
+    .related-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .tag-mini {
+      font-family: var(--font-code);
+      font-size: 0.575rem;
+      padding: 2px 6px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      background: transparent;
+      transition: border-color 0.1s, color 0.1s;
+    }
+
+    .tag-mini:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* ─────────────────────────────────────────
+       PREV / NEXT NAV
+    ───────────────────────────────────────── */
+    .article-nav {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 2.5rem;
+    }
+
+    .article-nav-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 0.875rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: border-color 0.12s;
+      cursor: pointer;
+    }
+
+    .article-nav-item:hover { border-color: rgba(96, 165, 250, 0.4); }
+
+    .article-nav-item.next { text-align: right; align-items: flex-end; }
+    .article-nav-item.prev { align-items: flex-start; }
+    .article-nav-item.empty { opacity: 0.35; pointer-events: none; }
+
+    .nav-item-label {
+      font-family: var(--font-code);
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .nav-item-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--blue);
+      line-height: 1.3;
+    }
+
+    /* ─────────────────────────────────────────
+       BACK LINK
+    ───────────────────────────────────────── */
+    .back-link {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .back-link a {
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.12s;
+    }
+
+    .back-link a:hover { color: var(--blue); text-decoration: none; }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+
+      .page { padding: 1.5rem 1rem 3rem; }
+
+      .related-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .article-nav {
+        grid-template-columns: 1fr;
+      }
+
+      .article-nav-item.next {
+        text-align: left;
+        align-items: flex-start;
+      }
+
+      .data-table {
+        font-size: 0.65rem;
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .article-meta-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .bookmark-area {
+        align-items: flex-start;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── TOP NAV ─── -->
+  <nav class="nav">
+    <a href="#" class="nav-logo" style="text-decoration:none;">
+      <div class="nav-logo-mark">
+        <svg viewBox="0 0 14 14">
+          <polyline points="2,11 7,3 12,11"/>
+          <line x1="4" y1="8" x2="10" y2="8"/>
+        </svg>
+      </div>
+      Above Deck
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Tools</a></li>
+      <li><a href="#" class="active">Knowledge Base</a></li>
+      <li><a href="#">Community</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-avatar">
+        <div class="avatar-circle">MK</div>
+        Mark
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── PAGE ─── -->
+  <main class="page">
+
+    <!-- ─── BREADCRUMB ─── -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="#">Knowledge Base</a>
+      <span class="breadcrumb-sep">/</span>
+      <a href="#">Electrical Systems</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Sizing Your Solar System</span>
+    </nav>
+
+    <!-- ─── ARTICLE HEADER ─── -->
+    <header>
+      <div class="article-meta-row">
+        <div class="meta-badges">
+          <span class="badge badge-category">Electrical</span>
+          <span class="badge badge-difficulty">
+            <span class="difficulty-dot"></span>
+            Beginner
+          </span>
+          <span class="read-time">&#9202; 5 min read</span>
+        </div>
+
+        <!-- Bookmark (saved state) -->
+        <div class="bookmark-area">
+          <button class="btn-bookmark" aria-label="Saved to collection">
+            <svg viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1h14v18l-7-4-7 4V1z"/>
+            </svg>
+            Saved
+          </button>
+          <div class="bookmark-collection">
+            In:&nbsp;<span class="bookmark-collection-name">Electrical Deep Dive</span>
+            <button class="btn-add-collection" title="Add to another collection">+</button>
+          </div>
+        </div>
+      </div>
+
+      <h1 class="article-title">Sizing Your Solar System</h1>
+
+      <p class="article-summary">How to calculate the right amount of solar panel wattage and battery capacity for your boat, based on what you actually use and where you sail.</p>
+
+      <!-- ─── TAG PILLS ─── -->
+      <div class="tag-row" role="list" aria-label="Article tags">
+        <span class="tag tag-brand" role="listitem">
+          <span class="tag-prefix">b:</span>victron
+        </span>
+        <span class="tag tag-system" role="listitem">
+          <span class="tag-prefix">s:</span>solar
+        </span>
+        <span class="tag tag-equipment" role="listitem">
+          <span class="tag-prefix">e:</span>mppt
+        </span>
+        <span class="tag tag-topic" role="listitem">
+          <span class="tag-prefix">t:</span>peak-sun-hours
+        </span>
+        <span class="tag tag-topic" role="listitem">
+          <span class="tag-prefix">t:</span>energy-audit
+        </span>
+        <span class="tag tag-topic" role="listitem">
+          <span class="tag-prefix">t:</span>pvgis
+        </span>
+      </div>
+    </header>
+
+    <div class="divider"></div>
+
+    <!-- ─── ARTICLE BODY ─── -->
+    <article class="article-body">
+
+      <h2>Start With an Energy Audit</h2>
+
+      <p>Before you can size a solar system, you need to know what you're actually powering. Work through every circuit on your boat and list the wattage of each device alongside a realistic daily run time in hours. Multiply those two numbers to get watt-hours per day per item, then sum the column. Most coastal cruisers land somewhere between 80 and 150 Ah per day at 12 V; bluewater boats with a watermaker, an autopilot running continuously, and a fridge plus a freezer can push past 250 Ah without much effort.</p>
+
+      <p>Measured data is worth far more than estimates. If your boat has a Victron BMV or a Cerbo GX already installed, pull two weeks of history and look at the average daily discharge. That number is your baseline. If you're fitting out a new vessel, use a clamp meter to capture running current on each load. The fifteen minutes you spend on an energy audit will save you from either under-speccing a system that leaves your batteries flat every afternoon or over-speccing one that costs three times what the job needed.</p>
+
+      <h2>Understanding Peak Sun Hours</h2>
+
+      <p>Solar panel ratings are measured at Standard Test Conditions — 1,000 W/m² of irradiance and a cell temperature of 25°C — which rarely match real-world conditions on a pitching deck. What matters for sizing is <em>peak sun hours</em> (PSH): the equivalent number of hours per day at 1,000 W/m² that matches the total daily solar irradiance at your location and time of year. A Mediterranean anchorage in July might deliver 6.5 PSH; a Scottish sea loch in November might scrape 1.5. The European Commission's PVGIS tool lets you enter any latitude and longitude and extract monthly average irradiance data — use it, and size for your worst month, not your best.</p>
+
+      <table class="data-table" aria-label="Peak sun hours by cruising area">
+        <thead>
+          <tr>
+            <th>Cruising Area</th>
+            <th>Peak Sun Hours</th>
+            <th>600 W Panel Daily Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mediterranean (summer)</td>
+            <td>6.0 – 7.0</td>
+            <td>300 – 350 Wh</td>
+          </tr>
+          <tr>
+            <td>Caribbean</td>
+            <td>5.0 – 6.0</td>
+            <td>250 – 300 Wh</td>
+          </tr>
+          <tr>
+            <td>UK / Northern Europe</td>
+            <td>3.0 – 4.5</td>
+            <td>150 – 225 Wh</td>
+          </tr>
+          <tr>
+            <td>Pacific (tropics)</td>
+            <td>5.5 – 6.5</td>
+            <td>275 – 325 Wh</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>The Sizing Formula</h2>
+
+      <div class="formula-block">
+        Required panels (W) = Daily consumption (Wh) ÷ Peak sun hours × 1.3 (derating factor)
+      </div>
+
+      <p>The 1.3 derating factor accounts for real-world losses: MPPT controller efficiency (~97%), wiring resistance, dust and partial shading on the panels, and elevated cell temperatures reducing output by roughly 0.4% per degree above 25°C. For a worked example, a boat consuming 120 Ah/day at 12 V (1,440 Wh) sailing in the Caribbean at 5.5 PSH needs a minimum of 1,440 ÷ 5.5 × 1.3 = 340 W of panel. In practice, fitting 400 W gives comfortable headroom and covers overcast days without needing to run the engine.</p>
+
+      <h2>Battery Bank Sizing</h2>
+
+      <p>Your panels charge your batteries, so the battery bank has to be large enough to absorb peak generation and supply power overnight. A common rule is to size the usable bank at two to three days of consumption. LiFePO4 chemistry allows 80–90% depth of discharge repeatably over 2,000+ cycles, making it the preferred choice for liveaboards despite the higher upfront cost. AGM batteries are limited to around 50% DoD to preserve cycle life, so an equivalent AGM bank must be nearly twice the nominal capacity of a lithium one. Either way, a solar MPPT controller needs to be matched to your panel open-circuit voltage and your battery bank voltage — check the controller's maximum input voltage against your panel string configuration before buying.</p>
+
+      <blockquote class="callout">
+        A good rule of thumb: your usable battery capacity should cover at least two days of consumption without any charging.
+      </blockquote>
+
+    </article>
+
+    <div class="divider"></div>
+
+    <!-- ─── ADD TO COLLECTION PANEL ─── -->
+    <section aria-label="Add to collection">
+      <div class="collection-panel">
+        <div class="collection-panel-header">
+          <span class="collection-panel-title">Add to Collection</span>
+          <span class="collection-panel-toggle">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="2,3 5,7 8,3"/>
+            </svg>
+          </span>
+        </div>
+
+        <div class="collection-list">
+          <div class="collection-item active">
+            <div class="collection-checkbox checked"></div>
+            <span class="collection-name">Electrical Deep Dive</span>
+            <span class="collection-count">14 articles</span>
+          </div>
+          <div class="collection-item">
+            <div class="collection-checkbox"></div>
+            <span class="collection-name">Pre-Departure Checklist</span>
+            <span class="collection-count">8 articles</span>
+          </div>
+          <div class="collection-item">
+            <div class="collection-checkbox"></div>
+            <span class="collection-name">Winter Refit 2026</span>
+            <span class="collection-count">5 articles</span>
+          </div>
+        </div>
+
+        <div class="collection-panel-footer">
+          <a href="#" class="btn-new-collection">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+              <line x1="5" y1="1" x2="5" y2="9"/>
+              <line x1="1" y1="5" x2="9" y2="5"/>
+            </svg>
+            Create new collection
+          </a>
+          <button class="btn-done">Done</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── RELATED ARTICLES ─── -->
+    <section class="related-section" aria-label="Related articles">
+      <div class="related-header">
+        <h2 class="related-title">Related Articles</h2>
+        <div class="related-subtitle">Based on shared tags: victron, solar, electrical</div>
+      </div>
+
+      <div class="related-grid">
+
+        <!-- Card 1 -->
+        <div class="related-card">
+          <div class="related-card-top">
+            <span class="related-card-title">Understanding 12V Electrical Systems</span>
+            <button class="btn-bookmark-sm outline" aria-label="Bookmark this article">
+              <svg viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1h14v18l-7-4-7 4V1z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="related-card-meta">
+            <span>beginner</span>
+            <span class="meta-dot"></span>
+            <span>4 min</span>
+          </div>
+          <div class="related-card-tags">
+            <span class="tag-mini">solar</span>
+            <span class="tag-mini">battery-bank</span>
+            <span class="tag-mini">electrical</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="related-card">
+          <div class="related-card-top">
+            <span class="related-card-title">Choosing a Computer for Your Boat</span>
+            <button class="btn-bookmark-sm outline" aria-label="Bookmark this article">
+              <svg viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1h14v18l-7-4-7 4V1z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="related-card-meta">
+            <span>intermediate</span>
+            <span class="meta-dot"></span>
+            <span>6 min</span>
+          </div>
+          <div class="related-card-tags">
+            <span class="tag-mini">12v</span>
+            <span class="tag-mini">docker</span>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="related-card">
+          <div class="related-card-top">
+            <span class="related-card-title">NMEA 2000 Explained for Cruisers</span>
+            <button class="btn-bookmark-sm saved" aria-label="Saved — click to unsave">
+              <svg viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1h14v18l-7-4-7 4V1z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="related-card-meta">
+            <span>beginner</span>
+            <span class="meta-dot"></span>
+            <span>6 min</span>
+          </div>
+          <div class="related-card-tags">
+            <span class="tag-mini">victron</span>
+            <span class="tag-mini">signalk</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─── PREV / NEXT NAV ─── -->
+    <nav class="article-nav" aria-label="Article navigation">
+      <div class="article-nav-item prev">
+        <span class="nav-item-label">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6,2 2,5 6,8"/>
+          </svg>
+          Previous
+        </span>
+        <span class="nav-item-title">Understanding 12V Electrical Systems</span>
+      </div>
+
+      <div class="article-nav-item next empty" aria-disabled="true">
+        <span class="nav-item-label">
+          Next
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4,2 8,5 4,8"/>
+          </svg>
+        </span>
+        <span class="nav-item-title" style="color: var(--text-muted); font-weight: 400; font-size: 0.75rem; font-style: italic;">Last article in Electrical Systems</span>
+      </div>
+    </nav>
+
+    <!-- ─── BACK LINK ─── -->
+    <div class="back-link">
+      <a href="#">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="7,2 3,6 7,10"/>
+          <line x1="3" y1="6" x2="10" y2="6"/>
+        </svg>
+        Back to Knowledge Base
+      </a>
+    </div>
+
+  </main>
+
+</body>
+</html>
