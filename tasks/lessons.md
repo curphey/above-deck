@@ -30,6 +30,11 @@
 - Variable dependency arrays in `useEffect` cause it to fire every render. Serialize deps with `JSON.stringify` for a stable comparison key.
 - Create Supabase client as a singleton (module-level cache) to avoid re-instantiation on every render.
 
+## KB API Security
+
+- Path traversal prevention: `slug.replace(/\.\./g, '')` leaves multiple slashes (e.g. `../../etc/passwd` → `//etc/passwd`). Must use `/^\/+/` (strip ALL leading slashes), not `/^\//` (strip one). The `startsWith(DOCS_BASE)` check is a safety net, but normalization should be correct too.
+- Writing tests for path validation immediately caught this bug — TDD would have prevented it from being committed in the first place.
+
 ## Code Quality
 
 - Always import `HEADING_FONT` from `@/theme/fonts` — never declare local copies. Local constants drift from the source of truth.
