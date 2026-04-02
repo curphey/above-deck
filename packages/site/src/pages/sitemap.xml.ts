@@ -15,8 +15,8 @@ export async function GET(context: APIContext) {
     .eq('published', true)
     .order('published_at', { ascending: false });
 
-  // Knowledge articles from content collection
-  const knowledgeArticles = await getCollection('knowledge', ({ data }) => !data.draft);
+  // Knowledge articles from docs content collection
+  const knowledgeArticles = await getCollection('docs', ({ data }) => !data.draft);
 
   // Active discussions (non-hidden, updated in last 90 days, at least 1 reply)
   const ninetyDaysAgo = new Date();
@@ -58,7 +58,7 @@ export async function GET(context: APIContext) {
     ...knowledgeArticles.map(
       (article) =>
         `  <url>
-    <loc>${siteUrl}/knowledge/${article.id}</loc>
+    <loc>${siteUrl}/knowledge/${article.id.replace(/\.md$/, '')}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>`,

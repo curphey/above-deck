@@ -1,37 +1,38 @@
 ---
 // ScreenKnowledge.astro — Knowledge Base preview card for landing page
 import { getCollection } from 'astro:content';
+import { prettifyName } from '../../lib/kb';
 
-const articles = await getCollection('knowledge', ({ data }) => !data.draft);
+const allDocs = await getCollection('docs', ({ data }) => !data.draft);
 
-// Category metadata
+// Derive category from entry id (first path segment)
 const categoryLabels: Record<string, { label: string; icon: string; order: number }> = {
-  'electrical': { label: 'Electrical & Power', icon: '⚡', order: 1 },
-  'protocols': { label: 'Protocols & Data', icon: '📡', order: 2 },
-  'navigation': { label: 'Navigation & Charts', icon: '🧭', order: 3 },
-  'weather': { label: 'Weather & Tides', icon: '🌊', order: 4 },
-  'passage': { label: 'Passage & Seamanship', icon: '⛵', order: 5 },
-  'hardware': { label: 'Hardware & Electronics', icon: '🖥️', order: 6 },
-  'market': { label: 'Market & Competitors', icon: '📊', order: 7 },
-  'engineering': { label: 'Platform Engineering', icon: '⚙️', order: 8 },
+  'learning': { label: 'Learning & Guides', icon: '🎓', order: 1 },
+  'research': { label: 'Research', icon: '🔬', order: 2 },
+  'market': { label: 'Market & Competitors', icon: '📊', order: 3 },
+  'product': { label: 'Product', icon: '📐', order: 4 },
+  'engineering': { label: 'Engineering', icon: '⚙️', order: 5 },
 };
 
-// Count articles per category
+// Count articles per category (derived from first path segment)
 const categoryCounts = Object.entries(categoryLabels)
   .map(([key, meta]) => ({
     key,
     ...meta,
-    count: articles.filter(a => a.data.category === key).length,
+    count: allDocs.filter(a => a.id.split('/')[0] === key).length,
   }))
   .filter(c => c.count > 0)
   .sort((a, b) => a.order - b.order);
 
-// Recent articles (by sortOrder descending, take 5)
-const recentArticles = [...articles]
-  .sort((a, b) => b.data.sortOrder - a.data.sortOrder)
-  .slice(0, 5);
+// Recent articles (take 5)
+const recentArticles = allDocs.slice(0, 5).map(a => {
+  const parts = a.id.replace(/\.md$/, '').split('/');
+  const category = parts[0];
+  const title = a.data.title || prettifyName(parts[parts.length - 1]);
+  return { id: a.id.replace(/\.md$/, ''), title, category };
+});
 
-const totalArticles = articles.length;
+const totalArticles = allDocs.length;
 const totalCategories = categoryCounts.length;
 ---
 <div class="screen solar-screen" id="screen-knowledge">
@@ -61,8 +62,8 @@ const totalCategories = categoryCounts.length;
     <div class="kb-recent">
       {recentArticles.map(article => (
         <a href={`/knowledge/${article.id}`} class="kb-recent-row">
-          <span class="kb-recent-title">{article.data.title}</span>
-          <span class="kb-recent-badge">{categoryLabels[article.data.category]?.label.split(' &')[0] || article.data.category}</span>
+          <span class="kb-recent-title">{article.title}</span>
+          <span class="kb-recent-badge">{categoryLabels[article.category]?.label.split(' &')[0] || article.category}</span>
         </a>
       ))}
     </div>
