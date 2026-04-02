@@ -29,7 +29,7 @@ export const POST: APIRoute = async ({ cookies, request }) => {
   }
 
   // Prevent path traversal
-  const normalized = slug.replace(/\.\./g, '').replace(/^\//, '');
+  const normalized = slug.replace(/\.\./g, '').replace(/^\/+/, '');
   const filePath = resolve(DOCS_BASE, `${normalized}.md`);
   if (!filePath.startsWith(DOCS_BASE)) {
     return new Response(JSON.stringify({ error: 'Invalid path' }), {
