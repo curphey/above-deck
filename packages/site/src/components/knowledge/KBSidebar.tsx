@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useAuth } from '../../lib/useAuth';
 import type { KBNode, KBArticle } from '../../lib/kb';
 
 type FilterMode = 'all' | 'learning' | 'building';
@@ -45,6 +46,8 @@ function filterNode(node: KBNode, query: string): KBNode | null {
 }
 
 export default function KBSidebar({ tree, currentSlug }: Props) {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterMode>('all');
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
@@ -121,6 +124,13 @@ export default function KBSidebar({ tree, currentSlug }: Props) {
             </button>
           ))}
         </div>
+
+        {/* New article button for admins */}
+        {isAdmin && (
+          <div className="kb-sidebar-new-wrap">
+            <a href="/knowledge/new" className="kb-sidebar-new-btn">+ New Article</a>
+          </div>
+        )}
 
         {/* Tree */}
         <div className="kb-sidebar-tree">
@@ -266,6 +276,30 @@ const sidebarCSS = `
     background-color: #2d2d3a;
     color: #ffffff;
     border-color: #2d2d3a;
+  }
+
+  .kb-sidebar-new-wrap {
+    padding: 0 12px 8px;
+  }
+
+  .kb-sidebar-new-btn {
+    display: block;
+    width: 100%;
+    padding: 6px 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: #60a5fa;
+    text-align: center;
+    text-decoration: none;
+    border: 1px dashed #60a5fa;
+    border-radius: 4px;
+    transition: background 0.15s;
+    box-sizing: border-box;
+  }
+
+  .kb-sidebar-new-btn:hover {
+    background: rgba(96, 165, 250, 0.06);
   }
 
   .kb-sidebar-tree {
