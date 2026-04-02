@@ -93,224 +93,267 @@ export default function KBSidebar({ tree, currentSlug }: Props) {
   };
 
   return (
-    <nav style={styles.sidebar}>
-      {/* Search */}
-      <div style={styles.searchWrap}>
-        <input
-          type="text"
-          placeholder="Search articles..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={styles.search}
-        />
-      </div>
+    <>
+      <style>{sidebarCSS}</style>
+      <nav className="kb-sidebar">
+        {/* Search */}
+        <div className="kb-sidebar-search-wrap">
+          <input
+            type="text"
+            placeholder="Search articles..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="kb-sidebar-search"
+          />
+        </div>
 
-      {/* Filter pills */}
-      <div style={styles.filterRow}>
-        {(['all', 'learning', 'building'] as FilterMode[]).map((mode: FilterMode) => (
-          <button
-            key={mode}
-            onClick={() => setFilter(mode)}
-            style={{
-              ...styles.pill,
-              ...(filter === mode ? styles.pillActive : {}),
-            }}
-          >
-            {mode === 'all' && 'All'}
-            {mode === 'learning' && '\u{1F393} Learning'}
-            {mode === 'building' && '\u{1F527} Building'}
-          </button>
-        ))}
-      </div>
-
-      {/* Tree */}
-      <div style={styles.tree}>
-        {filteredTree.map((purpose: KBNode) => (
-          <div key={purpose.path}>
-            {/* Purpose header */}
-            <div
-              style={styles.purposeHeader}
-              onClick={() => toggle(purpose.path)}
+        {/* Filter pills */}
+        <div className="kb-sidebar-filter-row">
+          {(['all', 'learning', 'building'] as FilterMode[]).map((mode: FilterMode) => (
+            <button
+              key={mode}
+              onClick={() => setFilter(mode)}
+              className={`kb-sidebar-pill ${filter === mode ? 'kb-sidebar-pill-active' : ''}`}
             >
-              <span style={styles.chevron}>
-                {isExpanded(purpose.path) ? '\u25BE' : '\u25B8'}
-              </span>
-              <span style={styles.purposeIcon}>
-                {PURPOSE_ICONS[purpose.name] || ''}
-              </span>
-              <span>{purpose.label}</span>
-            </div>
+              {mode === 'all' && 'All'}
+              {mode === 'learning' && '\u{1F393} Learning'}
+              {mode === 'building' && '\u{1F527} Building'}
+            </button>
+          ))}
+        </div>
 
-            {isExpanded(purpose.path) && (
-              <div>
-                {/* Root articles (directly under purpose) */}
-                {purpose.articles.map((article: KBArticle) => (
-                  <a
-                    key={article.slug}
-                    href={`/knowledge/${article.slug}`}
-                    style={{
-                      ...styles.articleLink,
-                      paddingLeft: 28,
-                      ...(currentSlug === article.slug
-                        ? styles.articleActive
-                        : {}),
-                    }}
-                  >
-                    {article.title}
-                  </a>
-                ))}
-
-                {/* Topic nodes */}
-                {purpose.children.map((topic: KBNode) => (
-                  <div key={topic.path}>
-                    <div
-                      style={styles.topicHeader}
-                      onClick={() => toggle(topic.path)}
-                    >
-                      <span style={styles.chevronSmall}>
-                        {isExpanded(topic.path) ? '\u25BE' : '\u25B8'}
-                      </span>
-                      <span>{topic.label}</span>
-                    </div>
-
-                    {isExpanded(topic.path) && (
-                      <div>
-                        {topic.articles.map((article: KBArticle) => (
-                          <a
-                            key={article.slug}
-                            href={`/knowledge/${article.slug}`}
-                            style={{
-                              ...styles.articleLink,
-                              ...(currentSlug === article.slug
-                                ? styles.articleActive
-                                : {}),
-                            }}
-                          >
-                            {article.title}
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+        {/* Tree */}
+        <div className="kb-sidebar-tree">
+          {filteredTree.map((purpose: KBNode) => (
+            <div key={purpose.path}>
+              {/* Purpose header */}
+              <div
+                className="kb-sidebar-purpose"
+                onClick={() => toggle(purpose.path)}
+              >
+                <span className="kb-sidebar-chevron">
+                  {isExpanded(purpose.path) ? '\u25BE' : '\u25B8'}
+                </span>
+                <span className="kb-sidebar-purpose-icon">
+                  {PURPOSE_ICONS[purpose.name] || ''}
+                </span>
+                <span>{purpose.label}</span>
               </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </nav>
+
+              {isExpanded(purpose.path) && (
+                <div>
+                  {/* Root articles (directly under purpose) */}
+                  {purpose.articles.map((article: KBArticle) => (
+                    <a
+                      key={article.slug}
+                      href={`/knowledge/${article.slug}`}
+                      className={`kb-sidebar-article kb-sidebar-article-root ${currentSlug === article.slug ? 'kb-sidebar-article-active' : ''}`}
+                    >
+                      {article.title}
+                    </a>
+                  ))}
+
+                  {/* Topic nodes */}
+                  {purpose.children.map((topic: KBNode) => (
+                    <div key={topic.path}>
+                      <div
+                        className="kb-sidebar-topic"
+                        onClick={() => toggle(topic.path)}
+                      >
+                        <span className="kb-sidebar-chevron-sm">
+                          {isExpanded(topic.path) ? '\u25BE' : '\u25B8'}
+                        </span>
+                        <span>{topic.label}</span>
+                      </div>
+
+                      {isExpanded(topic.path) && (
+                        <div>
+                          {topic.articles.map((article: KBArticle) => (
+                            <a
+                              key={article.slug}
+                              href={`/knowledge/${article.slug}`}
+                              className={`kb-sidebar-article ${currentSlug === article.slug ? 'kb-sidebar-article-active' : ''}`}
+                            >
+                              {article.title}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </nav>
+    </>
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  sidebar: {
-    width: 260,
-    minWidth: 260,
-    borderRight: '1px solid #e8e8e8',
-    backgroundColor: '#ffffff',
-    overflowY: 'auto',
-    fontFamily: "'Inter', sans-serif",
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  searchWrap: {
-    padding: '12px 12px 0',
-  },
-  search: {
-    width: '100%',
-    padding: '6px 10px',
-    fontSize: 12,
-    fontFamily: "'Inter', sans-serif",
-    border: '1px solid #e0e0e0',
-    borderRadius: 4,
-    backgroundColor: '#ffffff',
-    color: '#2d2d3a',
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-  },
-  filterRow: {
-    display: 'flex',
-    gap: 4,
-    padding: '8px 12px',
-  },
-  pill: {
-    padding: '3px 8px',
-    fontSize: 10,
-    fontFamily: "'Space Mono', monospace",
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.5px',
-    border: '1px solid #e0e0e0',
-    borderRadius: 10,
-    backgroundColor: '#ffffff',
-    color: '#6b7280',
-    cursor: 'pointer',
-    lineHeight: '1.4',
-  },
-  pillActive: {
-    backgroundColor: '#2d2d3a',
-    color: '#ffffff',
-    borderColor: '#2d2d3a',
-  },
-  tree: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '4px 0',
-  },
-  purposeHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-    padding: '6px 12px',
-    cursor: 'pointer',
-    fontSize: 12,
-    fontWeight: 700,
-    fontFamily: "'Inter', sans-serif",
-    color: '#2d2d3a',
-    userSelect: 'none' as const,
-  },
-  chevron: {
-    fontSize: 10,
-    width: 10,
-    textAlign: 'center' as const,
-    color: '#8b8b9e',
-  },
-  chevronSmall: {
-    fontSize: 9,
-    width: 10,
-    textAlign: 'center' as const,
-    color: '#8b8b9e',
-  },
-  purposeIcon: {
-    fontSize: 13,
-  },
-  topicHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 4,
-    padding: '4px 12px 4px 28px',
-    cursor: 'pointer',
-    fontSize: 11,
-    fontWeight: 600,
-    color: '#4b5563',
-    fontFamily: "'Inter', sans-serif",
-    userSelect: 'none' as const,
-  },
-  articleLink: {
-    display: 'block',
-    padding: '3px 12px 3px 42px',
-    fontSize: 11,
-    color: '#6b7280',
-    textDecoration: 'none',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap' as const,
-    borderLeft: '2px solid transparent',
-    transition: 'all 0.1s',
-  },
-  articleActive: {
-    color: '#2d2d3a',
-    fontWeight: 500,
-    backgroundColor: 'rgba(96, 165, 250, 0.08)',
-    borderLeftColor: '#60a5fa',
-  },
-};
+const sidebarCSS = `
+  .kb-sidebar {
+    width: 260px;
+    min-width: 260px;
+    border-right: 1px solid #e8e8e8;
+    background-color: #ffffff;
+    overflow-y: auto;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .kb-sidebar-search-wrap {
+    padding: 12px 12px 0;
+  }
+
+  .kb-sidebar-search {
+    width: 100%;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: #fafaf8;
+    color: #2d2d3a;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+
+  .kb-sidebar-search:focus {
+    border-color: #60a5fa;
+    background-color: #ffffff;
+  }
+
+  .kb-sidebar-search::placeholder {
+    color: #b0b0b0;
+  }
+
+  .kb-sidebar-filter-row {
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+  }
+
+  .kb-sidebar-pill {
+    padding: 3px 8px;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: #8b8b9e;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: all 0.15s;
+  }
+
+  .kb-sidebar-pill:hover {
+    border-color: #c0c0c0;
+    color: #2d2d3a;
+  }
+
+  .kb-sidebar-pill-active {
+    background-color: #2d2d3a;
+    color: #ffffff;
+    border-color: #2d2d3a;
+  }
+
+  .kb-sidebar-pill-active:hover {
+    background-color: #2d2d3a;
+    color: #ffffff;
+    border-color: #2d2d3a;
+  }
+
+  .kb-sidebar-tree {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0 12px;
+  }
+
+  .kb-sidebar-purpose {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    color: #2d2d3a;
+    user-select: none;
+    transition: background 0.1s;
+  }
+
+  .kb-sidebar-purpose:hover {
+    background: #fafaf8;
+  }
+
+  .kb-sidebar-chevron {
+    font-size: 10px;
+    width: 10px;
+    text-align: center;
+    color: #8b8b9e;
+  }
+
+  .kb-sidebar-chevron-sm {
+    font-size: 9px;
+    width: 10px;
+    text-align: center;
+    color: #8b8b9e;
+  }
+
+  .kb-sidebar-purpose-icon {
+    font-size: 13px;
+  }
+
+  .kb-sidebar-topic {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px 5px 28px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    color: #4b5563;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+    transition: background 0.1s;
+  }
+
+  .kb-sidebar-topic:hover {
+    background: #fafaf8;
+  }
+
+  .kb-sidebar-article {
+    display: block;
+    padding: 4px 12px 4px 42px;
+    font-size: 11px;
+    color: #8b8b9e;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-left: 2px solid transparent;
+    transition: all 0.1s;
+  }
+
+  .kb-sidebar-article-root {
+    padding-left: 28px;
+  }
+
+  .kb-sidebar-article:hover {
+    color: #2d2d3a;
+    background: rgba(96, 165, 250, 0.04);
+  }
+
+  .kb-sidebar-article-active {
+    color: #2d2d3a;
+    font-weight: 500;
+    background: rgba(96, 165, 250, 0.08);
+    border-left-color: #60a5fa;
+  }
+`;
